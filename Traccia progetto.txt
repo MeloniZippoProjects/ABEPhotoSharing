@@ -1,0 +1,18 @@
+ATTRIBUTE-BASED ENCRYPTION
+La Attribute-Based Encryption (ABE) è una forma di crittografia a chiave pubblica in cui tutti possono cifrare ma solo chi possiede determinati attributi può decifrare.
+Al momento della creazione di un crittogramma, questo viene etichettato con un set di attributi.
+Ogni utente ha una chiave privata a cui è associata una politica di accesso, che è una funzione booleana degli attributi formata da operazioni di AND e OR.
+Con una chiave privata è possibile decifrare solo i crittogrammi i cui attributi soddisfano la politica di accesso di quella chiave.
+Una Trusted Third party (TTP) è responsabile della creazione delle chiavi private degli utenti.
+
+I tool che realizzano ABE sono scritti in C e hanno interfaccia da riga di comando (https://github.com/gustybear/kpabe). I tool sono invocabili da riga di comando anche da linguaggi ad alto livello, come C#.
+
+PROGETTO
+Implementare un servizio di photo sharing utilizzando la tecnologia Attribute-Based Encryption.
+Il sistema sarà composto da due componenti: i client e la TTP.
+I client possono scattare una foto e scaricare le foto degli altri client.
+Quando un client scatta una foto, ne specifica gli attributi (es., luogo:Pisa, data:2017-07-18, soggetto:Alice), la cifra con ABE, e infine la carica su uno spazio cloud pubblico (es., una cartella dropbox).
+Quando un client vuole scaricare una foto di un altro client, la scarica dallo spazio cloud e tenta di decifrarla. Se gli attributi della foto soddisfano la politica di accesso associata alla chiave privata del client (es., (luogo:Pisa OR luogo:Massa) AND soggetto:Alice), allora la decifra con successo e la visualizza. Altrimenti, visualizza "access denied".
+All'avvio, il client carica la sua chiave privata (generata in precedenza dalla TTP) da un file.
+
+Sia il client che la TTP sono applicazioni desktop, scritte per esempio in C#.
