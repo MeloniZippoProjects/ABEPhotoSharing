@@ -1,0 +1,46 @@
+SETUP
+- Definire universo degli attributi e generare le chiavi relative
+	
+		kpabe-setup [universo attributi]
+
+	Produce:
+		- pub_key, va consegnata a tutti gli utenti
+		- master_key, deve rimanere in solo possesso del TTP
+
+PER OGNI UTENTE
+- Determinare la politica per cui l'utente dovrebbe avere accesso, e generare la sua chiave privata
+
+		kpabe-keygen [chiave pubblica] [chiave master] [politica]
+
+	Produce
+		- priv_key, che decripta secondo la politica. Va consegnata agli utenti a cui si applica la politica
+
+	
+
+CRIPTAZIONE
+- Criptare il file secondo un insieme di attributi
+	
+		kpabe-enc [chiave pubblica] [file] [lista attributi]
+
+	Produce
+		- [file].kpabe, criptato
+		- rimuove [file]
+
+	Opzioni
+		-k per mantenere il file in chiaro
+		-o per specificare il nome del file di destinazione
+
+	Puo' essere fatto da chiunque 
+		- abbia la chiave pubblica
+		- conosca un sottoinsieme degli attributi validi (eventualmente tutto l'universo)
+
+DECRIPTAZIONE
+- Decriptare il file se i suoi attributi rispettano la politica insita nella chiave privata
+
+		kpabe-dec [chiave pubblica] [chiave privata] [file]
+
+	Produce
+		- [file] decrittato, senza estensione .kpabe
+		- rimuove [file].kpabe
+
+	Puo' essere fatto da chi abbia una chiave privata la cui politica e' soddisfatta dagli attributi del file. Piu' chiavi private possono quindi decrittare lo stesso file crittato con una singola chiave pubblica
