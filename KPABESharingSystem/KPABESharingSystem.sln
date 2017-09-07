@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KPClient", "KPClient\KPClient.csproj", "{729DD943-6FCB-464C-B8A1-62EEC98118D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KPTrustedParty", "KPTrustedParty\KPTrustedParty.csproj", "{98A325C9-DEF2-4465-AA55-068A7E04180A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{729DD943-6FCB-464C-B8A1-62EEC98118D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{729DD943-6FCB-464C-B8A1-62EEC98118D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{729DD943-6FCB-464C-B8A1-62EEC98118D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98A325C9-DEF2-4465-AA55-068A7E04180A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98A325C9-DEF2-4465-AA55-068A7E04180A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98A325C9-DEF2-4465-AA55-068A7E04180A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98A325C9-DEF2-4465-AA55-068A7E04180A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
