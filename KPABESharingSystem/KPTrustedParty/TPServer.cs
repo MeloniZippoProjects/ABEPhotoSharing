@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KPTrustedParty
 {
-    class TPServer
+    partial class TPServer
     {
         static void Main()
         {
@@ -27,6 +27,13 @@ namespace KPTrustedParty
                 string[] args = commandWords.Skip(1).ToArray();
                 switch (commandWords[0])
                 {
+                    case "universeEditor":
+                    case "ue":
+                    {
+                        UniverseEditor();
+                        break;
+                    }
+
                     case "detailUser":
                     case "d":
                     {
