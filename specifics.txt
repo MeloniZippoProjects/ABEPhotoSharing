@@ -1,0 +1,50 @@
+﻿Glossary:
+	universe: set of possible attributes
+	attr_set(X): subset of the universe X, one for each item
+	policy: rules to determine whether an item should be accessed or not
+
+	pub_kp: public key of the kpabe enrcription scheme - unique, public
+	mst_kp: master key of the kpabe enrcription scheme - unique, private to the tp
+	prv_kp: private key of the kpabe enrcription scheme - one for each user, represents the policy, created and privately distributed by the tp
+
+	sym_k: symmetric key used for the item encription
+
+Shared space:
+The shared space is such that all client can access it to upload items and read the ones uploaded.
+The shared space is responsible for the distribution of the content among clients.
+It should protect files from attacks, like anouthorized removal/tampering of the items (write access).
+It does not protect against anouthorized read access to the items (maybe external ones?).
+
+Trusted party:
+It is tasked with handling of the kpabe and symmetric key distribution.
+Clients communicate with it to gain the required keys to access the items' content.
+It also allows administration tasks through a command line interface, which will run concurrently to the client communications.
+It should handle any restructuring consistently, preserving the system functionality. (tampering with the shared space should be avoided)
+
+Client:
+It has access to both the shared space and the tp.
+Keys are obtained by the trusted party. Key caching is possible.
+
+Client-TP communication:
+[SSL + authentication]
+
+TP users and keys handling:
+[Uses kpabe tools for generating them, distributes upon request]
+
+Item encription scheme:
+[chained symmetric encription, using hash to change the key at each step. Symmetric keys are encrypted with kpabe]
+
+TP universe restructuring:
+The TP administration tools allow to edit the universe, adding or removing attributes.
+Naming X the current universe and Y the next one, the restructuring works as follows:
+- Each sym_k has its attr_set(Y) = attr_set(X) ∩ Y.
+	- The new set must be non-empty: the restructuring is thus prohibited if there's at least one sym_key whose attr_set(Y) is empty.
+	- If the restructuring is legal, the tp stops communicating with clients for the duration of the next steps
+- New pub_kp and mst_kp are generated
+- Each sym_k is first decripted within X (using an omnipotent key whose policy is A1|A2|...|AN) and then encrypted in Y with the new attr_set(Y)
+- Each user whose policy contain an attribute member of X but not of Y is invalidated. 
+	- A new policy must be specified for the user before allowing him authentication and key distribution
+	- Cached keys may allow the user to maintain access to items it isn't now allowed to access, so policy downgrade is not secure.
+		- A re-encryption scheme could be introduced in the protocol to invalidate previous symmetric keys. It requires tp write access to the shared space and some kind of locking.
+- All other users have their prv_kp generated within Y
+- The tp then resumes communication, handling the new keys upon request.
