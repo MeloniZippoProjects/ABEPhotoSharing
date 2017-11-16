@@ -5,8 +5,118 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KPClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="KPClient" Height="400" Width="700">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        
+        
+        <ScrollViewer 
+            Grid.Column="0"
+            Grid.Row="0"
+            Margin="5">
+            
+            <ItemsControl Name="SharedArea">
+                
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <StackPanel
+            Grid.Column="1"
+            Grid.Row="0"
+            Margin="5"
+            Orientation="Vertical">
+            
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="4"/>
+                </Style>
+            </StackPanel.Resources>
+            
+            
+            <Button>
+                Aggiungi foto o album
+            </Button>
+
+            <Button>
+                ???
+            </Button>
+
+            <Button>
+                profit
+            </Button>
+        </StackPanel>
+        
+        <StackPanel
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Background="DodgerBlue"
+            Orientation="Horizontal"
+            >
+            
+            <Canvas
+                Height="20"
+                Width="20"
+                VerticalAlignment="Center"
+                >
+                <Ellipse
+                    Name="okLed"
+                    Visibility="Visible"
+                    
+                    Margin="4"
+                    Height="11"
+                    Width="11"
+                    Fill="LightGreen"
+                    Stroke="AliceBlue"
+                    StrokeThickness="1"
+                />
+                
+                <Ellipse
+                    Name="errorLed"
+                    Visibility="Hidden"
+                    
+                    Margin="4"
+                    Height="11"
+                    Width="11"
+                    Fill="DarkRed"
+                    Stroke="AliceBlue"
+                    StrokeThickness="1"
+                />
+                
+                <Ellipse
+                    Name="workingLed"
+                    Visibility="Hidden"
+                    
+                    Margin="4"
+                    Height="11"
+                    Width="11"
+                    Fill="Orange"
+                    Stroke="AliceBlue"
+                    StrokeThickness="1"
+                />
+            </Canvas>
+            
+            <Label 
+                FontSize="10"
+                Padding="0"
+                Foreground="AliceBlue"
+                VerticalAlignment="Center">
+                Va tutto bene
+            </Label>
+            
+            <!-- todo: add expand button and console-like error-log -->
+            
+        </StackPanel>
         
     </Grid>
 </Window>
+
+ 
+
