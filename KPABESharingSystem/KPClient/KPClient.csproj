@@ -93,5 +93,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="kpabe\kpabe-dec.exe" />
+    <Content Include="kpabe\kpabe-enc.exe" />
+    <Content Include="kpabe\kpabe-keygen.exe" />
+    <Content Include="kpabe\kpabe-setup.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
