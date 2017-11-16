@@ -1,0 +1,143 @@
+From:	Marco Rasori <marco.rasori@gmail.com>
+Sent:	giovedì 7 settembre 2017 13.39
+To:	Raffaele Zippo
+Cc:	Pericle Perazzo; Gianluca Dini; Enrico Meloni
+Subject:	Re: Progetto security in C#
+Attachments:	ABE_diagram.pdf
+
+Follow Up Flag:	Follow up
+Flag Status:	Completed
+
+Buongiorno, di seguito proponiamo un'estensione al progetto:
+ 
+Un utente può voler fare l'upload di un certo numero di foto cifrate sotto lo stesso set di attributi. 
+Dato che ABE è computazionalmente pesante, si può pensare di abbinare la tecnica del digital envelope a una one-way hash 
+chain. 
+ 
+1. In questo modo il meccanismo crittografico cifra una chiave simmetrica con KPABE e la foto con una chiave simmetrica K. 
+({K}_KPABE, {foto}_K) 
+ 
+2. Nel caso la successiva foto voglia essere cifrata sotto lo stesso set di attributi, si usa una nuova chiave simmetrica che è il 
+risultato della hash fatta sulla chiave simmetrica utilizzata precedentemente. ({foto}_h(K)})
+ 
+3. Il punto 2 può essere ripetuto più volte e questo va a formare la hash chain.
+ 
+Tale chain può essere interrotta (e il meccanismo deve riniziare dal punto 1) per due motivi: o si vuole cifrare la nuova foto sotto 
+un set di attributi differente dal precedente, oppure la chain ha raggiunto una certa lunghezza arbitraria. 
+ 
+In allegato trovate un diagramma che dovrebbe chiarire eventuali dubbi.
+La gestione e l'organizzazione dei file (e delle chiavi simmetriche cifrate con ABE) viene lasciata allo studente.
+
+ 
+Inoltre: 
+ 
+|Si chiede che le chiavi private e pubbliche siano caricate da file locale: questo significa che non dobbiamo implementare la 
+comunicazione tra client e TTP per la diffusione delle chiavi? 
+    Si crei un canale sicuro tra client e TTP in cui la TTP viene autenticata per mezzo di un certificato che il client già possiede. I 
+client invece si autenticano tramite username e password. 
+     
+|Si chiede che i file siano presenti su cloud: dovremmo quindi supporre di avere una cartella locale sincronizzata tramite un altro 
+programma, per esempio Dropbox, o dovremmo implementare un'interfaccia? 
+    Va bene utilizzare una cartella locale che si sincronizza. 
+ 
+|L'applicazione richiesta dovrebbe essere a finestra o linea di comando? 
+    Finestra
+
+È un problema spostare la call a domani alla stessa ora, sempre che serva dopo questa mail?
+
+Il giorno 5 settembre 2017 18:12, Raffaele Zippo <raffaele.zippo@live.it> ha scritto:
+Va bene, allora giovedì 14:30
+
+ 
+Da: heavymachinegun0@gmail.com <heavymachinegun0@gmail.com> per conto di Pericle Perazzo 
+<pericle.perazzo@iet.unipi.it> 
+Inviato: martedì 5 settembre 2017 17:24 
+A: Raffaele Zippo; Enrico Meloni 
+Cc: Gianluca Dini; Marco Rasori
+ 
+Oggetto: Re: Progetto security in C#
+ 
+No aspetta, mercoledì pomeriggio avevo fissato un'altra riunione. Possiamo fare giovedì pomeriggio 
+stessa ora?
+
+Il 05 set 2017 11:12, "Pericle Perazzo" <pericle.perazzo@iet.unipi.it> ha scritto:
+Ok, allora facciamo domani (mercoledì) alle 14:30. Su skype cercatemi come Pericle Perazzo, sono 
+l'unico.
+
+Il giorno 4 settembre 2017 16:48, Raffaele Zippo <raffaele.zippo@live.it> ha scritto:
+Dai nostri programmi, non prima del 15. Per questo preferiremmo un incontro via Skype se è 
+possibile, per non ritardare troppo.
+
+Raffaele Zippo
+ 
+Da: heavymachinegun0@gmail.com <heavymachinegun0@gmail.com> per conto di Pericle Perazzo 
+<pericle.perazzo@iet.unipi.it> 
+Inviato: lunedì 4 settembre 2017 15:15 
+A: Raffaele Zippo; Enrico Meloni 
+Cc: Marco Rasori; Gianluca Dini 
+Oggetto: Re: Progetto security in C# 
+ 
+Quando contate di tornare a Pisa? Se va bene a voi aspettiamo e facciamo di persona.
+
+Il giorno 4 settembre 2017 14:50, Raffaele Zippo <raffaele.zippo@live.it> ha scritto:
+Possiamo aspettare, ma al momento non siamo ancora a Pisa. Possiamo fissare il colloquio via 
+skype?
+ 
+Raffaele Zippo
+ 
+Da: Pericle Perazzo 
+Inviato: lunedì 4 settembre 2017 11:27 
+A: raffaele.zippo@live.it 
+Cc: Marco Rasori; Gianluca Dini 
+Oggetto: Progetto security in C#
+ 
+Ciao
+Riguardo al progetto di security con attribute-based cryptography, potete aspettare mercoledì 
+che torna dalle ferie il nostro esperto dell'argomento?  
+Possiamo fissare un colloquio mercoledì stesso (pomeriggio) per decidere le specifiche e vedere di 
+ampliarle un po'. 
+
+ 
+-- 
+Pericle Perazzo 
+Researcher 
+Web: http://www.iet.unipi.it/p.perazzo 
+ 
+Department of Information Engineering 
+   University of Pisa 
+   http://dip.iet.unipi.it 
+   Largo Lucio Lazzarino 1, 56122 - Pisa 
+   Room 213 
+   Phone: 050-2217464
+
+ 
+Mail priva di virus. www.avast.com 
+ 
+ 
+ 
+-- 
+Pericle Perazzo 
+Researcher 
+Web: http://www.iet.unipi.it/p.perazzo 
+ 
+Department of Information Engineering 
+   University of Pisa 
+   http://dip.iet.unipi.it 
+   Largo Lucio Lazzarino 1, 56122 - Pisa 
+   Room 213 
+   Phone: 050-2217464
+ 
+ 
+ 
+-- 
+Pericle Perazzo 
+Researcher 
+Web: http://www.iet.unipi.it/p.perazzo 
+ 
+Department of Information Engineering 
+   University of Pisa 
+   http://dip.iet.unipi.it 
+   Largo Lucio Lazzarino 1, 56122 - Pisa 
+   Room 213 
+   Phone: 050-2217464
+
