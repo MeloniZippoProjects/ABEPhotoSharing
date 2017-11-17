@@ -56,7 +56,7 @@
     <Content Include="kpabe\kpabe-setup.exe" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KPService\KPService.csproj">
+    <ProjectReference Include="..\KPService\KPServices.csproj">
       <Project>{6cadb9b7-eaf3-42cb-9c84-1b311f313cce}</Project>
       <Name>KPService</Name>
     </ProjectReference>
