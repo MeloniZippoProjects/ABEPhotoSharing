@@ -16,7 +16,7 @@ namespace KPServices
             }
             set
             {
-                if (value >= (2 ^ (UInt64)NumberResolution))
+                if (value >= Math.Pow(2, NumberResolution))
                     throw new ArgumentOutOfRangeException("value", String.Format("The value {0} can't be stored in {1} bits", value, NumberResolution));
                 number = value;
             }
@@ -43,7 +43,7 @@ namespace KPServices
 
         public override string ToString()
         {
-            return Name + "=" + Number + "#" + NumberResolution;
+            return $"{Name} = # {NumberResolution}";
         }
     }
 }
