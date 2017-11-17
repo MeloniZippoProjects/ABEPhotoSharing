@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace KPServices
 {
@@ -84,20 +82,20 @@ namespace KPServices
         /// <returns>The current universe string</returns>
         public static Universe ReadFromFile(String filename)
         {       
-            using (FileStream universeFile = File.Open(filename, System.IO.FileMode.Open))
+            using (FileStream universeFile = File.Open(filename, FileMode.Open))
             {
                 byte[] universeBytes = new byte[universeFile.Length];
                 using (MemoryStream memStream = new MemoryStream(universeBytes))
                 {
                     universeFile.CopyTo(memStream);
-                    return Universe.FromString(Encoding.UTF8.GetString(memStream.ToArray()));
+                    return FromString(Encoding.UTF8.GetString(memStream.ToArray()));
                 }
             }
         }
 
         public void SaveToFile(String filename)
         {
-            using (FileStream universeFile = File.Open(filename, System.IO.FileMode.OpenOrCreate))
+            using (FileStream universeFile = File.Open(filename, FileMode.OpenOrCreate))
             {
                 long oldLength = universeFile.Length;
                 universeFile.Lock(0, oldLength);

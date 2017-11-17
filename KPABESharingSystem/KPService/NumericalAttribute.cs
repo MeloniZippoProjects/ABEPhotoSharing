@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KPServices
 {
@@ -11,7 +7,7 @@ namespace KPServices
 
     public class NumericalAttribute : UniverseAttribute
     {
-        private UInt64 number = 0;
+        private UInt64 number;
         public UInt64 Number
         {
             get
