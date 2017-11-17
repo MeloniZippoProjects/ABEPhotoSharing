@@ -8,77 +8,98 @@ namespace KPTrustedParty
 {
     partial class TPServer
     {
-
         private static void UniverseEditor()
         {
-            UEHelp();
+            UniverseEditorHelp();
 
-            List<string> universe = new List<string>(); //load it someway
+            List<string> universe = LoadCurrentUniverse();
 
             while (true)
             {
                 Console.Write(">> ");
-                string command = Console.ReadLine();
-                if (command == null)
+                string commandLine = Console.ReadLine();
+                if (commandLine == null)
                     continue;
-                string[] commandWords = command.Split(null);
+                string[] commandWords = commandLine.Split(null);
+                string command = commandWords[0];
                 string[] args = commandWords.Skip(1).ToArray();
-                switch (commandWords[0])
+
+                switch (command)
                 {
                     case "add":
                     case "a":
                     case "+":
-                        {
-                            universe.AddRange(
-                                args.Where(arg => arg != "or" || arg != "and"));
-                            break;
-                        }
+                    {
+                        universe.AddRange(
+                            args.Where(arg => arg != "or" || arg != "and"));
+                        PrintUniverse(universe);
+                        break;
+                    }
 
                     case "remove":
                     case "r":
                     case "-":
-                        {
-                            //Try remove, check validity, then remove
-                            break;
-                        }
+                    {
+                        //todo: Try remove, check validity, then remove
+
+                        PrintUniverse(universe);
+                        break;
+                    }
 
                     case "reload":
-                        {
-                            //Reload to the current universe, discarding changes
-                            break;
-                        }
+                    {
+                        universe = LoadCurrentUniverse();
+                        break;
+                    }
 
                     case "commit":
-                        {
-                            /*
-                             * Make the changes effective. Should be important to make it transanctional so to not break everything
-                             * - Stop communications with clients, so stop giving old keys
-                             * - Compute the new ABE keys
-                             * - For each file, take its symmetric key, decrypt with old abe, encrypt with new abe
-                             * - Invalid user policies when necessary
-                             * - Resume communication like in a fresh start
-                             */
-                            break;
-                        }
+                    {
+                        /* todo: make the changes effective
+                        * Make the changes effective. Should be important to make it transanctional so to not break everything
+                        * - Stop communications with clients, so stop giving old keys
+                        * - Compute the new ABE keys
+                        * - For each file, take its symmetric key, decrypt with old abe, encrypt with new abe
+                        * - Invalid user policies when necessary
+                        * - Resume communication like in a fresh start
+                        */
+                        break;
+                    }
+
+                    case "print":
+                    case "p":
+                    {
+                        PrintUniverse(universe);
+                        break;
+                    }
 
                     case "quit":
-                        {
-                            return;
-                        }
+                    {
+                        return;
+                    }
 
                     case "help":
                     default:
-                        {
-                            UEHelp();
-                            break;
-                        }
+                    {
+                        UniverseEditorHelp();
+                        break;
+                    }
                 }
             }
         }
 
-        private static void UEHelp()
+        private static void UniverseEditorHelp()
         {
-            //Print stuff
+            //todo: print help
+        }
+
+        private static List<String> LoadCurrentUniverse()
+        {
+            //todo: load it someway
+        }
+
+        private static void PrintUniverse(List<string> universe)
+        {
+            //todo: print the current universe
         }
     }
 }
