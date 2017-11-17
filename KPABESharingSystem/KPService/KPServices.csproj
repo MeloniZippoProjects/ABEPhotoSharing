@@ -7,8 +7,8 @@
     <ProjectGuid>{6CADB9B7-EAF3-42CB-9C84-1B311F313CCE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KPService</RootNamespace>
-    <AssemblyName>KPService</AssemblyName>
+    <RootNamespace>KPServices</RootNamespace>
+    <AssemblyName>KPServices</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,8 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Universe.cs" />
+    <Compile Include="UniverseAttribute.cs" />
     <Compile Include="KPService.cs" />
+    <Compile Include="NumericalAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleAttribute.cs" />
+    <Compile Include="UniverseNotDefinedException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
