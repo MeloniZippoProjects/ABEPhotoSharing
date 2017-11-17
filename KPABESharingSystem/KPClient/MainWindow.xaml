@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KPClient"
         mc:Ignorable="d"
-        Title="KPClient" Height="400" Width="700"
+        Title="KPClient" Height="700" Width="1000"
         Loaded="MainWindow_OnLoaded">
     <Grid>
         <Grid.ColumnDefinitions>
