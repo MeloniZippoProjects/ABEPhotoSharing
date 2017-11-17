@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,6 +28,10 @@ namespace KPClient
         {
             InitializeComponent();
             imageItems = new ObservableCollection<ImageItem>();
+            ImagesToUploadControl.ItemsSource = imageItems;
+
+            imageItems.CollectionChanged += UpdateClearAllButtonStatus;
+
 #if DEBUG
             for (int i = 0; i < 100; i++)
             {
@@ -33,17 +39,26 @@ namespace KPClient
                 imageItems.Add(new ImageItem() { ImagePath = "D:\\Users\\Raff\\OneDrive\\Immagini\\maxine.png" });
             }
 #endif
-            ImagesToUploadControl.ItemsSource = imageItems;
+        }
+
+        private void UpdateClearAllButtonStatus(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (imageItems.Count > 0)
+                ClearAllButton.IsEnabled = true;
+            else
+                ClearAllButton.IsEnabled = false;
         }
 
         private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
         {
-            //todo: remove the specific image linked to the button
-
             ImageItemButton clickedButton = sender as ImageItemButton;
             imageItems.Remove(clickedButton.Item);
         }
-        
+
+        private void ClearAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            imageItems.Clear();
+        }
     }
 
     public class ImageItem
