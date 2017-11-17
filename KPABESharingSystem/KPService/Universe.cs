@@ -43,13 +43,15 @@ namespace KPServices
 
             HashSet<UniverseAttribute> attributesSet = new HashSet<UniverseAttribute>();
 
-            foreach(String attributeString in attributesStrings)
+            foreach(String attributeIterator in attributesStrings)
             {
-                Regex regex = new Regex("=");
+                String attributeString = attributeIterator;
                 UniverseAttribute attribute;
-                if (regex.IsMatch(attributeString))
+                if (new Regex("=").IsMatch(attributeString))
                 {
                     //we found a numerical attribute
+                    if (new Regex(@"'[\w'=]+'").IsMatch(attributeString))
+                        attributeString = attributeString.Substring(1, attributeString.Length - 2);
                     String[] sides = attributeString.Split("=".ToCharArray());
                     if(sides.Length != 2)
                     {
@@ -58,7 +60,10 @@ namespace KPServices
                     }
 
                     //only one "=" in string
-                    attribute = new NumericalAttribute(sides[0], Int32.Parse(sides[1]));
+                    if (sides[1] != "")
+                        attribute = new NumericalAttribute(sides[0], UInt64.Parse(sides[1]));
+                    else
+                        attribute = new NumericalAttribute(sides[0]);
                 }
                 else
                 {
