@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Policy.cs" />
+    <Compile Include="PolicyElement.cs" />
     <Compile Include="Universe.cs" />
     <Compile Include="UniverseAttribute.cs" />
     <Compile Include="KPService.cs" />

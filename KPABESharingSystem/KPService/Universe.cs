@@ -22,7 +22,7 @@ namespace KPServices
             String universe = "";
             foreach(UniverseAttribute attribute in Attributes)
             {
-                universe += attribute + " ";
+                universe += "'" + attribute + "' ";
             }
 
             return universe;

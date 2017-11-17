@@ -41,6 +41,10 @@ namespace KPServices
         /// </summary>
         public static String KeygenExe = "kpabe-keygen.exe";
 
+        public static String MasterKey = "master_key";
+
+        public static String PublicKey = "pub_key";
+
         private static Universe universe = null;
 
         public static Universe Universe
@@ -79,13 +83,43 @@ namespace KPServices
             Process kpabeSetupProcess = new Process();
             String pwd = System.IO.Directory.GetCurrentDirectory().ToString();
             kpabeSetupProcess.StartInfo.FileName =filename;
-            Console.WriteLine(kpabeSetupProcess.StartInfo.FileName);
             kpabeSetupProcess.StartInfo.CreateNoWindow = true;
             kpabeSetupProcess.StartInfo.UseShellExecute = false;
             kpabeSetupProcess.StartInfo.Arguments = Universe.ToString();
 
             kpabeSetupProcess.Start();
             kpabeSetupProcess.WaitForExit();
+        }
+
+        public static void Keygen(IEnumerable<PolicyElement> policies, String outputFile = "")
+        {
+            String policyString = "";
+            foreach(PolicyElement policy in policies)
+            {
+                policyString += policy + " ";
+            }
+
+            policyString = policyString.Substring(0, policyString.Length - 1);
+        }
+
+        public static void Keygen(String policyString, String outputFile)
+        {
+            String filename = SuitePath + KeygenExe;
+
+            Process kpabeKeygenProcess = new Process();
+            String pwd = System.IO.Directory.GetCurrentDirectory().ToString();
+            kpabeKeygenProcess.StartInfo.FileName = filename;
+            kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
+            kpabeKeygenProcess.StartInfo.UseShellExecute = false;
+
+            //create argument string and specify output if outputFile is not empty
+            String argumentsString = ((outputFile.Equals("")) ? "" : ("-o " + outputFile));
+            argumentsString += " " + PublicKey + " " + MasterKey + " \"" + policyString + "\"";
+            Console.WriteLine(argumentsString);
+            kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
+
+            kpabeKeygenProcess.Start();
+            kpabeKeygenProcess.WaitForExit();
         }
 
         public static Universe LoadUniverseFromFile()
@@ -98,10 +132,5 @@ namespace KPServices
         {
             universe.SaveToFile(UniverseFilename);
         }
-
-        
-
-
-
     }
 }

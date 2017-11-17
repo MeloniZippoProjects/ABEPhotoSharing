@@ -25,20 +25,24 @@ namespace Tests
 
             KPService.Universe = new Universe(attributes);
 
-            List<Policy> policies = new List<Policy>
+            List<PolicyElement> policies = new List<PolicyElement>
             {
-                new Policy(attributes.ElementAt(0)),
-                new Policy(attributes.ElementAt(1),PolicyType.GreaterThanOrEqual)
+                new PolicyElement(attributes.ElementAt(0)),
+                new PolicyElement(attributes.ElementAt(1),PolicyType.GreaterThanOrEqual)
             };
 
 
-            foreach(Policy policy in policies)
+            foreach(PolicyElement policy in policies)
             {
                 Console.WriteLine(policy);
             }
 
             
-            //KPService.Setup();
+            KPService.Setup();
+
+            Console.WriteLine(KPService.Universe);
+
+            //KPService.Keygen(policies);
 
             //Console.WriteLine();
             return;
