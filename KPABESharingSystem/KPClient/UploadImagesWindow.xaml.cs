@@ -59,6 +59,27 @@ namespace KPClient
         {
             imageItems.Clear();
         }
+
+        private void AddImagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Configure open file dialog box
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Image files(*.jpg, *.jpeg, *.png, *.bmp)|*.jpg; *.jpeg; *.png; *.bmp";
+            openFileDialog.Multiselect = true;
+
+            // Show open file dialog box
+            Nullable<bool> result = openFileDialog.ShowDialog();
+
+            // Process open file dialog box results
+            if (result == true)
+            {
+                // Add selected images
+                foreach (string filename in openFileDialog.FileNames)
+                {
+                    imageItems.Add(new ImageItem() { ImagePath = filename});
+                }
+            }
+        }
     }
 
     public class ImageItem

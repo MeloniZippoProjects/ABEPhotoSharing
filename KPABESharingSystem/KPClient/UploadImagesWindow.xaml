@@ -96,7 +96,7 @@
 
             <Button 
                 Name="AddImagesButton"
-                Grid.Column="0">
+                Grid.Column="0" Click="AddImagesButton_Click">
                 Add images
             </Button>
             <Button 
