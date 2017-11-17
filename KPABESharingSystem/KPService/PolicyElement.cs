@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KPServices
 {
@@ -63,10 +60,7 @@ namespace KPServices
                 //return numericalAttribute.Name + policyComparator + numericalAttribute.Number + "#" + numericalAttribute.NumberResolution;
                 return numericalAttribute.ToString().Replace("=", policyComparator);
             }
-            else
-            {
-                return Attribute.Name;
-            }
+            return Attribute.Name;
         }
     }
 }

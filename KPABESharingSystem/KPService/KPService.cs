@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 
 namespace KPServices
 {
@@ -41,11 +40,17 @@ namespace KPServices
         /// </summary>
         public static String KeygenExe = "kpabe-keygen.exe";
 
+        /// <summary>
+        /// Configurable filename for KPABE master key
+        /// </summary>
         public static String MasterKey = "master_key";
 
+        /// <summary>
+        /// Configurable filename for KPABE public key
+        /// </summary>
         public static String PublicKey = "pub_key";
 
-        private static Universe universe = null;
+        private static Universe universe;
 
         public static Universe Universe
         {
@@ -57,14 +62,11 @@ namespace KPServices
                 }
                 catch(IOException)
                 {
-                    throw new UniverseNotDefinedException(String.Format("Universe is not defined and it cannot be loaded from file {0}", UniverseFilename));
+                    throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniverseFilename");
                 }
 
             }
-            set
-            {
-                universe = value;
-            }
+            set => universe = value;
         }
 
 
@@ -81,8 +83,8 @@ namespace KPServices
             String filename = SuitePath + SetupExe;
 
             Process kpabeSetupProcess = new Process();
-            String pwd = System.IO.Directory.GetCurrentDirectory().ToString();
-            kpabeSetupProcess.StartInfo.FileName =filename;
+            String pwd = Directory.GetCurrentDirectory();
+            kpabeSetupProcess.StartInfo.FileName = filename;
             kpabeSetupProcess.StartInfo.CreateNoWindow = true;
             kpabeSetupProcess.StartInfo.UseShellExecute = false;
             kpabeSetupProcess.StartInfo.Arguments = Universe.ToString();
@@ -107,7 +109,7 @@ namespace KPServices
             String filename = SuitePath + KeygenExe;
 
             Process kpabeKeygenProcess = new Process();
-            String pwd = System.IO.Directory.GetCurrentDirectory().ToString();
+            String pwd = Directory.GetCurrentDirectory();
             kpabeKeygenProcess.StartInfo.FileName = filename;
             kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
             kpabeKeygenProcess.StartInfo.UseShellExecute = false;
