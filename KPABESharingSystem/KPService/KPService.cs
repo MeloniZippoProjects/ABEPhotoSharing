@@ -69,6 +69,16 @@ namespace KPServices
             set => universe = value;
         }
 
+        public static Universe LoadUniverseFromFile()
+        {
+            universe = Universe.ReadFromFile(UniverseFilename);
+            return universe;
+        }
+
+        public static void SaveUniverseToFile()
+        {
+            universe.SaveToFile(UniverseFilename);
+        }
 
         /// <summary>
         /// Setups the KPABE encryption suite by creating the 
@@ -107,7 +117,7 @@ namespace KPServices
         }
         */
 
-        public static void Keygen(String policyString, String outputFile)
+        public static void Keygen(String policy, String outputFile = "")
         {
             String kpabeKeygenPath = SuitePath + KeygenExe;
 
@@ -118,8 +128,8 @@ namespace KPServices
             kpabeKeygenProcess.StartInfo.UseShellExecute = false;
 
             //create argument string and specify output if outputFile is not empty
-            String argumentsString = ((String.IsNullOrEmpty(outputFile)) ? "" : ("-o " + outputFile));
-            argumentsString += " " + PublicKey + " " + MasterKey + " \"" + policyString + "\"";
+            String argumentsString = String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}";
+            argumentsString += $" {PublicKey} {MasterKey} {policy}";
             Console.WriteLine(argumentsString);
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
 
@@ -129,15 +139,24 @@ namespace KPServices
             //todo: any checks for the result?? Errors?
         }
 
-        public static Universe LoadUniverseFromFile()
+        public static void Encrypt(String sourceFilePath, String attributes, bool deleteSourceFile = false, String outputFile = "")
         {
-            universe = Universe.ReadFromFile(UniverseFilename);
-            return universe;
-        }
+            String kpabeEncryptPath = SuitePath + KeygenExe;
 
-        public static void SaveUniverseToFile()
-        {
-            universe.SaveToFile(UniverseFilename);
+            Process kpabeEncryptProcess = new Process();
+            kpabeEncryptProcess.StartInfo.FileName = kpabeEncryptPath;
+            kpabeEncryptProcess.StartInfo.CreateNoWindow = true;
+            kpabeEncryptProcess.StartInfo.UseShellExecute = false;
+
+            String argumentString = ( deleteSourceFile ? "" : "--keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $"--output {outputFile}" );
+            argumentString += $" {PublicKey} {sourceFilePath} {attributes}";
+            Console.WriteLine(argumentString);
+            kpabeEncryptProcess.StartInfo.Arguments = argumentString;
+
+            kpabeEncryptProcess.Start();
+            kpabeEncryptProcess.WaitForExit();
+
+            //todo: any checks for the result?? Errors?
         }
     }
 }
