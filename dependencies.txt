@@ -1,0 +1,5 @@
+What is needed for build:
+autoconf 2.69
+gmp >= 4.0
+glib >= 2.0
+libcelia 
