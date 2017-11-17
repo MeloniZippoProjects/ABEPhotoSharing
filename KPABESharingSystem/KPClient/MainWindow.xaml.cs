@@ -24,5 +24,20 @@ namespace KPClient
         {
             InitializeComponent();
         }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+#if DEBUG
+            OpenUploadImagesWindowButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));    //Force a click() event on the button
+#endif
+        }
+
+        private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var uploadImagesWindow = new UploadImagesWindow();
+            uploadImagesWindow.ShowDialog();
+        }
+
+
     }
 }
