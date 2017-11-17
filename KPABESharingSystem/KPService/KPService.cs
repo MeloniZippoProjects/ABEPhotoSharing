@@ -62,7 +62,7 @@ namespace KPServices
                 }
                 catch(IOException)
                 {
-                    throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniverseFilename");
+                    throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniverseFilename}");
                 }
 
             }
@@ -79,20 +79,22 @@ namespace KPServices
         /// </summary>
         public static void Setup()
         {
-
-            String filename = SuitePath + SetupExe;
+            String kpabeSetupPath = SuitePath + SetupExe;
 
             Process kpabeSetupProcess = new Process();
-            String pwd = Directory.GetCurrentDirectory();
-            kpabeSetupProcess.StartInfo.FileName = filename;
+            //String pwd = Directory.GetCurrentDirectory();
+            kpabeSetupProcess.StartInfo.FileName = kpabeSetupPath;
             kpabeSetupProcess.StartInfo.CreateNoWindow = true;
             kpabeSetupProcess.StartInfo.UseShellExecute = false;
             kpabeSetupProcess.StartInfo.Arguments = Universe.ToString();
 
             kpabeSetupProcess.Start();
             kpabeSetupProcess.WaitForExit();
+
+            //todo: any checks for the result?? Errors?
         }
 
+        /*
         public static void Keygen(IEnumerable<PolicyElement> policies, String outputFile = "")
         {
             String policyString = "";
@@ -103,25 +105,28 @@ namespace KPServices
 
             policyString = policyString.Substring(0, policyString.Length - 1);
         }
+        */
 
         public static void Keygen(String policyString, String outputFile)
         {
-            String filename = SuitePath + KeygenExe;
+            String kpabeKeygenPath = SuitePath + KeygenExe;
 
             Process kpabeKeygenProcess = new Process();
-            String pwd = Directory.GetCurrentDirectory();
-            kpabeKeygenProcess.StartInfo.FileName = filename;
+            //String pwd = Directory.GetCurrentDirectory();
+            kpabeKeygenProcess.StartInfo.FileName = kpabeKeygenPath;
             kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
             kpabeKeygenProcess.StartInfo.UseShellExecute = false;
 
             //create argument string and specify output if outputFile is not empty
-            String argumentsString = ((outputFile.Equals("")) ? "" : ("-o " + outputFile));
+            String argumentsString = ((String.IsNullOrEmpty(outputFile)) ? "" : ("-o " + outputFile));
             argumentsString += " " + PublicKey + " " + MasterKey + " \"" + policyString + "\"";
             Console.WriteLine(argumentsString);
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
 
             kpabeKeygenProcess.Start();
             kpabeKeygenProcess.WaitForExit();
+
+            //todo: any checks for the result?? Errors?
         }
 
         public static Universe LoadUniverseFromFile()
