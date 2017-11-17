@@ -47,7 +47,7 @@ namespace KPServices
 
         public override string ToString()
         {
-            return Name + "=";
+            return Name + "=" + Number + "#" + NumberResolution;
         }
     }
 }

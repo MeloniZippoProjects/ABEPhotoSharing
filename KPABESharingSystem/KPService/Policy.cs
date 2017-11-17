@@ -60,7 +60,8 @@ namespace KPServices
                         break;
                 }
 
-                return numericalAttribute.Name + policyComparator + numericalAttribute.Number + "#" + numericalAttribute.NumberResolution;
+                //return numericalAttribute.Name + policyComparator + numericalAttribute.Number + "#" + numericalAttribute.NumberResolution;
+                return numericalAttribute.ToString().Replace("=", policyComparator);
             }
             else
             {
