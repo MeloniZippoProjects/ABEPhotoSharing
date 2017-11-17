@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,12 +20,12 @@ namespace KPClient
     /// </summary>
     public partial class UploadImagesWindow : Window
     {
-        private List<ImageItem> imageItems;
+        private ObservableCollection<ImageItem> imageItems;
 
         public UploadImagesWindow()
         {
             InitializeComponent();
-            imageItems = new List<ImageItem>();
+            imageItems = new ObservableCollection<ImageItem>();
 #if DEBUG
             for (int i = 0; i < 100; i++)
             {
@@ -38,6 +39,9 @@ namespace KPClient
         private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
         {
             //todo: remove the specific image linked to the button
+
+            ImageItemButton clickedButton = sender as ImageItemButton;
+            imageItems.Remove(clickedButton.Item);
         }
         
     }
@@ -45,5 +49,18 @@ namespace KPClient
     public class ImageItem
     {
         public string ImagePath { get; set; }
+    }
+
+    public class ImageItemButton : Button
+    {
+        public ImageItem Item
+        {
+            get { return (ImageItem)GetValue(ItemProperty); }
+            set { SetValue(ItemProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ItemProperty =
+            DependencyProperty.Register("Item", typeof(ImageItem), typeof(ImageItemButton), null);
     }
 }
