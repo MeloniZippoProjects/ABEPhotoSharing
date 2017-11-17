@@ -10,7 +10,7 @@ namespace KPServices
     public abstract class UniverseAttribute
     {
 
-        private String _Name;
+        private String name;
 
         public UniverseAttribute(String name)
         {
@@ -21,14 +21,14 @@ namespace KPServices
         {
             get
             {
-                return _Name;
+                return name;
             }
             set
             {
                 Regex regex = new Regex("^[a-zA-Z][a-zA-Z0-9_]*$");
                 if (regex.IsMatch(value))
                 {
-                    _Name = value;
+                    name = value;
                 }
                 else
                 {

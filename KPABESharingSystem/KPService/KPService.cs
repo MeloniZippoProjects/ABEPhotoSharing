@@ -41,7 +41,7 @@ namespace KPServices
         /// </summary>
         public static String KeygenExe = "kpabe-keygen.exe";
 
-        private static Universe _Universe = null;
+        private static Universe universe = null;
 
         public static Universe Universe
         {
@@ -49,7 +49,7 @@ namespace KPServices
             {
                 try
                 { 
-                    return _Universe ?? LoadUniverseFromFile();
+                    return universe ?? LoadUniverseFromFile();
                 }
                 catch(IOException)
                 {
@@ -59,7 +59,7 @@ namespace KPServices
             }
             set
             {
-                _Universe = value;
+                universe = value;
             }
         }
 
@@ -90,13 +90,13 @@ namespace KPServices
 
         public static Universe LoadUniverseFromFile()
         {
-            _Universe = Universe.ReadFromFile(UniverseFilename);
-            return _Universe;
+            universe = Universe.ReadFromFile(UniverseFilename);
+            return universe;
         }
 
         public static void SaveUniverseToFile()
         {
-            _Universe.SaveToFile(UniverseFilename);
+            universe.SaveToFile(UniverseFilename);
         }
 
         
