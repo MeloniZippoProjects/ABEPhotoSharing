@@ -4,7 +4,7 @@
     {
         public SimpleAttribute(string name) : base(name){}
 
-        override public string ToString()
+        public override string ToString()
         {
             return Name;
         }

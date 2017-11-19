@@ -7,14 +7,16 @@ namespace KPServices
     public abstract class UniverseAttribute
     {
 
-        private String name;
+        private string name = null;
 
-        public UniverseAttribute(String name)
+        public UniverseAttribute() { }
+
+        public UniverseAttribute(string name)
         {
             Name = name;
         }
 
-        public String Name
+        public string Name
         {
             get
             {
@@ -29,7 +31,7 @@ namespace KPServices
                 }
                 else
                 {
-                    throw new ArgumentException(String.Format("The attribute name must start with a letter " +
+                    throw new ArgumentException(string.Format("The attribute name must start with a letter " +
                         "and must be composed only of letters, digits and underscore. " +
                         "{0} is not a valid name.", value), "value");
                 }

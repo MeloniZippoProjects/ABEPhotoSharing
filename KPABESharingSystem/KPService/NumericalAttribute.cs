@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace KPServices
 {
@@ -7,43 +9,43 @@ namespace KPServices
 
     public class NumericalAttribute : UniverseAttribute
     {
-        private UInt64 number;
-        public UInt64 Number
-        {
-            get
-            {
-                return number;
-            }
-            set
-            {
-                if (value >= Math.Pow(2, NumberResolution))
-                    throw new ArgumentOutOfRangeException("value", String.Format("The value {0} can't be stored in {1} bits", value, NumberResolution));
-                number = value;
-            }
-        }
-        public byte NumberResolution
+        static Regex ValidNumericalAttribute = new Regex(@"^\s*?(?<Name>[a-zA-Z][a-zA-Z0-9_]*)\s*?=\s*?(?:#\s*?(?<Resolution>\d+))?\s*?$");
+
+        public int? NumberResolution
         {
             get;
             set;
-        } = 64;
-
-        public NumericalAttribute(string name) : base(name) {}
-
-        public NumericalAttribute(string name, UInt64 number) : base(name)
+        } = null;
+        
+        public NumericalAttribute(string attributeString)
         {
-            Number = number;
+            var match = ValidNumericalAttribute.Match(attributeString);
+            if (match.Success)
+            {
+                var groups = match.Groups;
+                Debug.Assert(groups.Count <= 3);
+                Debug.Assert(groups["Name"].Success);
+                Name = groups["Name"].Value;
+                Group resolutionGroup = groups["Resolution"];
+                if (resolutionGroup.Success)
+                {
+                    int numberResolution = Int32.Parse(resolutionGroup.Value);
+                    if (numberResolution <= 64)
+                        NumberResolution = numberResolution;
+                    else
+                        throw new ArgumentException($"Attribute {Name}: resolution must be 64 or lower, cannot be {numberResolution}");
+                }
+            }
+            else
+                throw new ArgumentException("Failed to parse as a valid numerical attribute");
         }
-
-        public NumericalAttribute(string name, UInt64 number, byte numberResolution) : base(name)
-        {
-            //the assignments must be in this order to properly check if number can stay in numberResolution bits
-            NumberResolution = numberResolution;
-            Number = number;
-        }
-
+        
         public override string ToString()
         {
-            return $"{Name} = # {NumberResolution}";
+            if (NumberResolution != null)
+                return $"{Name} = # {NumberResolution}";
+            else
+                return $"{Name} =";
         }
     }
 }
