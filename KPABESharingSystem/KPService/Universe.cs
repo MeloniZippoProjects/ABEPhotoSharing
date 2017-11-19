@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -10,15 +11,17 @@ namespace KPServices
     {
         HashSet<UniverseAttribute> Attributes;
 
+        public Universe() { }
+
         public Universe(IEnumerable<UniverseAttribute> attributes)
         {
             Attributes = new HashSet<UniverseAttribute>(attributes);
         }
 
-        override public String ToString()
+        override public string ToString()
         {
-            String universe = "";
-            foreach(UniverseAttribute attribute in Attributes)
+            string universe = "";
+            foreach (UniverseAttribute attribute in Attributes)
             {
                 universe += "'" + attribute + "' ";
             }
@@ -26,61 +29,70 @@ namespace KPServices
             return universe;
         }
 
-        private static Universe FromString(String universe)
+        public bool AddAttribute(UniverseAttribute attribute)
         {
-            //remove starting and trailing spaces
-            universe = universe.Trim();
+            return Attributes.Add(attribute);
+        }
 
-            //remove excess whitespace between attributes
-            universe = new Regex(@"\s+").Replace(universe, " ");
+        public Exception AddAttribute(string attributeString)
+        {
+            UniverseAttribute attributeToAdd = null;
 
-            //remove whitespace between name, number and "=" for numerical attributes
-            universe = new Regex(@"\s*=\s*").Replace(universe, "=");
-
-            String[] attributesStrings = universe.Split(" ".ToCharArray());
-
-            HashSet<UniverseAttribute> attributesSet = new HashSet<UniverseAttribute>();
-
-            foreach(String attributeIterator in attributesStrings)
+            try
             {
-                String attributeString = attributeIterator;
-                UniverseAttribute attribute;
-                if (new Regex("=").IsMatch(attributeString))
-                {
-                    //we found a numerical attribute
-                    if (new Regex(@"'[\w'=]+'").IsMatch(attributeString))
-                        attributeString = attributeString.Substring(1, attributeString.Length - 2);
-                    String[] sides = attributeString.Split("=".ToCharArray());
-                    if(sides.Length != 2)
-                    {
-                        //too many "=" in string, error
-                        throw new ArgumentException(String.Format("Universe syntax error, too many equals in {0}", attributeString), "universe");
-                    }
-
-                    //only one "=" in string
-                    if (sides[1] != "")
-                        attribute = new NumericalAttribute(sides[0], UInt64.Parse(sides[1]));
-                    else
-                        attribute = new NumericalAttribute(sides[0]);
-                }
+                Regex isNumericalAttribute = new Regex("=");
+                if (isNumericalAttribute.IsMatch(attributeString))
+                    attributeToAdd = new NumericalAttribute(attributeString);
                 else
-                {
-                    //we found a simple attribute
-                    attribute = new SimpleAttribute(attributeString);
-                }
+                    attributeToAdd = new SimpleAttribute(attributeString);
 
-                attributesSet.Add(attribute);
+                if(AddAttribute(attributeToAdd))
+                    return null;
+                else
+                    throw new ArgumentNullException($"The attribute {attributeToAdd.Name} is already present.");
+            }
+            catch (Exception ex)
+            {
+                return ex;
+            }
+        }
+
+        public static Universe FromString(string universeString, bool skipInvalidAttributes = true)
+        {
+            Universe universe = new Universe();
+
+            Regex attributeFormat = new Regex("['\"](.+?)['\"]");
+            string[] attributesStrings = attributeFormat.Matches(universeString)
+                                            .Cast<Match>()
+                                            .Select(m => m.ToString())
+                                            .ToArray();
+
+            List<Exception> exceptions = new List<Exception>();
+
+            foreach (string attributeString in attributesStrings)
+            {
+                try
+                {
+                    universe.AddAttribute(attributeString);
+                }
+                catch(Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
             }
 
-            return new Universe(attributesSet);
+            if (!skipInvalidAttributes && exceptions.Count > 0)
+                throw new AggregateException("String contained invalid attributes", exceptions);
+            else
+                return universe;
         }
         
         /// <summary>
-        /// Returns the string to which the universe is set. Reads the file "universe"
+        /// Returns the string to which the universeString is set. Reads the file "universeString"
         /// </summary>
         /// <exception cref="System.IO.IOException">Thrown if file is locked by another thread</exception>
-        /// <returns>The current universe string</returns>
-        public static Universe ReadFromFile(String filename)
+        /// <returns>The current universeString string</returns>
+        public static Universe ReadFromFile(string filename, bool skipInvalidAttributes = true )
         {       
             using (FileStream universeFile = File.Open(filename, FileMode.Open))
             {
@@ -88,12 +100,13 @@ namespace KPServices
                 using (MemoryStream memStream = new MemoryStream(universeBytes))
                 {
                     universeFile.CopyTo(memStream);
-                    return FromString(Encoding.UTF8.GetString(memStream.ToArray()));
+                    string universeString = Encoding.UTF8.GetString(memStream.ToArray());
+                    return FromString(universeString, skipInvalidAttributes);
                 }
             }
         }
 
-        public void SaveToFile(String filename)
+        public void SaveToFile(string filename)
         {
             using (FileStream universeFile = File.Open(filename, FileMode.OpenOrCreate))
             {
