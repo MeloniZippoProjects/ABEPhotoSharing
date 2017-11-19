@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KPTrustedParty
@@ -10,6 +11,7 @@ namespace KPTrustedParty
     {
         private static void UniverseEditor()
         {
+            Console.WriteLine("------- UniverseEditor -------");
             UniverseEditorHelp();
 
             List<string> universe = LoadCurrentUniverse();
@@ -20,9 +22,14 @@ namespace KPTrustedParty
                 string commandLine = Console.ReadLine();
                 if (commandLine == null)
                     continue;
-                string[] commandWords = commandLine.Split(null);
-                string command = commandWords[0];
-                string[] args = commandWords.Skip(1).ToArray();
+
+                Regex argumentFormat = new Regex("['\"](?<attribute>.+?)['\"]");
+                string command = commandLine.Split(null)[0];
+                string[] arguments = argumentFormat.Matches(commandLine).Cast<Match>()
+                                     .Select(match => match.Groups["attribute"])
+                                     .First().Captures.Cast<Capture>()
+                                     .Select(capture => capture.Value)
+                                     .ToArray();
 
                 switch (command)
                 {
@@ -30,9 +37,11 @@ namespace KPTrustedParty
                     case "a":
                     case "+":
                     {
-                        universe.AddRange(
-                            args.Where(arg => arg != "or" || arg != "and"));
-                        PrintUniverse(universe);
+                        foreach (string argument in arguments)
+                        {
+                            //TODO: continue implementation
+                        }
+
                         break;
                     }
 
@@ -89,12 +98,24 @@ namespace KPTrustedParty
 
         private static void UniverseEditorHelp()
         {
-            //todo: print help
+            Console.WriteLine(
+            @"The UniverseEditor tool is intended to define the KP attribute universe in a safe way.
+            It checks existing data and avoids conflicts before committing the changes. 
+            Until commit, all changes are on a temporary universe and do not interfere with the existing universe.
+            In the following text, curly brackets {} contain aliases for the command. 
+            For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
+
+                {add, a, +} attribute1 attribute2 ...
+                    Adds the listed attributes 
+            "
+            //todo: continue writing the help
+                );
         }
 
-        private static List<String> LoadCurrentUniverse()
+        private static List<string> LoadCurrentUniverse()
         {
             //todo: load it someway
+            return new List<string>();
         }
 
         private static void PrintUniverse(List<string> universe)

@@ -4,106 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using KPServices;
+
 namespace KPTrustedParty
 {
     partial class TPServer
     {
+       
         static void Main()
         {
+            InitializeKPABE();
             //Initialize server component: async tasks or threads?
 
             commandLineLoop();
         }
 
-        private static void commandLineLoop()
+        private static void InitializeKPABE()
         {
-            while (true)
+            KPService.SuitePath = @"./kpabe/bin";
+            KPService.UniversePath = @"./kpabe/universe";
+
+            bool universeCheck = false;
+
+            while(!universeCheck)
             {
-                Console.Write("> ");
-                string command = Console.ReadLine();
-                if(command == null)
-                    continue;
-                string[] commandWords = command.Split(null);
-                string[] args = commandWords.Skip(1).ToArray();
-                switch (commandWords[0])
+                try
                 {
-                    case "universeEditor":
-                    case "ue":
-                    {
-                        UniverseEditor();
-                        break;
-                    }
+                    Universe universe = KPService.Universe;
+                    universeCheck = true;
+                }
+                catch(UniverseNotDefinedException ex)
+                {
+                    Console.WriteLine($"WARNING: {ex.Message}");
+                    Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");
 
-                    case "detailUser":
-                    case "d":
-                    {
-                        if (!argumentCountCheck(args, 1))
-                            break;
-                        string username = args[0];
-
-                        //List data and stats for the user
-
-                        break;
-                    }
-
-                    case "listUsers":
-                    case "l":
-                    {
-                        //List users from database
-                        //Good idea?
-
-                        break;
-                    }
-
-                    case "registerUser":
-                    case "r":
-                    {
-                        if (!argumentCountCheck(args, 2))
-                                break;
-                        string username = args[0];
-                        string password = args[1];
-                        
-                        //Register user in database (salted hash)
-
-                        break;
-                    }
-
-                    case "setPolicy":
-                    case "s":
-                    {
-                        if (!argumentCountCheck(args, 2))
-                            break;
-                        string username = args[0];
-                        string policy = string.Join(" ", args.Skip(1));
-
-                        //Set policy for the user and generate its keys
-
-                        break;
-                    }
-
-                    case "help":
-                    default:
-                    {
-                        displayHelp();
-                        break;
-                    }
+                    UniverseEditor();
                 }
             }
-        }
 
-        private static bool argumentCountCheck(string[] args, int required)
-        {
-            if (args.Length < required)
-            {
-                Console.WriteLine("Not enough arguments");
-                return false;
-            }
-            return true;
-        }
-
-        private static void displayHelp()
-        {
-            throw new NotImplementedException();
+            //TODO: check for master and public key existance, generate them otherwise. Use toy encryption/decription for the test
         }
     }
 }
