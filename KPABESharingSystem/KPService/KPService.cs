@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace KPServices
 {
@@ -79,6 +80,13 @@ namespace KPServices
             universe.SaveToFile(UniversePath);
         }
 
+        private static void PrepareStartInfo(ProcessStartInfo startInfo)
+        {
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+        }
+
         /// <summary>
         /// Setups the KPABE encryption suite by creating the 
         /// master key and the public key.
@@ -91,20 +99,25 @@ namespace KPServices
             String kpabeSetupPath = SuitePath + SetupExe;
 
             Process kpabeSetupProcess = new Process();
-            //String pwd = Directory.GetCurrentDirectory();
             kpabeSetupProcess.StartInfo.FileName = kpabeSetupPath;
-            //kpabeSetupProcess.StartInfo.CreateNoWindow = true;
-            kpabeSetupProcess.StartInfo.UseShellExecute = false;
-            kpabeSetupProcess.StartInfo.Arguments = Universe.ToString();
-            kpabeSetupProcess.StartInfo.RedirectStandardOutput = true;
+            PrepareStartInfo(kpabeSetupProcess.StartInfo);
 
-            Console.WriteLine(Universe.ToString());
+            try
+            {
+                kpabeSetupProcess.Start();
+            }
+            catch(System.ComponentModel.Win32Exception)
+            {
+                throw new SuiteExeNotFound($"Cannot find {SuitePath}{SetupExe}");
+            }
 
-            kpabeSetupProcess.Start();
-            string stdout = kpabeSetupProcess.StandardOutput.ReadToEnd();
+            String stderr = kpabeSetupProcess.StandardOutput.ReadToEnd();
             kpabeSetupProcess.WaitForExit();
 
-            Console.WriteLine(stdout);
+
+            if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 1)
+                throw new SuiteErrorException("Error during KPABE Setup");
+            
             //todo: any checks for the result?? Errors?
         }
 
@@ -128,21 +141,39 @@ namespace KPServices
             Process kpabeKeygenProcess = new Process();
             //String pwd = Directory.GetCurrentDirectory();
             kpabeKeygenProcess.StartInfo.FileName = kpabeKeygenPath;
-            //kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
-            kpabeKeygenProcess.StartInfo.UseShellExecute = false;
-            kpabeKeygenProcess.StartInfo.RedirectStandardOutput = true;
+            PrepareStartInfo(kpabeKeygenProcess.StartInfo);
 
             //create argument string and specify output if outputFile is not empty
             String argumentsString = String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}";
             argumentsString += $" {PublicKey} {MasterKey} {policy}";
-            Console.WriteLine(argumentsString);
+            //Console.WriteLine(argumentsString);
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
-            
-            kpabeKeygenProcess.Start();
-            String stdout = kpabeKeygenProcess.StandardOutput.ReadToEnd();
+
+            try
+            {
+                kpabeKeygenProcess.Start();
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                throw new SuiteExeNotFound($"Cannot find {SuitePath}{SetupExe}");
+            }
+
+            String stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
             kpabeKeygenProcess.WaitForExit();
 
-            Console.WriteLine(stdout);
+            if (new Regex("unsatisfiable integer comparison").IsMatch(stderr))
+                throw new UnsatisfiablePolicyException(stderr);
+
+            if (new Regex("trivially satisfied integer comparison").IsMatch(stderr))
+                throw new UnsatisfiablePolicyException(stderr);
+
+            if (new Regex("Check your attribute universe").IsMatch(stderr))
+                throw new AttributeNotFoundException(stderr);
+
+            if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
+                throw new SuiteErrorException("Error during KPABE Setup");
+
+            Console.WriteLine(stderr);
             //todo: any checks for the result?? Errors?
         }
 

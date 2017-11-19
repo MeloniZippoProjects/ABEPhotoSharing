@@ -40,9 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributeNotFoundException.cs" />
     <Compile Include="Policy.cs" />
     <Compile Include="PolicyElement.cs" />
-    <Compile Include="SuiteExecutionException.cs" />
+    <Compile Include="SuiteErrorException.cs" />
+    <Compile Include="SuiteExeNotFound.cs" />
     <Compile Include="Universe.cs" />
     <Compile Include="UniverseAttribute.cs" />
     <Compile Include="KPService.cs" />
@@ -50,6 +52,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleAttribute.cs" />
     <Compile Include="UniverseNotDefinedException.cs" />
+    <Compile Include="UnsatisfiablePolicyException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
