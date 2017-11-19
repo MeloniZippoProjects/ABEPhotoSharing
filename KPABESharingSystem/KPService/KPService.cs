@@ -13,7 +13,7 @@ namespace KPServices
         /// <summary>
         /// Configurable name for universe file
         /// </summary>
-        public static String UniverseFilename = "universe";
+        public static String UniversePath = "universe";
         
         /// <summary>
         /// Configurable path for the KPABE suite
@@ -62,7 +62,7 @@ namespace KPServices
                 }
                 catch(IOException)
                 {
-                    throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniverseFilename}");
+                    throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniversePath}");
                 }
             }
             set => universe = value;
@@ -70,13 +70,13 @@ namespace KPServices
 
         public static Universe LoadUniverseFromFile()
         {
-            universe = Universe.ReadFromFile(UniverseFilename);
+            universe = Universe.ReadFromFile(UniversePath);
             return universe;
         }
 
         public static void SaveUniverseToFile()
         {
-            universe.SaveToFile(UniverseFilename);
+            universe.SaveToFile(UniversePath);
         }
 
         /// <summary>

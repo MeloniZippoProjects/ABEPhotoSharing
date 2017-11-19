@@ -2,7 +2,7 @@
 
 namespace KPServices
 {
-    class UniverseNotDefinedException : Exception
+    public class UniverseNotDefinedException : Exception
     {
         public UniverseNotDefinedException()
         { }
