@@ -15,16 +15,18 @@ namespace Tests
 
             //KPService.UniverseFilename = "universe2";
             //KPService.SuitePath = @"D:\Documenti\GitHub\ABEPhotoSharing\KPABESharingSystem\Tests\bin\Debug\kpabe\";
-            KPService.SuitePath = @"D:\Users\Raff\Documents\GitHub\ABEPhotoSharing\bin\";
+            //KPService.SuitePath = @"D:\Users\Raff\Documents\GitHub\ABEPhotoSharing\bin\";
+            
 
             List<UniverseAttribute> attributes = new List<UniverseAttribute>
             {
                 new SimpleAttribute("canide"),
-                new NumericalAttribute("eta", 18, 12),
+                new NumericalAttribute("eta", 2, 3),
                 new SimpleAttribute("cosi")
             };
 
             KPService.Universe = new Universe(attributes);
+            KPService.SaveUniverseToFile();
 
             /*
             List<PolicyElement> policies = new List<PolicyElement>
@@ -41,7 +43,7 @@ namespace Tests
             */
             
             KPService.Setup();
-            KPService.Keygen("'cosi or eta > 18 # 12'", "priv_key");
+            KPService.Keygen("'cosid or eta < 5 # 3'", "priv_key");
             KPService.Encrypt("prova", "'canide' 'eta = 24 # 12'", false, "prova.encrypted");
             KPService.Decrypt("prova.encrypted", "priv_key", false, "prova.decrypted");
 
