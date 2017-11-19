@@ -1,6 +1,12 @@
 [submodule "kpabe"]
 	path = kpabe
 	url = git@github.com:MeloniZippoProjects/kpabe.git
-[submodule "libcelia"]
+[submodule "open_ssl"]
+	path = open_ssl
+	url = git@github.com:openssl/openssl.git
+[submodule "flex"]
+	path = flex
+	url = git@github.com:westes/flex.git
+[submodule "lib-celia"]
 	path = libcelia
-	url = git@github.com:gustybear/libcelia.git
+	url = git@github.com:MeloniZippoProjects/libcelia.git
