@@ -55,6 +55,7 @@ namespace Tests
                 "     eta          =          #            25         ",
 
                 //NOT OK
+                "and =",
                 "eta",
                 "eta = #",
                 "eta = 24 # 12",

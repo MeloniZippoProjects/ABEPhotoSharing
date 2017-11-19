@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace KPServices
@@ -6,6 +7,8 @@ namespace KPServices
     
     public abstract class UniverseAttribute
     {
+        static Regex ValidName = new Regex("^[a-zA-Z][a-zA-Z0-9_]*$");
+        static string[] keywords = { "and", "or", "of" };
 
         private string name = null;
 
@@ -24,20 +27,21 @@ namespace KPServices
             }
             set
             {
-                Regex regex = new Regex("^[a-zA-Z][a-zA-Z0-9_]*$");
-                if (regex.IsMatch(value))
+                if (ValidName.IsMatch(value))
                 {
-                    name = value;
+                    if(!keywords.Contains(value))
+                        name = value;
+                    else
+                        throw new ArgumentException("The attribute name cannot be a keyword. Keywords are 'and', 'or' and 'of'");
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format("The attribute name must start with a letter " +
+                    throw new ArgumentException("The attribute name must start with a letter " +
                         "and must be composed only of letters, digits and underscore. " +
-                        "{0} is not a valid name.", value), "value");
+                        $"{value} is not a valid name.");
                 }
             }
         }
-
 
         abstract override public String ToString();
     }
