@@ -64,7 +64,6 @@ namespace KPServices
                 {
                     throw new UniverseNotDefinedException($"Universe is not defined and it cannot be loaded from file {UniverseFilename}");
                 }
-
             }
             set => universe = value;
         }
@@ -94,13 +93,18 @@ namespace KPServices
             Process kpabeSetupProcess = new Process();
             //String pwd = Directory.GetCurrentDirectory();
             kpabeSetupProcess.StartInfo.FileName = kpabeSetupPath;
-            kpabeSetupProcess.StartInfo.CreateNoWindow = true;
+            //kpabeSetupProcess.StartInfo.CreateNoWindow = true;
             kpabeSetupProcess.StartInfo.UseShellExecute = false;
             kpabeSetupProcess.StartInfo.Arguments = Universe.ToString();
+            kpabeSetupProcess.StartInfo.RedirectStandardOutput = true;
+
+            Console.WriteLine(Universe.ToString());
 
             kpabeSetupProcess.Start();
+            string stdout = kpabeSetupProcess.StandardOutput.ReadToEnd();
             kpabeSetupProcess.WaitForExit();
 
+            Console.WriteLine(stdout);
             //todo: any checks for the result?? Errors?
         }
 
@@ -124,37 +128,68 @@ namespace KPServices
             Process kpabeKeygenProcess = new Process();
             //String pwd = Directory.GetCurrentDirectory();
             kpabeKeygenProcess.StartInfo.FileName = kpabeKeygenPath;
-            kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
+            //kpabeKeygenProcess.StartInfo.CreateNoWindow = true;
             kpabeKeygenProcess.StartInfo.UseShellExecute = false;
+            kpabeKeygenProcess.StartInfo.RedirectStandardOutput = true;
 
             //create argument string and specify output if outputFile is not empty
             String argumentsString = String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}";
             argumentsString += $" {PublicKey} {MasterKey} {policy}";
             Console.WriteLine(argumentsString);
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
-
+            
             kpabeKeygenProcess.Start();
+            String stdout = kpabeKeygenProcess.StandardOutput.ReadToEnd();
             kpabeKeygenProcess.WaitForExit();
 
+            Console.WriteLine(stdout);
             //todo: any checks for the result?? Errors?
         }
 
         public static void Encrypt(String sourceFilePath, String attributes, bool deleteSourceFile = false, String outputFile = "")
         {
-            String kpabeEncryptPath = SuitePath + KeygenExe;
+            String kpabeEncryptPath = SuitePath + EncryptExe;
 
             Process kpabeEncryptProcess = new Process();
             kpabeEncryptProcess.StartInfo.FileName = kpabeEncryptPath;
-            kpabeEncryptProcess.StartInfo.CreateNoWindow = true;
+            //kpabeEncryptProcess.StartInfo.CreateNoWindow = true;
             kpabeEncryptProcess.StartInfo.UseShellExecute = false;
+            kpabeEncryptProcess.StartInfo.RedirectStandardOutput = true;
 
-            String argumentString = ( deleteSourceFile ? "" : "--keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $"--output {outputFile}" );
+            String argumentString = ( deleteSourceFile ? "" : " --keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}" );
             argumentString += $" {PublicKey} {sourceFilePath} {attributes}";
             Console.WriteLine(argumentString);
             kpabeEncryptProcess.StartInfo.Arguments = argumentString;
 
             kpabeEncryptProcess.Start();
+            String stdout = kpabeEncryptProcess.StandardOutput.ReadToEnd();
             kpabeEncryptProcess.WaitForExit();
+
+            Console.WriteLine(stdout);
+
+            //todo: any checks for the result?? Errors?
+        }
+
+        public static void Decrypt(String sourceFilePath, String privateKeyFilePath, bool deleteSourceFile = false, String outputFile = "")
+        {
+            String kpabeDecryptPath = SuitePath + DecryptExe;
+
+            Process kpabeDecryptProcess = new Process();
+            kpabeDecryptProcess.StartInfo.FileName = kpabeDecryptPath;
+            //kpabeDecryptProcess.StartInfo.CreateNoWindow = true;
+            kpabeDecryptProcess.StartInfo.UseShellExecute = false;
+            kpabeDecryptProcess.StartInfo.RedirectStandardOutput = true;
+
+            String argumentString = (deleteSourceFile ? "" : " --keep-input-file") + (String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}");
+            argumentString += $" {PublicKey} {privateKeyFilePath} {sourceFilePath}";
+            Console.WriteLine(argumentString);
+            kpabeDecryptProcess.StartInfo.Arguments = argumentString;
+
+            kpabeDecryptProcess.Start();
+            String stdout = kpabeDecryptProcess.StandardOutput.ReadToEnd();
+            kpabeDecryptProcess.WaitForExit();
+
+            Console.WriteLine(stdout);
 
             //todo: any checks for the result?? Errors?
         }
