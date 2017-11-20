@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -39,9 +40,13 @@ namespace KPServices
             return universe;
         }
 
-        public bool AddAttribute(UniverseAttribute attribute)
+        public bool AddAttribute(UniverseAttribute attributeToAdd)
         {
-            return Attributes.Add(attribute);
+            if (Attributes.Any(
+                attribute => attribute.Name.Equals(attributeToAdd.Name)))
+                return false;
+            else
+                return Attributes.Add(attributeToAdd);
         }
 
         public Exception AddAttribute(string attributeString)
@@ -56,7 +61,7 @@ namespace KPServices
                 else
                     attributeToAdd = new SimpleAttribute(attributeString);
 
-                if(AddAttribute(attributeToAdd))
+                if (AddAttribute(attributeToAdd))
                     return null;
                 else
                     throw new ArgumentNullException($"The attribute {attributeToAdd.Name} is already present.");
@@ -65,6 +70,13 @@ namespace KPServices
             {
                 return ex;
             }
+        }
+
+        public bool RemoveAttribute(string attributeName)
+        {
+            int removed = Attributes.RemoveWhere(
+                attribute => attribute.Name.Equals(attributeName));
+            return (removed > 0);
         }
 
         public static Universe FromString(string universeString, bool skipInvalidAttributes = true)
