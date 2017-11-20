@@ -13,6 +13,8 @@ namespace KPTrustedParty
                 string command = Console.ReadLine();
                 if (command == null)
                     continue;
+
+                //todo: proper quote handling like in UniverseEditor
                 string[] commandWords = command.Split(null);
                 string[] args = commandWords.Skip(1).ToArray();
                 switch (commandWords[0])
@@ -31,17 +33,14 @@ namespace KPTrustedParty
                             break;
                         string username = args[0];
 
-                        //List data and stats for the user
-
+                        KPDatabase.DetailUser(username);
                         break;
                     }
 
                     case "listUsers":
                     case "l":
                     {
-                        //List users from database
-                        //Good idea?
-
+                        KPDatabase.ListUsers();
                         break;
                     }
 
@@ -53,8 +52,8 @@ namespace KPTrustedParty
                         string username = args[0];
                         string password = args[1];
 
-                        //Register user in database (salted hash)
-
+                        KPDatabase.RegisterUser(username, password);
+                        
                         break;
                     }
 
@@ -64,8 +63,9 @@ namespace KPTrustedParty
                         if (!argumentCountCheck(args, 2))
                             break;
                         string username = args[0];
-                        string policy = string.Join(" ", args.Skip(1));
+                        string policy = args[1];
 
+                        //todo: SetPolicy: Define how to do this
                         //Set policy for the user and generate its keys
 
                         break;

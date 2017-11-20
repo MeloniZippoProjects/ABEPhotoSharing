@@ -25,9 +25,11 @@ namespace KPTrustedParty
             KPService.SuitePath = @"./kpabe/bin";
             KPService.UniversePath = @"./kpabe/universe";
 
-            bool universeCheck = false;
+            //todo: remove this skipping after db development
+            //bool universeCheck = false;
+            bool universeCheck = true;
 
-            while(!universeCheck)
+            while (!universeCheck)
             {
                 try
                 {
