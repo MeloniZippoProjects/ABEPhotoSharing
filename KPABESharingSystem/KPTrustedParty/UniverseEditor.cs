@@ -103,6 +103,7 @@ namespace KPTrustedParty
 
                     case "quit":
                     {
+                        Console.WriteLine("------- Exiting from the UniverseEditor -------");
                         return;
                     }
 
@@ -118,6 +119,7 @@ namespace KPTrustedParty
 
         private static void UniverseEditorHelp()
         {
+            //todo: write more about commit command
             Console.WriteLine(
             @"The UniverseEditor tool is intended to define the KP attribute universe in a safe way.
             It checks existing data and avoids conflicts before committing the changes. 
@@ -126,16 +128,30 @@ namespace KPTrustedParty
             For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
 
                 {add, a, +} attribute1 attribute2 ...
-                    Adds the listed attributes 
-            "
-            //todo: continue writing the help
-                );
-        }
+                    Adds the listed attributes to the universe. In case of errors, they are reported and attributed is skipped.
+                    The attribute must comply with the KPABE syntax, which is
+                        - The attribute name can be any sequence of letters, digits and _ symbol that starts with a letter and is not one of 'and', 'or', 'of'
+                        - In case of a numerical attribute, it has a = following the name and an optional '# k', 0 < k <= 64 which specifies the bit resolution
 
-        private static List<string> LoadCurrentUniverse()
-        {
-            //todo: load it someway
-            return new List<string>();
+                {remove, r, -} attributeName1 attribute
+                    Removes the listed attributes from the universe. In case of errors, they are reported and attributed is skipped.
+
+                commit
+                    Make the changes definitive. # Lots of checks and stuff to be defined #
+                    
+
+                reload
+                    Resets the edited universe to the current universe, that is the last committed version.
+
+                {print, p}
+                    Displays the attributes contained in the current universe and in the edited universe.
+
+                quit
+                    Quits the UniverseEditor. Any un-committed change to the universe is discarded.
+
+                {help, anything that is not a valid command}
+                    Displays this guide.
+            ");
         }
 
         private static void PrintUniverse()
