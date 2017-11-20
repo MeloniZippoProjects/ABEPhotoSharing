@@ -18,6 +18,11 @@ namespace KPServices
             Attributes = new HashSet<UniverseAttribute>(attributes);
         }
 
+        public Universe Copy()
+        {
+            return FromString(this.ToString());
+        }
+
         override public string ToString()
         {
             string universe = "";
