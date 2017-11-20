@@ -23,6 +23,11 @@ namespace KPServices
             return FromString(this.ToString());
         }
 
+        public int Count
+        {
+            get => Attributes.Count;
+        }
+
         override public string ToString()
         {
             string universe = "";
