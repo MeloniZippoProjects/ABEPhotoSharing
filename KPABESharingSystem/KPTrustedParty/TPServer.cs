@@ -10,7 +10,8 @@ namespace KPTrustedParty
 {
     partial class TPServer
     {
-       
+        private static Universe universe;
+
         static void Main()
         {
             InitializeKPABE();
@@ -30,7 +31,7 @@ namespace KPTrustedParty
             {
                 try
                 {
-                    Universe universe = KPService.Universe;
+                    universe = KPService.Universe;
                     universeCheck = true;
                 }
                 catch(UniverseNotDefinedException ex)

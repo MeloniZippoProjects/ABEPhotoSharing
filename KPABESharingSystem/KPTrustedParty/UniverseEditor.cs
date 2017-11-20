@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using KPServices;
 
 namespace KPTrustedParty
 {
@@ -14,7 +15,7 @@ namespace KPTrustedParty
             Console.WriteLine("------- UniverseEditor -------");
             UniverseEditorHelp();
 
-            List<string> universe = LoadCurrentUniverse();
+            Universe editedUniverse = universe?.Copy();
 
             while (true)
             {
@@ -39,9 +40,20 @@ namespace KPTrustedParty
                     {
                         foreach (string argument in arguments)
                         {
-                            //TODO: continue implementation
+                            try
+                            {
+                                if (editedUniverse == null)
+                                    editedUniverse = Universe.FromString(argument, false);
+                                else
+                                    editedUniverse.AddAttribute(argument);
+                            }
+                            catch (ArgumentException e)
+                            {
+                                Console.WriteLine($"{argument} invalid: {e.Message}");
+                            }
                         }
 
+                        PrintEditedUniverse(editedUniverse);
                         break;
                     }
 
@@ -49,15 +61,22 @@ namespace KPTrustedParty
                     case "r":
                     case "-":
                     {
-                        //todo: Try remove, check validity, then remove
-
-                        PrintUniverse(universe);
+                        foreach (string argument in arguments)
+                        {
+                            bool? result = editedUniverse?.RemoveAttribute(argument);
+                            if(result ?? false)
+                                Console.WriteLine($"Attribute {argument} removed.");
+                            else
+                                Console.WriteLine($"Attribute {argument} not present.");
+                        }
+                       
+                        PrintEditedUniverse(editedUniverse);
                         break;
                     }
 
                     case "reload":
                     {
-                        universe = LoadCurrentUniverse();
+                        editedUniverse = universe?.Copy();
                         break;
                     }
 
@@ -77,7 +96,8 @@ namespace KPTrustedParty
                     case "print":
                     case "p":
                     {
-                        PrintUniverse(universe);
+                        PrintUniverse();
+                        PrintEditedUniverse(editedUniverse);
                         break;
                     }
 
@@ -118,9 +138,20 @@ namespace KPTrustedParty
             return new List<string>();
         }
 
-        private static void PrintUniverse(List<string> universe)
+        private static void PrintUniverse()
         {
-            //todo: print the current universe
+            if(universe == null)
+                Console.WriteLine("There is no current universe defined.");
+            else
+                Console.WriteLine($"The current universe is: {universe}");
+        }
+
+        private static void PrintEditedUniverse(Universe editedUniverse)
+        {
+            if (editedUniverse == null || editedUniverse.Count == 0)
+                Console.WriteLine("The edited universe is not defined");
+            else
+                Console.WriteLine($"The edited universe is: {editedUniverse}");
         }
     }
 }
