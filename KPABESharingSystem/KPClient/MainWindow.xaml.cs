@@ -39,5 +39,19 @@ namespace KPClient
         }
 
 
+        private void SetSharedSpaceLocationButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ReloadSharedSpaceButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void HideOutOfPolicyCheckBox_OnChanged(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
