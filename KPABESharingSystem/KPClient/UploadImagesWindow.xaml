@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KPClient"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Title="Upload images" Height="500" Width="840">
     <Grid
@@ -37,12 +38,12 @@
                               Height="100"
                               Width="100">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="5*"/>
+                                <ColumnDefinition Width="4*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="5*"/>
+                                <RowDefinition Height="4*"/>
                             </Grid.RowDefinitions>
 
                             <Image 
@@ -52,8 +53,10 @@
                             <local:ImageItemButton
                                 Grid.Row="0"
                                 Grid.Column="1"
-                                Content="X"
                                 Item="{Binding}"
+                                Content="{iconPacks:PackIconModern Close}"
+                                BorderBrush="Transparent"
+                                Background="Transparent"
                                 Click="RemoveButton_OnClick"
                                 />
                         </Grid>
@@ -61,7 +64,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-
+        
         <Label Grid.Row="2">Specify tags</Label>
         <RichTextBox
             Grid.Row="3"
