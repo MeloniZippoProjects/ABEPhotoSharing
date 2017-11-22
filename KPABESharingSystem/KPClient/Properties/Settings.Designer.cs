@@ -22,5 +22,17 @@ namespace KPClient.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SharedFolderPath {
+            get {
+                return ((string)(this["SharedFolderPath"]));
+            }
+            set {
+                this["SharedFolderPath"] = value;
+            }
+        }
     }
 }

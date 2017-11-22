@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:KPClient"
         mc:Ignorable="d"
         Title="KPClient" Height="700" Width="1000"
-        Loaded="MainWindow_OnLoaded">
+        Loaded="MainWindow_OnLoaded"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <local:DesignTimeWindowContext x:Key="designTimeContex" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -23,8 +27,42 @@
             Grid.Row="0"
             Margin="5">
             
-            <ItemsControl Name="SharedArea">
-                
+            <ItemsControl 
+                Name="SharedAreaControl" 
+                d:DataContext="{StaticResource designTimeContex}" 
+                ItemsSource="{Binding SharedAreaItems}" >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="4"
+                              MaxWidth="150"
+                              VerticalAlignment="Top">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Image 
+                                Grid.Row="0"
+                                Source="{Binding Thumbnail}"
+                                MaxHeight="150"
+                                MaxWidth="150"
+                                />
+                            <TextBlock
+                                Grid.Row="1"
+                                Text="{Binding Name}"
+                                TextWrapping="Wrap"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
@@ -66,6 +104,13 @@
                 Checked="HideOutOfPolicyCheckBox_OnChanged"
                 Unchecked="HideOutOfPolicyCheckBox_OnChanged">
                 Hide files out of policy
+            </CheckBox>
+
+            <CheckBox
+                Name="ShowPreviewCheckBox"
+                Checked="ShowPreviewCheckBox_OnChanged"
+                Unchecked="ShowPreviewCheckBox_OnChanged">
+                Show previews
             </CheckBox>
         </StackPanel>
 
