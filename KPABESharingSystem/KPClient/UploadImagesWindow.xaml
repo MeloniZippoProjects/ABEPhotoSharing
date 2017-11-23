@@ -13,8 +13,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="2*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -65,26 +63,11 @@
             </ItemsControl>
         </ScrollViewer>
         
-        <Label Grid.Row="2">Specify tags</Label>
-        <RichTextBox
-            Grid.Row="3"
-            Name="TagsTextBox"
-            Margin="5"
-            MinHeight="20"
-            >
+        <local:TagsSelector
+            Name="TagsSelector"
+            Grid.Row="2"/>
 
-        </RichTextBox>
-
-        <ScrollViewer 
-            Grid.Row="4"
-            VerticalScrollBarVisibility="Disabled"
-            HorizontalScrollBarVisibility="Auto">
-            <ItemsControl Name="AvailableTagsControl">
-
-            </ItemsControl>
-        </ScrollViewer>
-
-        <Grid Grid.Row="5">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

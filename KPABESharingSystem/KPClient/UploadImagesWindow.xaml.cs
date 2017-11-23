@@ -31,17 +31,19 @@ namespace KPClient
             ImagesToUploadControl.ItemsSource = imageItems;
 
             imageItems.CollectionChanged += UpdateClearAllButtonStatus;
-
-#if DEBUG
-            for (int i = 0; i < 100; i++)
-            {
-                imageItems.Add(new ImageItem() { ImagePath = "D:\\Users\\Raff\\OneDrive\\Immagini\\face.png" });
-                imageItems.Add(new ImageItem() { ImagePath = "D:\\Users\\Raff\\OneDrive\\Immagini\\maxine.png" });
-            }
-#endif
+            imageItems.CollectionChanged += UpdateUploadButtonStatus;
+            TagsSelector.ValidityChanged += UpdateUploadButtonStatus;
         }
 
-        private void UpdateClearAllButtonStatus(object sender, NotifyCollectionChangedEventArgs e)
+        private void UpdateUploadButtonStatus(object sender, EventArgs e)
+        {
+            if (imageItems.Count > 0 && TagsSelector.IsValid)
+                UploadButton.IsEnabled = true;
+            else
+                UploadButton.IsEnabled = false;
+        }
+
+        private void UpdateClearAllButtonStatus(object sender, EventArgs e)
         {
             if (imageItems.Count > 0)
                 ClearAllButton.IsEnabled = true;
@@ -52,7 +54,7 @@ namespace KPClient
         private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
         {
             ImageItemButton clickedButton = sender as ImageItemButton;
-            imageItems.Remove(clickedButton.Item);
+            imageItems.Remove(clickedButton?.Item);
         }
 
         private void ClearAllButton_Click(object sender, RoutedEventArgs e)
@@ -62,23 +64,24 @@ namespace KPClient
 
         private void AddImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            // Configure open file dialog box
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             openFileDialog.Filter = "Image files(*.jpg, *.jpeg, *.png, *.bmp)|*.jpg; *.jpeg; *.png; *.bmp";
             openFileDialog.Multiselect = true;
 
-            // Show open file dialog box
-            Nullable<bool> result = openFileDialog.ShowDialog();
+            bool? result = openFileDialog.ShowDialog();
 
-            // Process open file dialog box results
             if (result == true)
             {
-                // Add selected images
                 foreach (string filename in openFileDialog.FileNames)
                 {
                     imageItems.Add(new ImageItem() { ImagePath = filename});
                 }
             }
+        }
+
+        private bool ValidateTags()
+        {
+            return false;
         }
     }
 
