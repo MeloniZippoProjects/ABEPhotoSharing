@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Grapevine.Server;
 using KPServices;
 
 namespace KPTrustedParty
@@ -11,13 +11,22 @@ namespace KPTrustedParty
     partial class TPServer
     {
         private static Universe universe;
+        public static string Host;
 
         static void Main()
         {
             InitializeKPABE();
+            Console.InputEncoding = Encoding.UTF8;
             //Initialize server component: async tasks or threads?
-
-            commandLineLoop();
+            using (var server = new RestServer())
+            {
+                server.LogToConsole();
+                server.Start();
+                Host = server.Host;
+                commandLineLoop();
+                server.Stop();
+            }
+                
         }
 
         private static void InitializeKPABE()
