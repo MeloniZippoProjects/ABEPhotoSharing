@@ -27,7 +27,7 @@ namespace KPClient
 
         public event EventHandler ValidityChanged;
 
-        private bool _isValid = false;
+        private bool _isValid = true;
         public bool IsValid
         {
             get=>_isValid;
@@ -65,9 +65,11 @@ namespace KPClient
                     .Select(tagMatch => new
                     {
                         name = tagMatch.Groups["name"].Value,
-                        value = tagMatch.Groups["value"].Success
-                            ? Int32.Parse(tagMatch.Groups["value"].Value)
-                            : (int?)null
+                        value = tagMatch.Groups["value"].Success ? 
+                                    UInt64.TryParse(tagMatch.Groups["value"].Value, out var parsed) ? 
+                                        parsed 
+                                        : (UInt64?)null
+                                    : (UInt64?)null
                     });
 
                 bool duplicateCheck = tags.GroupBy(tag => tag.name)
@@ -78,6 +80,8 @@ namespace KPClient
 
                 if (duplicateCheck || validTags.Count() < tags.Count())
                     IsValid = false;
+                else
+                    IsValid = true;
 
                 //todo: use validTags for the AvailableTagsControl
             }
