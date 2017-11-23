@@ -28,9 +28,10 @@ namespace KPClient
         public event EventHandler ValidityChanged;
 
         private bool _isValid = true;
+
         public bool IsValid
         {
-            get=>_isValid;
+            get => _isValid;
             private set
             {
                 if (_isValid != value)
@@ -40,7 +41,7 @@ namespace KPClient
                 }
             }
         }
-        
+
         public TagsSelector()
         {
             InitializeComponent();
@@ -51,7 +52,7 @@ namespace KPClient
                     IsValid ? new SolidColorBrush(Colors.LightGreen) : new SolidColorBrush(Colors.IndianRed);
             };
         }
-        
+
         private void TagsTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             string tagsText = TagsTextBox.Text + " ";
@@ -65,17 +66,17 @@ namespace KPClient
                     .Select(tagMatch => new
                     {
                         name = tagMatch.Groups["name"].Value,
-                        value = tagMatch.Groups["value"].Success ? 
-                                    UInt64.TryParse(tagMatch.Groups["value"].Value, out var parsed) ? 
-                                        parsed 
-                                        : (UInt64?)null
-                                    : (UInt64?)null
+                        value = tagMatch.Groups["value"].Success
+                            ? UInt64.TryParse(tagMatch.Groups["value"].Value, out var parsed)
+                                ? parsed
+                                : (UInt64?) null
+                            : (UInt64?) null
                     });
 
                 bool duplicateCheck = tags.GroupBy(tag => tag.name)
                     .Any(group => group.Count() > 1);
 
-                Universe universe = ((App)Application.Current).Universe;
+                Universe universe = ((App) Application.Current).Universe;
                 var validTags = tags.Where(tag => universe.HasAttribute(tag.name, tag.value));
 
                 if (duplicateCheck || validTags.Count() < tags.Count())
@@ -87,6 +88,37 @@ namespace KPClient
             }
             else
                 IsValid = false;
+        }
+
+        public string GetTagsString()
+        {
+            if (IsValid)
+            {
+                string tagsText = TagsTextBox.Text + " ";
+                if (TagSequence.IsMatch(tagsText))
+                {
+                    Match tagSequenceMatch = TagSequence.Match(tagsText);
+
+                    var tags = tagSequenceMatch.Groups["attribute"].Captures
+                        .Cast<Capture>()
+                        .Select(tag => tag.Value);
+
+                    string ret = "";
+                    foreach (string match in tags)
+                    {
+                        ret += $"'{match}'";
+                    }
+                    return ret;
+                }
+                else
+                {
+                    throw new InvalidOperationException("The tags are not valid");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("The tags are not valid");
+            }
         }
     }
 }
