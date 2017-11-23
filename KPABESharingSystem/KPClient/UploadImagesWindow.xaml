@@ -98,7 +98,8 @@
             <Button
                 Name="UploadButton"
                 Grid.Column="2"
-                IsEnabled="False">
+                IsEnabled="False"
+                Click="UploadButton_OnClick">
                 Upload
             </Button>
         </Grid>
