@@ -16,7 +16,27 @@ namespace KPTrustedParty
     [RestResource]
     public class KPRestServer
     {
-        public string SessionCookie { get; set; } = "KPABESESSIONID";
+        public static string SessionCookie { get; set; } = "KPABESESSIONID";
+
+        /*
+        public static KPDatabase.User UserLogged(IHttpContext context)
+        {
+            var sessionToken = context.Request.Cookies[SessionCookie]?.Value;
+
+            if (sessionToken != null)
+            {
+                return KPDatabase.UserLogged(sessionToken);
+            }
+
+            return null;
+        }
+        */
+
+        public static void LoginNeededMessage(IHttpContext context)
+        {
+            context.Response.StatusCode = HttpStatusCode.Forbidden;
+            context.Response.SendResponse("You need to login before accessing this resource");
+        }
 
         [RestRoute(HttpMethod = HttpMethod.POST, PathInfo = "/login")]
         public IHttpContext LoginUser(IHttpContext context)
@@ -50,7 +70,7 @@ namespace KPTrustedParty
                 response.StatusCode = HttpStatusCode.Ok;
                 response.AppendCookie(new Cookie {
                     Domain = TPServer.Host,
-                    Name = "KPABESESSIONID",
+                    Name = SessionCookie,
                     Value = token.TokenString
                 });
                 response.SendResponse("Login OK!");
@@ -59,12 +79,13 @@ namespace KPTrustedParty
             return context;
         }
 
+
         [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/isLogged")]
         public IHttpContext IsLogged(IHttpContext context)
         {
             context.Response.ContentType = ContentType.TXT;
-            var sessionToken = context.Request.Cookies[SessionCookie];
-            if (sessionToken?.Value != null && KPDatabase.UserLogged(sessionToken.Value))
+
+            if (KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value) != null)
             {
                 context.Response.StatusCode = HttpStatusCode.Ok;
                 context.Response.SendResponse("You are logged in");
@@ -75,6 +96,25 @@ namespace KPTrustedParty
             context.Response.SendResponse("You are not logged in");
             return context;
         }
+
+        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/getPrivateKey")]
+        public IHttpContext GetPrivateKey(IHttpContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+            context.Response.ContentType = ContentType.TXT;
+
+            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value); 
+            if (user != null)
+            {
+                response.StatusCode = HttpStatusCode.Ok;
+                response.SendResponse(user.PrivateKey);
+            }
+
+            LoginNeededMessage(context);
+            return context;
+        }
+
     }
 
     

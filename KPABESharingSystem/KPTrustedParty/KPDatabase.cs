@@ -30,6 +30,12 @@ namespace KPTrustedParty
             public byte[] SaltedPasswordHash { get; set; }
 
             public string Policy { get; set; }  //todo: change to an object for better processing?
+
+            /// <summary>
+            /// Private Key of User. It's the file produced by KPABE 
+            /// encoded in base64.
+            /// </summary>
+            public String PrivateKey { get; set; }
             
             public virtual Token Token { get; set; }
 
@@ -40,6 +46,12 @@ namespace KPTrustedParty
                 if (this.Token != null)
                     retString += $" Session Ends: {Token.ExpirationDateTime.ToLocalTime()}; ";
                 return retString;
+            }
+
+            public string SetPrivateKey(byte[] privateKeyFile)
+            {
+                PrivateKey = Convert.ToBase64String(privateKeyFile);
+                return PrivateKey;
             }
         }
 
@@ -123,7 +135,6 @@ namespace KPTrustedParty
         {
             using (var db = new KPDatabaseContext())
             {
-                Token returnToken = null;
                 User authUser = AuthenticateUser(username, password);
                 if (authUser != null)
                 {
@@ -135,6 +146,7 @@ namespace KPTrustedParty
                         where token.User.Name == authUser.Name
                         select token;
 
+                    Token returnToken = null;
                     if (existingTokenQuery.Count() == 1)
                     {
                         var currentToken = existingTokenQuery.FirstOrDefault();
@@ -206,10 +218,41 @@ namespace KPTrustedParty
             }
         }
 
-        public static bool UserLogged(string sessionToken)
+        public static User UserLogged(String sessionToken)
         {
-            var token = KPDatabase.TokenExists(sessionToken);
-            return token != null && token.ExpirationDateTime.CompareTo(DateTime.Now) > 0;
+            if (sessionToken == null)
+                return null;
+            using(var db = new KPDatabaseContext())
+            {
+                var token = TokenExists(sessionToken);
+                if (token != null && token.ExpirationDateTime.CompareTo(DateTime.Now) > 0)
+                    return db.Users.First(user => user.Token.TokenString == token.TokenString);
+                return null;
+            }
+        }
+
+        public static void SetUserPolicy(string username, string policy)
+        {
+            using (var db = new KPDatabaseContext())
+            {
+                var user = db.Users.FirstOrDefault(dbUser => dbUser.Name == username);
+
+                if (user != null)
+                {
+                    user.Policy = policy;
+                }
+
+                try
+                {
+                    db.SaveChanges();
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+            }
         }
     }
 

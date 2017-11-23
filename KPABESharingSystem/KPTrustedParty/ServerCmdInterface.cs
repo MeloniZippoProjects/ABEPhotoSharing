@@ -69,6 +69,10 @@ namespace KPTrustedParty
                         //todo: SetPolicy: Define how to do this
                         //Set policy for the user and generate its keys
 
+
+                        //todo: validate policy
+                        KPDatabase.SetUserPolicy(username, policy);
+
                         break;
                     }
 
