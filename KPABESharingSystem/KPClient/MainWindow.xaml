@@ -3,14 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KPClient"
+        xmlns:kpclient="clr-namespace:KPClient"
+        xmlns:properties="clr-namespace:KPClient.Properties"
         mc:Ignorable="d"
         Title="KPClient" Height="700" Width="1000"
         Loaded="MainWindow_OnLoaded"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Window.Resources>
-        <local:DesignTimeWindowContext x:Key="designTimeContex" />
-    </Window.Resources>
+        >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -21,51 +19,17 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        
-        <ScrollViewer 
+
+        <kpclient:SharedArea 
+            x:Name="SharedArea"
             Grid.Column="0"
             Grid.Row="0"
-            Margin="5">
-            
-            <ItemsControl 
-                Name="SharedAreaControl" 
-                d:DataContext="{StaticResource designTimeContex}" 
-                ItemsSource="{Binding SharedAreaItems}" >
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="4"
-                              MaxWidth="150"
-                              VerticalAlignment="Top">
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Image 
-                                Grid.Row="0"
-                                Source="{Binding Thumbnail}"
-                                MaxHeight="150"
-                                MaxWidth="150"
-                                />
-                            <TextBlock
-                                Grid.Row="1"
-                                Text="{Binding Name}"
-                                TextWrapping="Wrap"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
+            Margin="5"
+            FilterOutOfPolicy="{Binding ElementName=HideOutOfPolicyCheckBox, Path=IsChecked}"
+            ShowPreviews="{Binding ElementName=ShowPreviewCheckBox, Path=IsChecked}"
+            RootPath="{Binding Source={x:Static properties:Settings.Default}, Path=SharedFolderPath}"
+        />
+        
         <StackPanel
             Grid.Column="1"
             Grid.Row="0"
@@ -100,14 +64,14 @@
             </Button>
 
             <CheckBox
-                Name="HideOutOfPolicyCheckBox"
+                x:Name="HideOutOfPolicyCheckBox"
                 Checked="HideOutOfPolicyCheckBox_OnChanged"
                 Unchecked="HideOutOfPolicyCheckBox_OnChanged">
                 Hide files out of policy
             </CheckBox>
 
             <CheckBox
-                Name="ShowPreviewCheckBox"
+                x:Name="ShowPreviewCheckBox"
                 Checked="ShowPreviewCheckBox_OnChanged"
                 Unchecked="ShowPreviewCheckBox_OnChanged">
                 Show previews
@@ -116,11 +80,14 @@
 
         <StackPanel
             Grid.Row="1"
+            Grid.Column="0"
             Grid.ColumnSpan="2"
             Background="DodgerBlue"
             Orientation="Horizontal"
             >
 
+            <kpclient:StatusLed />
+            
             <Label 
                 FontSize="10"
                 Padding="0"

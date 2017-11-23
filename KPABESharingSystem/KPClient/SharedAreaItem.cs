@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
 
@@ -65,6 +66,18 @@ namespace KPClient
             DrawingImage geoImage = new DrawingImage(gd);
             return geoImage;
         }
+    }
+    public class SharedAreaItemButton : Button
+    {
+        public SharedAreaItem Item
+        {
+            get { return (SharedAreaItem)GetValue(ItemProperty); }
+            set { SetValue(ItemProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ItemProperty =
+            DependencyProperty.Register("Item", typeof(SharedAreaItem), typeof(SharedAreaItemButton), new PropertyMetadata(null));
     }
     public class DesignTimeWindowContext
     {
