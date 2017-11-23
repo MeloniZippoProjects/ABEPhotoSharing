@@ -39,6 +39,11 @@ namespace KPServices
             else
                 throw new ArgumentException("Failed to parse as a valid numerical attribute");
         }
+
+        public bool CanBeValue(int value)
+        {
+            return (UInt64) value >= (UInt64) 1 << NumberResolution;
+        }
         
         public override string ToString()
         {

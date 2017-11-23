@@ -51,11 +51,10 @@ namespace KPServices
 
         public Exception AddAttribute(string attributeString)
         {
-            UniverseAttribute attributeToAdd = null;
-
             try
             {
                 Regex isNumericalAttribute = new Regex("=");
+                UniverseAttribute attributeToAdd = null;
                 if (isNumericalAttribute.IsMatch(attributeString))
                     attributeToAdd = new NumericalAttribute(attributeString);
                 else
@@ -77,6 +76,30 @@ namespace KPServices
             int removed = Attributes.RemoveWhere(
                 attribute => attribute.Name.Equals(attributeName));
             return (removed > 0);
+        }
+
+        public bool HasAttribute(string attributeName, int? numericalValue = null)
+        {
+            //search for attribute with correct name
+            var correctNameAttributeList = Attributes.Where(attr => attr.Name == attributeName).ToList();
+
+            //if no attribute has that name, then Universe doesn't have that attribute
+            if (correctNameAttributeList.Count != 1)
+                return false;
+
+            var correctNameAttribute = correctNameAttributeList.First();
+
+            if (numericalValue != null)
+            {
+                if (correctNameAttribute is NumericalAttribute)
+                {
+                    return (correctNameAttribute as NumericalAttribute).CanBeValue(numericalValue.Value);
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         public static Universe FromString(string universeString, bool skipInvalidAttributes = true)
