@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:KPClient"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="Upload images" Height="500" Width="840">
+        Title="Upload images" Height="500" Width="840"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        >
     <Grid
         VerticalAlignment="Stretch"
     >
@@ -23,7 +25,8 @@
             Margin="5">
             <ItemsControl
                 Name="ImagesToUploadControl"
-                MinHeight="50">
+                MinHeight="50"
+                ItemsSource="{Binding Path=ImageItems}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>
@@ -87,12 +90,15 @@
             </Button>
             <Button 
                 Name="ClearAllButton"
-                Grid.Column="1" Click="ClearAllButton_Click">
+                Grid.Column="1" 
+                IsEnabled="False"
+                Click="ClearAllButton_Click">
                 Clear all
             </Button>
             <Button
                 Name="UploadButton"
-                Grid.Column="2">
+                Grid.Column="2"
+                IsEnabled="False">
                 Upload
             </Button>
         </Grid>

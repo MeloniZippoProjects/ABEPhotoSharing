@@ -22,22 +22,21 @@ namespace KPClient
     /// </summary>
     public partial class UploadImagesWindow : Window
     {
-        private ObservableCollection<ImageItem> imageItems;
+        public ObservableCollection<ImageItem> ImageItems { get; private set; } = new ObservableCollection<ImageItem>();
 
         public UploadImagesWindow()
         {
             InitializeComponent();
-            imageItems = new ObservableCollection<ImageItem>();
-            ImagesToUploadControl.ItemsSource = imageItems;
+            //ImagesToUploadControl.ItemsSource = ImageItems;
 
-            imageItems.CollectionChanged += UpdateClearAllButtonStatus;
-            imageItems.CollectionChanged += UpdateUploadButtonStatus;
+            ImageItems.CollectionChanged += UpdateClearAllButtonStatus;
+            ImageItems.CollectionChanged += UpdateUploadButtonStatus;
             TagsSelector.ValidityChanged += UpdateUploadButtonStatus;
         }
 
         private void UpdateUploadButtonStatus(object sender, EventArgs e)
         {
-            if (imageItems.Count > 0 && TagsSelector.IsValid)
+            if (ImageItems.Count > 0 && TagsSelector.IsValid)
                 UploadButton.IsEnabled = true;
             else
                 UploadButton.IsEnabled = false;
@@ -45,21 +44,18 @@ namespace KPClient
 
         private void UpdateClearAllButtonStatus(object sender, EventArgs e)
         {
-            if (imageItems.Count > 0)
-                ClearAllButton.IsEnabled = true;
-            else
-                ClearAllButton.IsEnabled = false;
+            ClearAllButton.IsEnabled = ImageItems.Count > 0;
         }
 
         private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
         {
             ImageItemButton clickedButton = sender as ImageItemButton;
-            imageItems.Remove(clickedButton?.Item);
+            ImageItems.Remove(clickedButton?.Item);
         }
 
         private void ClearAllButton_Click(object sender, RoutedEventArgs e)
         {
-            imageItems.Clear();
+            ImageItems.Clear();
         }
 
         private void AddImagesButton_Click(object sender, RoutedEventArgs e)
@@ -74,7 +70,7 @@ namespace KPClient
             {
                 foreach (string filename in openFileDialog.FileNames)
                 {
-                    imageItems.Add(new ImageItem() { ImagePath = filename});
+                    ImageItems.Add(new ImageItem() { ImagePath = filename});
                 }
             }
         }

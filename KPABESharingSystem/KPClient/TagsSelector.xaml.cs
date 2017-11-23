@@ -22,12 +22,12 @@ namespace KPClient
     /// </summary>
     public partial class TagsSelector : UserControl
     {
-        private static Regex TagSequence = new Regex(@"^\s*(?<attribute>[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\d+)?\s+)*\s*$");
+        private static Regex TagSequence = new Regex(@"^\s*(?<attribute>[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\d+)?\s+)+\s*$");
         private static Regex Tag = new Regex(@"(?<name>[a-zA-Z][a-zA-Z0-9_]*)(?:\s*=\s*(?<value>\d+))?");
 
         public event EventHandler ValidityChanged;
 
-        private bool _isValid;
+        private bool _isValid = false;
         public bool IsValid
         {
             get=>_isValid;
@@ -47,10 +47,8 @@ namespace KPClient
 
             ValidityChanged += (sender, args) =>
             {
-                if (IsValid)
-                    TagsTextBox.Background = new SolidColorBrush(Colors.LightGreen);
-                else
-                    TagsTextBox.Background = new SolidColorBrush(Colors.IndianRed);
+                TagsTextBox.Background =
+                    IsValid ? new SolidColorBrush(Colors.LightGreen) : new SolidColorBrush(Colors.IndianRed);
             };
         }
         
