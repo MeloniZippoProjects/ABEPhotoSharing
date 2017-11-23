@@ -10,13 +10,16 @@ namespace KPServices
 {
     public class Universe
     {
-        HashSet<UniverseAttribute> Attributes;
+        HashSet<UniverseAttribute> Attributes = new HashSet<UniverseAttribute>();
 
         public Universe() { }
 
         public Universe(IEnumerable<UniverseAttribute> attributes)
         {
-            Attributes = new HashSet<UniverseAttribute>(attributes);
+            foreach (UniverseAttribute attribute in attributes)
+            {
+                AddAttribute(attribute);
+            }
         }
 
         public Universe Copy()
@@ -31,44 +34,34 @@ namespace KPServices
 
         override public string ToString()
         {
-            string universe = "";
+            string universeString = "";
             foreach (UniverseAttribute attribute in Attributes)
             {
-                universe += "'" + attribute + "' ";
+                universeString += "'" + attribute + "' ";
             }
 
-            return universe;
+            return universeString;
         }
 
-        public bool AddAttribute(UniverseAttribute attributeToAdd)
+        public void AddAttribute(UniverseAttribute attributeToAdd)
         {
             if (Attributes.Any(
                 attribute => attribute.Name.Equals(attributeToAdd.Name)))
-                return false;
-            else
-                return Attributes.Add(attributeToAdd);
+                throw new ArgumentNullException($"The attribute {attributeToAdd.Name} is already present.");
+
+            Attributes.Add(attributeToAdd);
         }
 
-        public Exception AddAttribute(string attributeString)
+        public void AddAttribute(string attributeString)
         {
-            try
-            {
-                Regex isNumericalAttribute = new Regex("=");
-                UniverseAttribute attributeToAdd = null;
-                if (isNumericalAttribute.IsMatch(attributeString))
-                    attributeToAdd = new NumericalAttribute(attributeString);
-                else
-                    attributeToAdd = new SimpleAttribute(attributeString);
+            Regex isNumericalAttribute = new Regex("=");
+            UniverseAttribute attributeToAdd = null;
+            if (isNumericalAttribute.IsMatch(attributeString))
+                attributeToAdd = new NumericalAttribute(attributeString);
+            else
+                attributeToAdd = new SimpleAttribute(attributeString);
 
-                if (AddAttribute(attributeToAdd))
-                    return null;
-                else
-                    throw new ArgumentNullException($"The attribute {attributeToAdd.Name} is already present.");
-            }
-            catch (Exception ex)
-            {
-                return ex;
-            }
+            AddAttribute(attributeToAdd);
         }
 
         public bool RemoveAttribute(string attributeName)
@@ -106,11 +99,10 @@ namespace KPServices
         {
             Universe universe = new Universe();
 
-            Regex attributeFormat = new Regex("['\"](.+?)['\"]");
-            string[] attributesStrings = attributeFormat.Matches(universeString)
-                                            .Cast<Match>()
-                                            .Select(m => m.ToString())
-                                            .ToArray();
+            Regex attributeFormat = new Regex("['\"](?<attribute>.+?)['\"]");
+            var attributesStrings = attributeFormat.Matches(universeString)
+                .Cast<Match>()
+                .Select(match => match.Groups["attribute"].Value);
 
             List<Exception> exceptions = new List<Exception>();
 
