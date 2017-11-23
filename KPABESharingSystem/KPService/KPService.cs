@@ -165,7 +165,7 @@ namespace KPServices
                 throw new UnsatisfiablePolicyException(stderr);
 
             if (new Regex("trivially satisfied integer comparison").IsMatch(stderr))
-                throw new UnsatisfiablePolicyException(stderr);
+                throw new TrivialPolicyException(stderr);
 
             if (new Regex("Check your attribute universe").IsMatch(stderr))
                 throw new AttributeNotFoundException(stderr);
