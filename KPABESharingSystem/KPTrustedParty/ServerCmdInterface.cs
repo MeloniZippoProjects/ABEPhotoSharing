@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using KPServices;
 
 namespace KPTrustedParty
 {
@@ -16,6 +18,7 @@ namespace KPTrustedParty
                     continue;
 
                 //todo: proper quote handling like in UniverseEditor
+
                 string[] commandWords = command.Split(null);
                 string[] args = commandWords.Skip(1).ToArray();
                 switch (commandWords[0])
@@ -63,16 +66,41 @@ namespace KPTrustedParty
                     {
                         if (!argumentCountCheck(args, 2))
                             break;
-                        string username = args[0];
-                        string policy = args[1];
 
-                        //todo: SetPolicy: Define how to do this
-                        //Set policy for the user and generate its keys
+                        var username = args[0];
+                        var policy = args[1];
+                        try
+                        {
+                            KPService.Keygen(policy, $"{username}_privKey");
+                            KPDatabase.SetUserPolicy(username, policy);
+                            using (var privKeyStream = new MemoryStream())
+                            {
+                                using (var fileStream = File.Open($"{username}_privKey", FileMode.Open))
+                                {
+                                    fileStream.CopyTo(privKeyStream);
+                                }
 
-
-                        //todo: validate policy
-                        KPDatabase.SetUserPolicy(username, policy);
-
+                                KPDatabase.SetUserPrivateKey(username, privKeyStream.ToArray());
+                            }
+                            File.Delete($"{username}_privKey");
+                        }
+                        catch (AttributeNotFoundException)
+                        {
+                            Console.WriteLine("The policy contains some invalid attributes");
+                        }
+                        catch (UnsatisfiablePolicyException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        catch (TrivialPolicyException ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            Console.WriteLine("FATAL: can't find file created right now");
+                        }
+                        
                         break;
                     }
 

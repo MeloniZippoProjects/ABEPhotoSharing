@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace KPServices
 {
     [Serializable]
-    internal class AttributeNotFoundException : Exception
+    public class AttributeNotFoundException : Exception
     {
         public AttributeNotFoundException()
         {

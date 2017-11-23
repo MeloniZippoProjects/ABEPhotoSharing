@@ -70,12 +70,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="database\Token.cs" />
+    <Compile Include="database\Universe.cs" />
+    <Compile Include="database\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KPRestServer.cs" />
     <Compile Include="ServerCmdInterface.cs" />
     <Compile Include="TPServer.cs" />
     <Compile Include="UniverseEditor.cs" />
-    <Compile Include="KPDatabase.cs" />
+    <Compile Include="database\KPDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

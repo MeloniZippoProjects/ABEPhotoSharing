@@ -115,6 +115,25 @@ namespace KPTrustedParty
             return context;
         }
 
+        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/getPublicKey")]
+        public IHttpContext GetPublicKey(IHttpContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+            context.Response.ContentType = ContentType.TXT;
+
+            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
+            if (user != null)
+            {
+                string publicKey = Convert.ToBase64String(KPDatabase.GetLatestUniverse().PublicKey);
+                response.StatusCode = HttpStatusCode.Ok;
+                response.SendResponse(publicKey);
+            }
+
+            LoginNeededMessage(context);
+            return context;
+        }
+
     }
 
     

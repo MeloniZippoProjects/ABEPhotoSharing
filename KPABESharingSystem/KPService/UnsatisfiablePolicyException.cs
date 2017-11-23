@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace KPServices
 {
     [Serializable]
-    internal class UnsatisfiablePolicyException : Exception
+    public class UnsatisfiablePolicyException : Exception
     {
         public UnsatisfiablePolicyException()
         {
