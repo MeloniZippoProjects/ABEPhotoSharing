@@ -30,19 +30,23 @@ namespace KPServices
                 if (resolutionGroup.Success)
                 {
                     int numberResolution = Int32.Parse(resolutionGroup.Value);
-                    if (numberResolution <= 64)
+                    if (numberResolution <= 64 && numberResolution > 0)
                         NumberResolution = numberResolution;
                     else
-                        throw new ArgumentException($"Attribute {Name}: resolution must be 64 or lower, cannot be {numberResolution}");
+                        throw new ArgumentException($"Attribute {Name}: resolution must a positive integer equal to 64 or lower, cannot be {numberResolution}");
                 }
             }
             else
                 throw new ArgumentException("Failed to parse as a valid numerical attribute");
         }
 
-        public bool CanBeValue(int value)
+        public bool CanBeValue(UInt64 value)
         {
-            return (UInt64) value >= (UInt64) 1 << NumberResolution;
+            int resolution = NumberResolution ?? 64;
+            if (resolution == 64)
+                return true;    //Result is insignificant, value may have been truncated
+            else
+                return value < (UInt64) 1 << resolution;
         }
         
         public override string ToString()

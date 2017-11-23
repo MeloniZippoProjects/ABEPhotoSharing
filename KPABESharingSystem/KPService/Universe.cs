@@ -71,7 +71,7 @@ namespace KPServices
             return (removed > 0);
         }
 
-        public bool HasAttribute(string attributeName, int? numericalValue = null)
+        public bool HasAttribute(string attributeName, UInt64? numericalValue = null)
         {
             //search for attribute with correct name
             var correctNameAttributeList = Attributes.Where(attr => attr.Name == attributeName).ToList();
@@ -82,17 +82,14 @@ namespace KPServices
 
             var correctNameAttribute = correctNameAttributeList.First();
 
-            if (numericalValue != null)
+            if (correctNameAttribute is SimpleAttribute)
             {
-                if (correctNameAttribute is NumericalAttribute)
-                {
-                    return (correctNameAttribute as NumericalAttribute).CanBeValue(numericalValue.Value);
-                }
-
-                return false;
+                return numericalValue == null;
             }
-
-            return true;
+            else
+            {
+                return numericalValue == null ? false : (correctNameAttribute as NumericalAttribute).CanBeValue(numericalValue.Value);
+            }
         }
 
         public static Universe FromString(string universeString, bool skipInvalidAttributes = true)
