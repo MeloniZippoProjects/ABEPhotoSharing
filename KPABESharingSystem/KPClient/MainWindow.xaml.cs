@@ -14,7 +14,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using KPServices;
 using MahApps.Metro.IconPacks;
+using Application = System.Windows.Application;
 using Button = System.Windows.Controls.Button;
 using Path = System.IO.Path;
 
@@ -32,7 +34,14 @@ namespace KPClient
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            //UpdateSharedArea();
+            if (String.IsNullOrEmpty(Properties.Settings.Default.Universe))
+            {
+                //todo: should ask server
+                Properties.Settings.Default.Universe = "'anime' 'mario' 'cose'";
+                Properties.Settings.Default.Save();
+            }
+
+            ((App)Application.Current).Universe = Universe.FromString(Properties.Settings.Default.Universe);
         }
 
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
