@@ -64,7 +64,7 @@
         </ScrollViewer>
         
         <local:TagsSelector
-            Name="TagsSelector"
+            x:Name="TagsSelector"
             Grid.Row="2"/>
 
         <Grid Grid.Row="3">

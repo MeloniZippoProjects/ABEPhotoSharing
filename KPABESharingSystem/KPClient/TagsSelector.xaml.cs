@@ -56,7 +56,6 @@ namespace KPClient
         
         private void TagsTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
-            tags.Clear();
             string tagsText = TagsTextBox.Text + " ";
             if (TagSequence.IsMatch(tagsText))
             {
@@ -77,7 +76,7 @@ namespace KPClient
                     .Any(group => group.Count() > 1);
 
                 Universe universe = ((App)Application.Current).Universe;
-                var validTags = tags.Where(tag => universe.Contains(tag.name, tag.value));
+                var validTags = tags.Where(tag => universe.HasAttribute(tag.name, tag.value));
 
                 if (duplicateCheck || validTags.Count() < tags.Count())
                     IsValid = false;

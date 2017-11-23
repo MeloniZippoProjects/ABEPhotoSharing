@@ -37,11 +37,14 @@ namespace KPClient
             if (String.IsNullOrEmpty(Properties.Settings.Default.Universe))
             {
                 //todo: should ask server
-                Properties.Settings.Default.Universe = "'anime' 'mario' 'cose'";
+                Properties.Settings.Default.Universe = @"'anime' 'mario' 'cose'";
                 Properties.Settings.Default.Save();
             }
 
-            ((App)Application.Current).Universe = Universe.FromString(Properties.Settings.Default.Universe);
+            ((App)Application.Current).Universe = Universe.FromString(Properties.Settings.Default.Universe, false);
+#if DEBUG
+            System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
+#endif
         }
 
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
