@@ -49,7 +49,7 @@ namespace KPServices
         /// <summary>
         /// Configurable filename for KPABE public key
         /// </summary>
-        public static String PublicKey = "pub_key";
+        public static String PublicKeyPath = "pub_key";
 
         private static Universe universe;
 
@@ -134,6 +134,7 @@ namespace KPServices
         }
         */
 
+        //todo: check policy format, should add quotes here or in caller?
         public static void Keygen(String policy, String outputFile = "")
         {
             String kpabeKeygenPath = SuitePath + KeygenExe;
@@ -145,7 +146,7 @@ namespace KPServices
 
             //create argument string and specify output if outputFile is not empty
             String argumentsString = String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}";
-            argumentsString += $" {PublicKey} {MasterKey} {policy}";
+            argumentsString += $" \"{PublicKeyPath}\" \"{MasterKey}\" {policy}";
             //Console.WriteLine(argumentsString);
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
 
@@ -179,7 +180,8 @@ namespace KPServices
 
         public static void Encrypt(String sourceFilePath, String attributes, bool deleteSourceFile = false, String outputFile = "")
         {
-            String kpabeEncryptPath = SuitePath + EncryptExe;
+            String kpabeEncryptPath = Path.Combine(SuitePath, EncryptExe);
+            Console.WriteLine(kpabeEncryptPath);
 
             Process kpabeEncryptProcess = new Process();
             kpabeEncryptProcess.StartInfo.FileName = kpabeEncryptPath;
@@ -187,8 +189,8 @@ namespace KPServices
             kpabeEncryptProcess.StartInfo.UseShellExecute = false;
             kpabeEncryptProcess.StartInfo.RedirectStandardOutput = true;
 
-            String argumentString = ( deleteSourceFile ? "" : " --keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $" --output '{outputFile}'" );
-            argumentString += $" '{PublicKey}' '{sourceFilePath}' {attributes}";
+            String argumentString = ( deleteSourceFile ? "" : " --keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $" --output \"{outputFile}\"" );
+            argumentString += $" \"{PublicKeyPath}\" \"{sourceFilePath}\" {attributes}";
             Console.WriteLine(argumentString);
             kpabeEncryptProcess.StartInfo.Arguments = argumentString;
 
@@ -203,7 +205,8 @@ namespace KPServices
 
         public static void Decrypt(String sourceFilePath, String privateKeyFilePath, bool deleteSourceFile = false, String outputFile = "")
         {
-            String kpabeDecryptPath = SuitePath + DecryptExe;
+            String kpabeDecryptPath = Path.Combine(SuitePath, DecryptExe);
+            Console.WriteLine(kpabeDecryptPath);
 
             Process kpabeDecryptProcess = new Process();
             kpabeDecryptProcess.StartInfo.FileName = kpabeDecryptPath;
@@ -211,8 +214,8 @@ namespace KPServices
             kpabeDecryptProcess.StartInfo.UseShellExecute = false;
             kpabeDecryptProcess.StartInfo.RedirectStandardOutput = true;
 
-            String argumentString = (deleteSourceFile ? "" : " --keep-input-file") + (String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}");
-            argumentString += $" '{PublicKey}' '{privateKeyFilePath}' '{sourceFilePath}'";
+            String argumentString = (deleteSourceFile ? "" : " --keep-input-file") + (String.IsNullOrEmpty(outputFile) ? "" : $" --output \"{outputFile}\"");
+            argumentString += $" \"{PublicKeyPath}\" \"{privateKeyFilePath}\" \"{sourceFilePath}\"";
             Console.WriteLine(argumentString);
             kpabeDecryptProcess.StartInfo.Arguments = argumentString;
 

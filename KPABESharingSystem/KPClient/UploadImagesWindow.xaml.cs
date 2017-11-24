@@ -136,8 +136,8 @@ namespace KPClient
                 string encryptedKeyPath = $"{keypath}.kpabe";
 
                 //todo: should be configured at initialization
-                KPService.SuitePath = "./kpabe/";
-                KPService.PublicKey = "./pub_key";
+                KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
+                KPService.PublicKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
                 KPService.Encrypt(keypath, TagsSelector.GetTagsString(), false, encryptedKeyPath);
                 
                 //Debug.Assert(File.Exists(encryptedKeyPath));
@@ -157,9 +157,11 @@ namespace KPClient
                 }
 
                 File.Copy(encryptedKeyPath,
-                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", Path.GetFileName(encryptedKeyPath)));
+                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", Path.GetFileName(encryptedKeyPath)),
+                    true);
                 File.Copy(encryptedImagePath,
-                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", Path.GetFileName(encryptedImagePath)));
+                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", Path.GetFileName(encryptedImagePath)),
+                    true);
             }
             catch (Exception ex)
             {
