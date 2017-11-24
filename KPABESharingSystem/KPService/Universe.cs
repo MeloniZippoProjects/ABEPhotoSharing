@@ -71,24 +71,36 @@ namespace KPServices
             return (removed > 0);
         }
 
-        public bool HasAttribute(string attributeName, UInt64? numericalValue = null)
+        public bool ValidateTag(TagSpecification tag)
         {
-            //search for attribute with correct name
-            var correctNameAttributeList = Attributes.Where(attr => attr.Name == attributeName).ToList();
+            var candidateAttribute = Attributes.Where(attr => attr.Name == tag.Name);
 
-            //if no attribute has that name, then Universe doesn't have that attribute
-            if (correctNameAttributeList.Count != 1)
+            if (!candidateAttribute.Any())
                 return false;
 
-            var correctNameAttribute = correctNameAttributeList.First();
-
-            if (correctNameAttribute is SimpleAttribute)
+            UniverseAttribute attribute = candidateAttribute.First();
+            
+            if (attribute is SimpleAttribute)
             {
-                return numericalValue == null;
+                return tag.Value == null;
             }
             else
             {
-                return numericalValue == null ? false : (correctNameAttribute as NumericalAttribute).CanBeValue(numericalValue.Value);
+                return tag.Value == null ? false : (attribute as NumericalAttribute).CanBeValue((UInt64)tag.Value);
+            }
+        }
+
+        public string GetTagString(TagSpecification tag)
+        {
+            if(!ValidateTag(tag))
+                throw new ArgumentException("Invalid tag for this universe");
+
+            if (tag.Value == null)
+                return tag.Name;
+            else
+            {
+                var numericalAttribute = Attributes.First(attr => attr.Name == tag.Name) as NumericalAttribute;
+                return numericalAttribute.GetTagString(tag);
             }
         }
 

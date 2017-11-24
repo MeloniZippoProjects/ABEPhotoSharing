@@ -187,8 +187,8 @@ namespace KPServices
             kpabeEncryptProcess.StartInfo.UseShellExecute = false;
             kpabeEncryptProcess.StartInfo.RedirectStandardOutput = true;
 
-            String argumentString = ( deleteSourceFile ? "" : " --keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}" );
-            argumentString += $" {PublicKey} {sourceFilePath} {attributes}";
+            String argumentString = ( deleteSourceFile ? "" : " --keep-input-file" ) +  (String.IsNullOrEmpty(outputFile) ? "" : $" --output '{outputFile}'" );
+            argumentString += $" '{PublicKey}' '{sourceFilePath}' {attributes}";
             Console.WriteLine(argumentString);
             kpabeEncryptProcess.StartInfo.Arguments = argumentString;
 
@@ -212,7 +212,7 @@ namespace KPServices
             kpabeDecryptProcess.StartInfo.RedirectStandardOutput = true;
 
             String argumentString = (deleteSourceFile ? "" : " --keep-input-file") + (String.IsNullOrEmpty(outputFile) ? "" : $" --output {outputFile}");
-            argumentString += $" {PublicKey} {privateKeyFilePath} {sourceFilePath}";
+            argumentString += $" '{PublicKey}' '{privateKeyFilePath}' '{sourceFilePath}'";
             Console.WriteLine(argumentString);
             kpabeDecryptProcess.StartInfo.Arguments = argumentString;
 

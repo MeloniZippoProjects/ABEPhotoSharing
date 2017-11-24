@@ -56,5 +56,19 @@ namespace KPServices
             else
                 return $"{Name} =";
         }
+
+        internal string GetTagString(TagSpecification tag)
+        {
+            if(tag.Name != Name)
+                throw new ArgumentException("This tag is not related to this attribute");
+            if(tag.Value == null)
+                throw new ArgumentException("Tag has not a specified value");
+            if(!CanBeValue((UInt64)tag.Value))
+                throw new ArgumentException($"Tag's specified value cannot be represented on {NumberResolution} bits");
+
+            return NumberResolution == null
+                ? $"{Name} = {tag.Value}"
+                : $"{Name} = {tag.Value} # {NumberResolution}";
+        }
     }
 }
