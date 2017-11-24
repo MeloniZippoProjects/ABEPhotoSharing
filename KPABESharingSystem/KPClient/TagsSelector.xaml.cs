@@ -23,15 +23,16 @@ namespace KPClient
     public partial class TagsSelector : UserControl
     {
         private static Regex TagSequence = new Regex(@"^\s*(?<attribute>[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\d+)?\s+)+\s*$");
-        private static Regex Tag = new Regex(@"(?<name>[a-zA-Z][a-zA-Z0-9_]*)(?:\s*=\s*(?<value>\d+))?");
+
+        private List<TagSpecification> validTags = new List<TagSpecification>();
 
         public event EventHandler ValidityChanged;
 
-        private bool _isValid = true;
+        private bool? _isValid = null;
 
         public bool IsValid
         {
-            get => _isValid;
+            get => _isValid ?? false;
             private set
             {
                 if (_isValid != value)
@@ -62,22 +63,13 @@ namespace KPClient
 
                 var tags = tagSequenceMatch.Groups["attribute"].Captures
                     .Cast<Capture>()
-                    .Select(tag => Tag.Match(tag.Value))
-                    .Select(tagMatch => new
-                    {
-                        name = tagMatch.Groups["name"].Value,
-                        value = tagMatch.Groups["value"].Success
-                            ? UInt64.TryParse(tagMatch.Groups["value"].Value, out var parsed)
-                                ? parsed
-                                : (UInt64?) null
-                            : (UInt64?) null
-                    });
+                    .Select(tag => new TagSpecification(tag.Value));
 
-                bool duplicateCheck = tags.GroupBy(tag => tag.name)
+                bool duplicateCheck = tags.GroupBy(tag => tag.Name)
                     .Any(group => group.Count() > 1);
 
                 Universe universe = ((App) Application.Current).Universe;
-                var validTags = tags.Where(tag => universe.HasAttribute(tag.name, tag.value));
+                validTags = tags.Where(tag => universe.ValidateTag(tag)).ToList();
 
                 if (duplicateCheck || validTags.Count() < tags.Count())
                     IsValid = false;
@@ -94,26 +86,13 @@ namespace KPClient
         {
             if (IsValid)
             {
-                string tagsText = TagsTextBox.Text + " ";
-                if (TagSequence.IsMatch(tagsText))
+                Universe universe = ((App)Application.Current).Universe;
+                string ret = "";
+                foreach (TagSpecification tag in validTags)
                 {
-                    Match tagSequenceMatch = TagSequence.Match(tagsText);
-
-                    var tags = tagSequenceMatch.Groups["attribute"].Captures
-                        .Cast<Capture>()
-                        .Select(tag => tag.Value);
-
-                    string ret = "";
-                    foreach (string match in tags)
-                    {
-                        ret += $"'{match}'";
-                    }
-                    return ret;
+                    ret += $"'{universe.GetTagString(tag)}'";
                 }
-                else
-                {
-                    throw new InvalidOperationException("The tags are not valid");
-                }
+                return ret;
             }
             else
             {
