@@ -156,12 +156,18 @@ namespace KPClient
                     }
                 }
 
-                File.Copy(encryptedKeyPath,
-                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", Path.GetFileName(encryptedKeyPath)),
-                    true);
-                File.Copy(encryptedImagePath,
-                    Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", Path.GetFileName(encryptedImagePath)),
-                    true);
+                string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", Path.GetFileName(encryptedImagePath));
+                string imageDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", Path.GetFileName(encryptedKeyPath));
+                Console.WriteLine(keyDestPath);
+                Console.WriteLine(imageDestPath);
+
+                File.Copy(sourceFileName: encryptedKeyPath,
+                            destFileName: keyDestPath,
+                            overwrite: true);
+                
+                File.Copy(sourceFileName: encryptedImagePath,
+                            destFileName : imageDestPath,
+                            overwrite: true);
             }
             catch (Exception ex)
             {

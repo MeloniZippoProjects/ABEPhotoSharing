@@ -42,13 +42,25 @@ namespace KPClient
         }
         public static readonly DependencyProperty ShowPreviewsProperty =
             DependencyProperty.Register("ShowPreviews", typeof(bool), typeof(SharedArea), new PropertyMetadata(false));
+
+        public bool IsValid
+        {
+            get { return (bool)GetValue(IsValidProperty); }
+            private set { SetValue(IsValidProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsValidProperty =
+            DependencyProperty.Register("IsValid", typeof(bool), typeof(SharedArea), new PropertyMetadata(false));
         
         public string RootPath
         {
             get { return (string)GetValue(RootPathProperty); }
-            set { SetValue(RootPathProperty, value); }
+            set
+            {
+                SetValue(RootPathProperty, value);
+            }
         }
-
+        
         public static readonly DependencyProperty RootPathProperty = DependencyProperty.Register(
                 "RootPath",
                 typeof(string),
@@ -61,6 +73,8 @@ namespace KPClient
         private static void UpdateRootPath(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sharedArea = (SharedArea) d;
+            if (checkSharedFolderStructure(sharedArea.RootPath))
+                sharedArea.IsValid = true;
             sharedArea.LoadSharedArea();
         }
 
@@ -153,7 +167,7 @@ namespace KPClient
         {
         }
 
-        private bool checkSharedFolderStructure(string sharedFolderPath)
+        private static bool checkSharedFolderStructure(string sharedFolderPath)
         {
             if (Directory.Exists(sharedFolderPath))
             {
