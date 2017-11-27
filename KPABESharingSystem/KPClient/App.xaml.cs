@@ -24,7 +24,7 @@ namespace KPClient
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-
+#if !SKIP_LOGIN
             if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.ServerAddress))
             {
                 KPClient.Properties.Settings.Default.ServerAddress = @"localhost";
@@ -36,6 +36,7 @@ namespace KPClient
                 KPClient.Properties.Settings.Default.ServerPort = 1234;
                 KPClient.Properties.Settings.Default.Save();
             }
+
             RestClient = new RestClient
             {
                 Host = KPClient.Properties.Settings.Default.ServerAddress,
@@ -47,7 +48,7 @@ namespace KPClient
                 LoginForm loginForm = new LoginForm();
                 loginForm.Show();
             }
-
+#endif
             if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
             {
                 //todo: should ask server
