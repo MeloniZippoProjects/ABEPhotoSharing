@@ -21,82 +21,62 @@ namespace KPClient
     /// </summary>
     public partial class SharedArea : UserControl
     {
-        public ObservableCollection<SharedAreaItem> SharedAreaItems { get; set; } =
-            new ObservableCollection<SharedAreaItem>();  
+        public ObservableCollection<SharedItem> SharedItems { get; set; } =
+            new ObservableCollection<SharedItem>();  
 
-        public ObservableCollection<SharedAreaItem> AlbumItems { get; set; } =
-            new ObservableCollection<SharedAreaItem>();
+        public ObservableCollection<SharedItem> AlbumImages { get; set; } =
+            new ObservableCollection<SharedItem>();
 
-        public bool FilterOutOfPolicy
-        {
-            get { return (bool)GetValue(FilterOutOfPolicyProperty); }
-            set { SetValue(FilterOutOfPolicyProperty, value); }
-        }
-        public static readonly DependencyProperty FilterOutOfPolicyProperty =
-            DependencyProperty.Register("FilterOutOfPolicy", typeof(bool), typeof(SharedArea), new PropertyMetadata(false));
+        private List<SharedItem> filteredSharedAreaItems;
         
-        public bool ShowPreviews
-        {
-            get { return (bool)GetValue(ShowPreviewsProperty); }
-            set { SetValue(ShowPreviewsProperty, value); }
-        }
-        public static readonly DependencyProperty ShowPreviewsProperty =
-            DependencyProperty.Register("ShowPreviews", typeof(bool), typeof(SharedArea), new PropertyMetadata(false));
+        private string CurrentAlbum = null;
 
-        public bool IsValid
-        {
-            get { return (bool)GetValue(IsValidProperty); }
-            private set { SetValue(IsValidProperty, value); }
-        }
-
-        public static readonly DependencyProperty IsValidProperty =
-            DependencyProperty.Register("IsValid", typeof(bool), typeof(SharedArea), new PropertyMetadata(false));
-        
-        public string RootPath
-        {
-            get { return (string)GetValue(RootPathProperty); }
-            set
-            {
-                SetValue(RootPathProperty, value);
-            }
-        }
-        
-        public static readonly DependencyProperty RootPathProperty = DependencyProperty.Register(
-                "RootPath",
-                typeof(string),
-                typeof(SharedArea),
-                new PropertyMetadata(
-                    null,
-                    UpdateRootPath)
-                );
-
-        private static void UpdateRootPath(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void SharedFolderPath_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sharedArea = (SharedArea) d;
-            if (checkSharedFolderStructure(sharedArea.RootPath))
-                sharedArea.IsValid = true;
+            if (checkSharedFolderStructure(sharedArea.SharedFolderPath))
+                sharedArea.IsFolderPathValid = true;
             sharedArea.LoadSharedArea();
         }
 
-
-        public SharedArea()
+        private static void FilterOutOfPolicy_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            InitializeComponent();
+            SharedArea sa = (SharedArea)d;
+            if (sa.FilterOutOfPolicy)
+            {
+                sa.ApplyFilterOutOfPolicy();
+            }
+            else
+            {
+                sa.UnFilterOutOfPolicy();
+            }
+        }
+
+        private static void ShowPreviews_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SharedArea sa = (SharedArea)d;
+            if (sa.ShowPreviews)
+            {
+                sa.ApplyShowPreviews();
+            }
+            else
+            {
+                sa.ShowDefaultThumbnails();
+            }
         }
         
-        private List<SharedAreaItem> filteredSharedAreaItems = new List<SharedAreaItem>();
-
         public void LoadSharedArea()
         {
-            if (checkSharedFolderStructure(RootPath))
+            if (IsFolderPathValid)
             {
                 var sharedItemPaths = Directory.GetFileSystemEntries(
-                    Path.Combine(RootPath, "items"));
+                    Path.Combine(SharedFolderPath, "items"));
                 foreach (string sharedItemPath in sharedItemPaths)
                 {
                     string itemName = Path.GetFileNameWithoutExtension(sharedItemPath);
+                    var fileAttributes = File.GetAttributes(sharedItemPath);
 
-                    if (File.GetAttributes(sharedItemPath).HasFlag(FileAttributes.Directory))
+                    if (fileAttributes.HasFlag(FileAttributes.Directory))
                     {
                         if (!ValidAlbum(itemName))
                             continue;
@@ -104,12 +84,11 @@ namespace KPClient
                     else if (!ValidImage(itemName))
                             continue;
 
-                    SharedAreaItem item = new SharedAreaItem()
-                    {
-                        Path = sharedItemPath,
-                        Name = itemName
+                    SharedItem item = new SharedItem() {
+                        Name = itemName,
+                        Type = fileAttributes.HasFlag(FileAttributes.Directory) ? SharedItem.SharedItemType.Album : SharedItem.SharedItemType.Image
                     };
-                    SharedAreaItems.Add(item);
+                    SharedItems.Add(item);
                 }
 
                 if (ShowPreviews)
@@ -124,47 +103,47 @@ namespace KPClient
 
         private void ShowDefaultThumbnails()
         {
-            foreach (SharedAreaItem sharedAreaItem in SharedAreaItems)
+            foreach (SharedItem sharedAreaItem in SharedItems)
             {
-                var fileAttributes = File.GetAttributes(sharedAreaItem.Path);
+                var fileAttributes = File.GetAttributes(sharedAreaItem.ItemPath);
                 if (fileAttributes.HasFlag(FileAttributes.Directory))
                 {
-                    sharedAreaItem.Type = SharedAreaItem.SharedItemType.Album;
-                    sharedAreaItem.Thumbnail = SharedAreaItem.DefaultAlbumThumbnail;
+                    sharedAreaItem.Type = SharedItem.SharedItemType.Album;
+                    sharedAreaItem.Thumbnail = SharedItem.DefaultAlbumThumbnail;
                 }
                 else
                 {
-                    sharedAreaItem.Type = SharedAreaItem.SharedItemType.Image;
-                    sharedAreaItem.Thumbnail = SharedAreaItem.DefaultImageThumbnail;
+                    sharedAreaItem.Type = SharedItem.SharedItemType.Image;
+                    sharedAreaItem.Thumbnail = SharedItem.DefaultImageThumbnail;
                 }
             }
         }
 
         private void ApplyShowPreviews()
         {
-            SharedAreaItems
+            SharedItems
                 .Where(sharedItem => /*sharedItem.IsPolicyVerified == true &&*/
-                    sharedItem.Type == SharedAreaItem.SharedItemType.Image)
+                    sharedItem.Type == SharedItem.SharedItemType.Image)
                 .ToList()
                 .ForEach(sharedItem =>
                 {
-                    BitmapImage thumbnail = new BitmapImage(new Uri(sharedItem.Path));
+                    BitmapImage thumbnail = new BitmapImage(new Uri(sharedItem.ItemPath));
                     sharedItem.Thumbnail = thumbnail;
                 });
         }
 
         private void ApplyFilterOutOfPolicy()
         {
-            filteredSharedAreaItems.AddRange(
-                SharedAreaItems.Where(sharedItem => sharedItem.IsPolicyVerified == false));
-            foreach (SharedAreaItem filteredItem in filteredSharedAreaItems)
-            {
-                SharedAreaItems.Remove(filteredItem);
-            }
+            filteredSharedAreaItems = SharedItems.Where(item => !item.IsPolicyVerified).ToList();
+            var tmp = SharedItems.Where(item => item.IsPolicyVerified).ToList();
+            SharedItems.Clear();
+            tmp.ForEach(item => SharedItems.Add(item));
         }
 
         private void UnFilterOutOfPolicy()
         {
+            filteredSharedAreaItems.ForEach(item => SharedItems.Add(item));
+            filteredSharedAreaItems = null;
         }
 
         private static bool checkSharedFolderStructure(string sharedFolderPath)
@@ -216,20 +195,22 @@ namespace KPClient
             else
                 return false;
         }
-
+        
         private void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
         {
+            //todo: this needs to be implemented
+
             var button = sender as SharedAreaItemButton;
             var item = button.Item;
-            if (item.IsPolicyVerified ?? false)
+            if (item.IsPolicyVerified)
             {
                 switch (item.Type)
                 {
-                    case SharedAreaItem.SharedItemType.Album:
+                    case SharedItem.SharedItemType.Album:
                     {
                         break;
                     }
-                    case SharedAreaItem.SharedItemType.Image:
+                    case SharedItem.SharedItemType.Image:
                     {
                         break;
                     }

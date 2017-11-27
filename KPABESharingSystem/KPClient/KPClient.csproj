@@ -87,7 +87,8 @@
     <Compile Include="SharedArea.xaml.cs">
       <DependentUpon>SharedArea.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SharedAreaItem.cs" />
+    <Compile Include="SharedAreaInterface.cs" />
+    <Compile Include="SharedItem.cs" />
     <Compile Include="StatusLed.xaml.cs">
       <DependentUpon>StatusLed.xaml</DependentUpon>
     </Compile>
