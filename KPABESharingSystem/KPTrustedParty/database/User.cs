@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
@@ -165,6 +166,14 @@ namespace KPTrustedParty
                 {
                     Console.WriteLine(user);
                 }
+            }
+        }
+
+        public static IEnumerable<User> GetUsersList()
+        {
+            using (var db = new KPDatabaseContext())
+            {
+                return db.Users.ToList();
             }
         }
 
