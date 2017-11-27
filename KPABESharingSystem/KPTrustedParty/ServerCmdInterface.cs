@@ -8,7 +8,7 @@ namespace KPTrustedParty
 {
     partial class TPServer
     {
-        private static void commandLineLoop()
+        private static void CommandLineLoop()
         {
             while (true)
             {
@@ -33,7 +33,7 @@ namespace KPTrustedParty
                     case "detailUser":
                     case "d":
                     {
-                        if (!argumentCountCheck(args, 1))
+                        if (!ArgumentCountCheck(args, 1))
                             break;
                         string username = args[0];
 
@@ -51,7 +51,7 @@ namespace KPTrustedParty
                     case "registerUser":
                     case "r":
                     {
-                        if (!argumentCountCheck(args, 2))
+                        if (!ArgumentCountCheck(args, 2))
                             break;
                         string username = args[0];
                         string password = args[1];
@@ -64,7 +64,7 @@ namespace KPTrustedParty
                     case "setPolicy":
                     case "s":
                     {
-                        if (!argumentCountCheck(args, 2))
+                        if (!ArgumentCountCheck(args, 2))
                             break;
 
                         var username = args[0];
@@ -107,14 +107,14 @@ namespace KPTrustedParty
                     case "help":
                     default:
                     {
-                        displayHelp();
+                        DisplayHelp();
                         break;
                     }
                 }
             }
         }
 
-        private static bool argumentCountCheck(string[] args, int required)
+        private static bool ArgumentCountCheck(string[] args, int required)
         {
             if (args.Length < required)
             {
@@ -124,7 +124,7 @@ namespace KPTrustedParty
             return true;
         }
 
-        private static void displayHelp()
+        private static void DisplayHelp()
         {
             throw new NotImplementedException();
         }
