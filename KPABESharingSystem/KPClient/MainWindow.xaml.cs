@@ -34,17 +34,7 @@ namespace KPClient
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (String.IsNullOrEmpty(Properties.Settings.Default.Universe))
-            {
-                //todo: should ask server
-                Properties.Settings.Default.Universe = @"'anime' 'mario' 'cose'";
-                Properties.Settings.Default.Save();
-            }
-
-            ((App)Application.Current).Universe = Universe.FromString(Properties.Settings.Default.Universe, false);
-#if DEBUG
-            System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
-#endif
+            
         }
 
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
@@ -72,24 +62,5 @@ namespace KPClient
         {
             SharedArea.LoadSharedArea();
         }
-
-        private void HideOutOfPolicyCheckBox_OnChanged(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ShowPreviewCheckBox_OnChanged(object sender, RoutedEventArgs e)
-        {
-           // if (ShowPreviewCheckBox.IsChecked ?? false)
-                //ShowPreviews();
-           // else
-                //ShowDefaultThumbnails();
-        }
-
-        //todo: consider generalization for albums
-
-        //todo: consider albums, policy verification, decryption...
-
-        //todo: consider generalization for albums
     }
 }

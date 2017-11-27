@@ -27,7 +27,7 @@
             Margin="5"
             FilterOutOfPolicy="{Binding ElementName=HideOutOfPolicyCheckBox, Path=IsChecked}"
             ShowPreviews="{Binding ElementName=ShowPreviewCheckBox, Path=IsChecked}"
-            RootPath="{Binding Source={x:Static properties:Settings.Default}, Path=SharedFolderPath}"
+            SharedFolderPath="{Binding Source={x:Static properties:Settings.Default}, Path=SharedFolderPath}"
         />
         
         <StackPanel
@@ -48,7 +48,7 @@
             <Button
                 Name="OpenUploadImagesWindowButton"
                 Click="OpenUploadImagesWindowButton_OnClick"
-                IsEnabled="{Binding ElementName=SharedArea, Path=IsValid}">
+                IsEnabled="{Binding ElementName=SharedArea, Path=IsFolderPathValid}">
                 Upload images
             </Button>
 
@@ -65,16 +65,12 @@
             </Button>
 
             <CheckBox
-                x:Name="HideOutOfPolicyCheckBox"
-                Checked="HideOutOfPolicyCheckBox_OnChanged"
-                Unchecked="HideOutOfPolicyCheckBox_OnChanged">
+                x:Name="HideOutOfPolicyCheckBox">
                 Hide files out of policy
             </CheckBox>
 
             <CheckBox
-                x:Name="ShowPreviewCheckBox"
-                Checked="ShowPreviewCheckBox_OnChanged"
-                Unchecked="ShowPreviewCheckBox_OnChanged">
+                x:Name="ShowPreviewCheckBox">
                 Show previews
             </CheckBox>
         </StackPanel>
