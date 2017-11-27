@@ -17,6 +17,7 @@ namespace KPClient
     public partial class App : Application
     {
         public Universe Universe;
+        public KPService KpService;
         public string Username;
         public string Password;
         public RestClient RestClient;
@@ -58,7 +59,6 @@ namespace KPClient
 #if DEBUG
             System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
 #endif
-
 
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
