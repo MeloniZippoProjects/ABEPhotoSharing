@@ -23,7 +23,7 @@ namespace KPTrustedParty
                 server.LogToConsole();
                 server.Start();
                 Host = server.Host;
-                commandLineLoop();
+                CommandLineLoop();
                 server.Stop();
             }
                 
@@ -32,11 +32,12 @@ namespace KPTrustedParty
         private static void InitializeKPABE()
         {
             KPService.SuitePath = @"./kpabe/bin";
-            KPService.UniversePath = @"./kpabe/universe";
+            //KPService.UniversePath = @"./kpabe/universe";
+            KPDatabase.GetLatestUniverse();
 
             //todo: remove this skipping after db development
-            //bool universeCheck = false;
-            bool universeCheck = true;
+            bool universeCheck = false;
+            //bool universeCheck = true;
 
             while (!universeCheck)
             {
