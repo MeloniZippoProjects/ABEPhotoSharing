@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -89,7 +90,33 @@ namespace KPTrustedParty
                         * - For each file, take its symmetric key, decrypt with old abe, encrypt with new abe
                         * - Invalid user policies when necessary
                         * - Resume communication like in a fresh start
+                        * asd
                         */
+
+                        //todo: stop communications
+                        universe = editedUniverse?.Copy();
+                        KPService.Universe = universe;
+                        KPService.Setup();
+                        foreach(var user in KPDatabase.GetUsersList())
+                        {
+                            try
+                            {
+                                var privKeyName = $"{user.Name}_privKey";
+                                KPService.Keygen(user.Policy, privKeyName);
+                                var privKeyFile = File.Open(privKeyName, FileMode.Open);
+                                var memStream = new MemoryStream();
+                                privKeyFile.CopyTo(memStream);
+                                var privKeyBytes = memStream.ToArray();
+                                KPDatabase.SetUserPrivateKey(user.Name, privKeyBytes); 
+                                File.Delete(privKeyName);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                                throw;
+                            }
+                        }
+                        
                         break;
                     }
 
