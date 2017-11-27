@@ -159,11 +159,14 @@ namespace KPServices
             PrepareProcessStart(encryptProcess.StartInfo);
 
             encryptProcess.Start();
-
-            //todo: any checks for errors?
-            
-            String stdout = encryptProcess.StandardError.ReadToEnd();
+          
+            String stderr = encryptProcess.StandardError.ReadToEnd();
             encryptProcess.WaitForExit();
+
+            //todo: add more specialized errors
+
+            if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
+                throw new SuiteErrorException("Error during KPABE Setup");
         }
 
         public void Decrypt(String sourceFilePath, String destFilePath, bool deleteSourceFile = false)
@@ -183,10 +186,13 @@ namespace KPServices
 
             decryptProcess.Start();
 
-            //todo: any checks for errors?
-
-            String stdout = decryptProcess.StandardError.ReadToEnd();
+            String stderr = decryptProcess.StandardError.ReadToEnd();
             decryptProcess.WaitForExit();
+
+            //todo: add more specialized errors
+
+            if (!stderr.Equals("") || decryptProcess.ExitCode != 0)
+                throw new SuiteErrorException("Error during KPABE Setup");
         }
     }
 }
