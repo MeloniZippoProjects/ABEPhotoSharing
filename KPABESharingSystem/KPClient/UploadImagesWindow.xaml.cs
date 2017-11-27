@@ -118,13 +118,13 @@ namespace KPClient
                 aes.GenerateIV();
                 aes.GenerateKey();
 
-                string keypath = Path.Combine(workingDir, $"{basename}.key");
+                string keyPath = Path.Combine(workingDir, $"{basename}.key");
                 var key = new
                 {
                     IV = aes.IV,
                     Key = aes.Key
                 };
-                using (FileStream fs = new FileStream(keypath, FileMode.Create))
+                using (FileStream fs = new FileStream(keyPath, FileMode.Create))
                 {
                     using (StreamWriter sw = new StreamWriter(fs))
                     {
@@ -133,15 +133,15 @@ namespace KPClient
                     }
                 }
 
-                string encryptedKeyPath = $"{keypath}.kpabe";
+                string encryptedKeyPath = $"{keyPath}.kpabe";
 
-                //todo: should be configured at initialization
-                KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
-                KPService.PublicKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
-                KPService.Encrypt(keypath, TagsSelector.GetTagsString(), false, encryptedKeyPath);
+                App app = (App) Application.Current;
+
+                app.KpService.Encrypt(
+                    sourceFilePath: keyPath, 
+                    destFilePath: encryptedKeyPath,
+                    attributes: TagsSelector.GetTagsString());
                 
-                //Debug.Assert(File.Exists(encryptedKeyPath));
-
                 var encryptor = aes.CreateEncryptor();
 
                 string encryptedImagePath = $"{convertedFilepath}.aes";

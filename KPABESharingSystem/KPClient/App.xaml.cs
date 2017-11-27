@@ -15,6 +15,7 @@ namespace KPClient
     public partial class App : Application
     {
         public Universe Universe;
+        public KPService KpService;
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
