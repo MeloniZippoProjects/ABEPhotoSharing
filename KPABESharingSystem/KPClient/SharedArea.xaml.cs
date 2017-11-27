@@ -76,19 +76,15 @@ namespace KPClient
                     string itemName = Path.GetFileNameWithoutExtension(sharedItemPath);
                     var fileAttributes = File.GetAttributes(sharedItemPath);
 
-                    if (fileAttributes.HasFlag(FileAttributes.Directory))
-                    {
-                        if (!ValidAlbum(itemName))
-                            continue;
-                    }
-                    else if (!ValidImage(itemName))
-                            continue;
-
-                    SharedItem item = new SharedItem() {
+                    SharedItem item = new SharedItem {
+                        SharedArea = this,
                         Name = itemName,
-                        Type = fileAttributes.HasFlag(FileAttributes.Directory) ? SharedItem.SharedItemType.Album : SharedItem.SharedItemType.Image
+                        Type = fileAttributes.HasFlag(FileAttributes.Directory) 
+                            ? SharedItem.SharedItemType.Album : SharedItem.SharedItemType.Image
                     };
-                    SharedItems.Add(item);
+
+                    if(item.IsValid)
+                        SharedItems.Add(item);
                 }
 
                 if (ShowPreviews)
@@ -122,13 +118,14 @@ namespace KPClient
         private void ApplyShowPreviews()
         {
             SharedItems
-                .Where(sharedItem => /*sharedItem.IsPolicyVerified == true &&*/
+                .Where(sharedItem => sharedItem.IsPolicyVerified &&
                     sharedItem.Type == SharedItem.SharedItemType.Image)
                 .ToList()
                 .ForEach(sharedItem =>
                 {
-                    BitmapImage thumbnail = new BitmapImage(new Uri(sharedItem.ItemPath));
-                    sharedItem.Thumbnail = thumbnail;
+                    //todo: reimplement with decription
+                    //BitmapImage thumbnail = new BitmapImage(new Uri(sharedItem.ItemPath));
+                    //sharedItem.Thumbnail = thumbnail;
                 });
         }
 
@@ -169,28 +166,6 @@ namespace KPClient
                 //todo: further checking? Maybe regexes on the file names?
 
                 return true;
-            }
-            else
-                return false;
-        }
-
-        private bool ValidImage(string imageName)
-        {
-            string imagePath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items",
-                $"{imageName}.kpabe");
-            string keyPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", $"{imageName}.key");
-
-            return File.Exists(imagePath) && File.Exists(keyPath);
-        }
-
-        private bool ValidAlbum(string albumName)
-        {
-            string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
-            string keyPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", $"{albumName}.key");
-            if (Directory.Exists(albumPath) && File.Exists(keyPath))
-            {
-                string firstImagePath = Path.Combine(albumPath, $"{albumName}.0.png.kpabe");
-                return File.Exists(firstImagePath);
             }
             else
                 return false;

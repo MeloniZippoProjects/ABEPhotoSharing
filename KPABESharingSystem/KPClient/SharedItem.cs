@@ -49,17 +49,80 @@ namespace KPClient
             }
         }
 
+        public string KeyPath
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case SharedItemType.Image:
+                    case SharedItemType.Album:
+                        return Path.Combine(SharedArea.SharedFolderPath, "keys", $"{Name}.key.kpabe");
+                    
+                    case SharedItemType.AlbumImage:
+                        return Path.Combine(SharedArea.SharedFolderPath, "keys", $"{ParentAlbum.Name}.key.kpabe");
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        public bool IsValid
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case SharedItemType.Image:
+                        return File.Exists(ItemPath) && File.Exists(KeyPath);
+                    case SharedItemType.Album:
+                    {
+                        if (Directory.Exists(ItemPath) && File.Exists(KeyPath))
+                            return File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.kpabe"));
+                        else
+                            return false;
+                    }
+                    case SharedItemType.AlbumImage:
+                    {
+                        if (ParentAlbum.IsValid)
+                        {
+                            var siblings = Directory.GetFiles(ParentAlbum.ItemPath)
+                                .Select(file => Path.GetFileName(file));
+                            for (int i = 0; i < Int32.Parse(Name); i++)
+                            {
+                                if (!siblings.Contains($"{ParentAlbum.Name}.{i}.png.kpabe"))
+                                    return false;
+                            }
+                            return true;
+                        }
+                        else
+                            return false;
+                    }
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
         //todo: could be cached
         public bool IsPolicyVerified
         {
             get => VerifyPolicy();
         }
 
+        private byte[] _symmetricKey;
         public byte[] SymmetricKey
         {
-            get => GetSymmetricKey();
+            get
+            {
+                if(_symmetricKey == null)
+                    _symmetricKey = GetSymmetricKey();
+                return _symmetricKey;
+            }
         }
-
+        
         //public string Path { get; set; }
         
         public ImageSource Thumbnail
