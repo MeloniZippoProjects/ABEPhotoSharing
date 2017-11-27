@@ -92,11 +92,11 @@
     <Content Include="kpabe\kpabe-keygen.exe" />
     <Content Include="kpabe\kpabe-setup.exe" />
     <Content Include="KPDatabase.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="KPDatabase_log.ldf">
       <DependentUpon>KPDatabase.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
