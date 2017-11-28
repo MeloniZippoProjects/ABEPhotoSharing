@@ -17,7 +17,7 @@
         
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
 
         <kpclient:SharedArea 
@@ -82,18 +82,38 @@
             Background="DodgerBlue"
             Orientation="Horizontal"
             >
-
+            <StackPanel.Resources>
+                <Style TargetType="Label">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Foreground" Value="AliceBlue"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </StackPanel.Resources>
+            
             <kpclient:StatusLed />
             
-            <Label 
-                FontSize="10"
-                Padding="0"
-                Foreground="AliceBlue"
-                VerticalAlignment="Center">
-                Status
+            <Label>
+                Server status
             </Label>
+
+            <Line 
+                X1="0"
+                X2="0"
+                Y1="0"
+                Y2="15" 
+                Stroke="Black" 
+                StrokeThickness="0.5"
+                VerticalAlignment="Center"
+                Margin="5,0,5,0"/>
+
+            <Label Margin="0,0,5,0">
+                Shared folder: 
+            </Label>
+           
+            <Label
+                Content="{Binding ElementName=SharedArea, Path=SharedFolderPath}"
+                />
         </StackPanel>
-        
     </Grid>
 </Window>
 
