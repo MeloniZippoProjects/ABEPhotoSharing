@@ -24,14 +24,14 @@ namespace KPClient
             DependencyProperty.Register("ShowPreviews", typeof(bool), typeof(SharedArea),
                 new PropertyMetadata(false, ShowPreviews_OnChange));
 
-        public bool IsFolderPathValid
+        public bool IsValidSharedFolder
         {
-            get { return (bool) GetValue(IsFolderPathValidProperty); }
-            private set { SetValue(IsFolderPathValidProperty, value); }
+            get { return (bool) GetValue(IsValidSharedFolderProperty); }
+            private set { SetValue(IsValidSharedFolderProperty, value); }
         }
 
-        public static readonly DependencyProperty IsFolderPathValidProperty =
-            DependencyProperty.Register("IsFolderPathValid", typeof(bool), typeof(SharedArea),
+        public static readonly DependencyProperty IsValidSharedFolderProperty =
+            DependencyProperty.Register("IsValidSharedFolder", typeof(bool), typeof(SharedArea),
                 new PropertyMetadata(false));
 
         public string SharedFolderPath

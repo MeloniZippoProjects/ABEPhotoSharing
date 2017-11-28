@@ -99,7 +99,7 @@
     <Compile Include="SharedArea.xaml.cs">
       <DependentUpon>SharedArea.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SharedAreaInterface.cs" />
+    <Compile Include="SharedAreaProperties.cs" />
     <Compile Include="SharedImage.cs" />
     <Compile Include="SharedItem.cs" />
     <Compile Include="StatusLed.xaml.cs">

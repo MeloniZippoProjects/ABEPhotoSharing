@@ -34,8 +34,6 @@ namespace KPClient
         private static void SharedFolderPath_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sharedArea = (SharedArea) d;
-            if (CheckSharedFolderStructure(sharedArea.SharedFolderPath))
-                sharedArea.IsFolderPathValid = true;
             sharedArea.LoadSharedArea();
         }
 
@@ -68,8 +66,8 @@ namespace KPClient
         public void LoadSharedArea()
         {
             SharedItems.Clear();
-            
-            if (IsFolderPathValid)
+            IsValidSharedFolder = CheckSharedFolderStructure(SharedFolderPath);
+            if (IsValidSharedFolder)
             {
                 var sharedItemPaths = Directory.GetFileSystemEntries(
                     Path.Combine(SharedFolderPath, "items"));

@@ -48,7 +48,7 @@
             <Button
                 Name="OpenUploadImagesWindowButton"
                 Click="OpenUploadImagesWindowButton_OnClick"
-                IsEnabled="{Binding ElementName=SharedArea, Path=IsFolderPathValid}">
+                IsEnabled="{Binding ElementName=SharedArea, Path=IsValidSharedFolder}">
                 Upload images
             </Button>
 

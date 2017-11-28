@@ -41,7 +41,7 @@ namespace KPClient
         public override bool IsValid =>
             Directory.Exists(ItemPath) 
             && File.Exists(KeyPath)
-            && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.kpabe"));
+            && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
 
         protected override byte[] GetSymmetricKey()
         {
