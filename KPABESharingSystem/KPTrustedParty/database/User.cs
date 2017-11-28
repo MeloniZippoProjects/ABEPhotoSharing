@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -35,8 +36,6 @@ namespace KPTrustedParty
             {
                 //todo: why should we print salt & stuff?    
                 var retString = $"Username: {Name} ; Policy: {Policy};";
-                if (this.Token != null)
-                    retString += $" Session Ends: {Token.ExpirationDateTime.ToLocalTime()}; ";
                 return retString;
             }
         }
@@ -44,6 +43,7 @@ namespace KPTrustedParty
         public static void RegisterUser(string username, string password)
         {
             //todo: should limit the char set for username and password?
+            //not necessary
 
             if (password.Length < 8)
             {
@@ -68,10 +68,17 @@ namespace KPTrustedParty
                     db.SaveChanges();
                 }
             }
-            catch (Exception e)
+            catch (DbEntityValidationException validationException)
             {
-                //todo: better handling of errors?
-                Console.WriteLine(e.Message);
+                foreach (var entityError in validationException.EntityValidationErrors)
+                {
+                    User invalidUser = (User) entityError.Entry.Entity;
+                    Console.WriteLine($"There are validation errors in entity {invalidUser.Name}");
+                    foreach (var validationError in entityError.ValidationErrors)
+                    {
+                        Console.WriteLine($"{validationError.PropertyName}: {validationError.ErrorMessage}");
+                    }
+                }
             }
         }
 
