@@ -67,6 +67,8 @@ namespace KPClient
         
         public void LoadSharedArea()
         {
+            SharedItems.Clear();
+            
             if (IsFolderPathValid)
             {
                 var sharedItemPaths = Directory.GetFileSystemEntries(

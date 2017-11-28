@@ -94,9 +94,6 @@ namespace KPClient
                 UploadImage(ImageItems.First().ImagePath);
             else
                 UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray());
-
-
-              
         }
 
         private void UploadImage(string imagePath)
@@ -168,6 +165,8 @@ namespace KPClient
                 File.Copy(sourceFileName: encryptedImagePath,
                             destFileName : imageDestPath,
                             overwrite: true);
+
+                this.Close();
             }
             catch (Exception ex)
             {

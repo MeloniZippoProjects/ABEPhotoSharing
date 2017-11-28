@@ -41,6 +41,7 @@ namespace KPClient
         {
             var uploadImagesWindow = new UploadImagesWindow();
             uploadImagesWindow.ShowDialog();
+            SharedArea.LoadSharedArea();
         }
 
         private void SetSharedSpaceLocationButton_OnClick(object sender, RoutedEventArgs e)
