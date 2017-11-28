@@ -149,8 +149,7 @@ namespace KPClient
 
                 foreach (string requiredDir in requiredDirs)
                 {
-                    if (!subdirs.Any(
-                        dir => Path.GetFileName(dir) == requiredDir))
+                    if (subdirs.All(dir => Path.GetFileName(dir) != requiredDir))
                     {
                         return false;
                     }

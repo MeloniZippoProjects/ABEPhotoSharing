@@ -90,8 +90,8 @@ namespace KPClient
 
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var keyBytes = new byte[256];
-            var iv = new byte[128];
+            var keyBytes = new byte[256/8];
+            var iv = new byte[128/8];
             string workingDir = Path.GetTempPath();
 
             GenerateKeyAndIv(ref keyBytes, ref iv);
@@ -133,7 +133,9 @@ namespace KPClient
             }
             else
             {
-                var albumName = DateTime.Now.ToString("yyyy-M-d_HH:mm");
+                var albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
+                var albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
+                Directory.CreateDirectory(albumPath);
                 UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, keyBytes, iv);
                 finalKeyPath = albumName + ".key.kpabe";
             }
@@ -156,7 +158,7 @@ namespace KPClient
             rngCsp.GetBytes(ivBytes);
         }
 
-        private void UploadImage(string imagePath, String albumName, int? imageNumber, byte[] keyBytes, byte[] ivBytes)
+        private void UploadImage(string imagePath, String albumName, int? imageId, byte[] keyBytes, byte[] ivBytes)
         {
             try
             {
@@ -189,7 +191,18 @@ namespace KPClient
                         }
                     }
                 }
-                string finalImageName = basename + (imageNumber == null ? "" : $".{imageNumber}") + ".png.aes";
+
+                string finalImageName;
+
+                if (albumName != null)
+                {
+                    finalImageName = albumName + $".{imageId}" + ".png.aes";
+                }
+                else
+                {
+                    finalImageName = $"{basename}.png.aes";
+                }
+
                 string finalImagePath = Path.Combine(albumName ?? "", finalImageName);
 
                 string imageDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", finalImagePath);
@@ -215,7 +228,7 @@ namespace KPClient
                 var sha = new SHA256Cng();
                 UploadImage(imagePath, albumName, i, key, iv);
                 key = sha.ComputeHash(key);
-                iv = sha.ComputeHash(iv).Take(128).ToArray();
+                iv = sha.ComputeHash(iv).Take(128/8).ToArray();
                 ++i;
             }
         }
