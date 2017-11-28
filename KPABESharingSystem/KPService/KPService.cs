@@ -88,14 +88,14 @@ namespace KPServices
             }
             catch(System.ComponentModel.Win32Exception)
             {
-                throw new SuiteExeNotFound($"Cannot find {setupPath}");
+                throw new ToolNotFound($"Cannot find {setupPath}");
             }
 
             String stderr = kpabeSetupProcess.StandardOutput.ReadToEnd();
             kpabeSetupProcess.WaitForExit();
 
             if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 1)
-                throw new SuiteErrorException("Error during KPABE Setup");
+                throw new SetupException("Error during KPABE Setup");
 
             Keys.PublicKey = File.ReadAllBytes(publicKey);
             Keys.MasterKey = File.ReadAllBytes(masterKey);
@@ -125,23 +125,23 @@ namespace KPServices
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                throw new SuiteExeNotFound($"Cannot find {keygenPath}");
+                throw new ToolNotFound($"Cannot find {keygenPath}");
             }
 
             String stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
             kpabeKeygenProcess.WaitForExit();
 
             if (new Regex("unsatisfiable integer comparison").IsMatch(stderr))
-                throw new UnsatisfiablePolicyException(stderr);
+                throw new UnsatisfiablePolicy(stderr);
 
             if (new Regex("trivially satisfied integer comparison").IsMatch(stderr))
-                throw new TrivialPolicyException(stderr);
+                throw new TrivialPolicy(stderr);
 
             if (new Regex("Check your attribute universe").IsMatch(stderr))
-                throw new AttributeNotFoundException(stderr);
+                throw new AttributeNotFound(stderr);
 
             if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
-                throw new SuiteErrorException("Error during KPABE Setup");
+                throw new KeygenException("Error during KPABE Setup");
 
             Keys.PrivateKey = File.ReadAllBytes(privateKey);
         }
@@ -171,7 +171,7 @@ namespace KPServices
             //todo: add more specialized errors
 
             if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
-                throw new SuiteErrorException("Error during KPABE Encrypt");
+                throw new EncryptException("Error during KPABE Encrypt");
         }
 
         public void Decrypt(String sourceFilePath, String destFilePath, bool deleteSourceFile = false)
@@ -200,9 +200,12 @@ namespace KPServices
             decryptProcess.WaitForExit();
 
             //todo: add more specialized errors
+            
+            if (stderr.Contains("cannot decrypt, attributes in ciphertext do not satisfy policy"))
+                throw new PolicyUnsatisfied("Attributes in ciphertext do not satisfy policy");
 
             if (!stderr.Equals("") || decryptProcess.ExitCode != 0)
-                throw new SuiteErrorException("Error during KPABE Setup");
+                throw new DecryptException("Error during KPABE Decrypt");
         }
     }
 }
