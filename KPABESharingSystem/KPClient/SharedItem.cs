@@ -23,33 +23,23 @@ namespace KPClient
                     new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageBacklight });
         }
 
+        protected static DrawingImage IconToDrawing(MahApps.Metro.IconPacks.PackIconModern icon)
+        {
+            Geometry geo = Geometry.Parse(icon.Data);
+            GeometryDrawing gd = new GeometryDrawing();
+            gd.Geometry = geo;
+            gd.Brush = icon.BorderBrush;
+            gd.Pen = new Pen(Brushes.Black, 1);
+            DrawingImage geoImage = new DrawingImage(gd);
+            return geoImage;
+        }
+
         public SharedArea SharedArea { get; set; }
 
         public abstract string ItemPath { get; }
         public abstract string KeyPath { get; }
 
         public abstract bool IsValid { get; }
-
-        //todo: could be cached
-        public bool IsPolicyVerified
-        {
-            get => VerifyPolicy();
-        }
-
-        protected abstract bool VerifyPolicy();
-        
-        private byte[] _symmetricKey;
-        public byte[] SymmetricKey
-        {
-            get
-            {
-                if(_symmetricKey == null)
-                    _symmetricKey = GetSymmetricKey();
-                return _symmetricKey;
-            }
-        }
-
-        protected abstract byte[] GetSymmetricKey();
 
         public virtual string Name
         {
@@ -71,16 +61,12 @@ namespace KPClient
 
         public abstract void SetDefaultThumbnail();
 
-        protected static DrawingImage IconToDrawing(MahApps.Metro.IconPacks.PackIconModern icon)
-        {
-            Geometry geo = Geometry.Parse(icon.Data);
-            GeometryDrawing gd = new GeometryDrawing();
-            gd.Geometry = geo;
-            gd.Brush = icon.BorderBrush;
-            gd.Pen = new Pen(Brushes.Black, 1);
-            DrawingImage geoImage = new DrawingImage(gd);
-            return geoImage;
-        }
+        public virtual bool IsPolicyVerified => SymmetricKey != null;
+
+        private byte[] _symmetricKey;
+        protected abstract byte[] GetSymmetricKey();
+
+        public byte[] SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
     }
 
     public class SharedAreaItemButton : Button

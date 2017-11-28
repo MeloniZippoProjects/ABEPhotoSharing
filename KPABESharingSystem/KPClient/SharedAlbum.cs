@@ -23,6 +23,11 @@ namespace KPClient
 
         public SharedAlbum() => Thumbnail = DefaultAlbumThumbnail;
 
+        public override void SetDefaultThumbnail()
+        {
+            Thumbnail = DefaultAlbumThumbnail;
+        }
+
         public override string ItemPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
@@ -38,23 +43,16 @@ namespace KPClient
             && File.Exists(KeyPath)
             && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.kpabe"));
 
-        protected override bool VerifyPolicy()
-        {
-            return GetSymmetricKey() != null;
-        }
-
         protected override byte[] GetSymmetricKey()
         {
-            string encKeyPath = Path.Combine(SharedArea.SharedFolderPath, "keys", Name, ".key.kpabe");
             try
             {
-                string workingDir = Path.GetTempPath();
-                string keyPath = Path.Combine(workingDir, Name, ".key");
+                string decryptedKeyPath = Path.GetTempFileName();
                 App app = (App)Application.Current;
                 app.KpService.Decrypt(
-                    sourceFilePath: encKeyPath,
-                    destFilePath: keyPath);
-                byte[] key = File.ReadAllBytes(keyPath);
+                    sourceFilePath: KeyPath,
+                    destFilePath: decryptedKeyPath);
+                byte[] key = File.ReadAllBytes(decryptedKeyPath);
                 return key;
             }
             catch (Exception e)
@@ -64,9 +62,5 @@ namespace KPClient
             }
         }
 
-        public override void SetDefaultThumbnail()
-        {
-            Thumbnail = DefaultAlbumThumbnail;
-        }
     }
 }

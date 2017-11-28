@@ -24,6 +24,11 @@ namespace KPClient
 
         public SharedImage() => Thumbnail = DefaultImageThumbnail;
 
+        public override void SetDefaultThumbnail()
+        {
+            Thumbnail = DefaultImageThumbnail;
+        }
+
         public override string Name
         {
             set
@@ -47,23 +52,16 @@ namespace KPClient
         public override bool IsValid => 
             File.Exists(ItemPath) && File.Exists(KeyPath);
 
-        protected override bool VerifyPolicy()
-        {
-            return GetSymmetricKey() != null;
-        }
-
         protected override byte[] GetSymmetricKey()
         {
-            string encKeyPath = Path.Combine(SharedArea.SharedFolderPath, "keys", Name, ".key.kpabe");
             try
             {
-                string workingDir = Path.GetTempPath();
-                string keyPath = Path.Combine(workingDir, Name, ".key");
+                string decryptedKeyPath = Path.GetTempFileName();
                 App app = (App)Application.Current;
                 app.KpService.Decrypt(
-                    sourceFilePath: encKeyPath,
-                    destFilePath: keyPath);
-                byte[] key = File.ReadAllBytes(keyPath);
+                    sourceFilePath: KeyPath,
+                    destFilePath: decryptedKeyPath);
+                byte[] key = File.ReadAllBytes(decryptedKeyPath);
                 return key;
             }
             catch (Exception e)
@@ -73,9 +71,13 @@ namespace KPClient
             }
         }
 
-        public override void SetDefaultThumbnail()
+        public byte[] _decryptedBytes = null;
+        public byte[] DecryptedBytes => _decryptedBytes ?? (_decryptedBytes = GetDecryptedBytes());
+
+        protected byte[] GetDecryptedBytes()
         {
-            Thumbnail = DefaultImageThumbnail;
+            //todo: implement decryption
+            return null;
         }
     }
 }

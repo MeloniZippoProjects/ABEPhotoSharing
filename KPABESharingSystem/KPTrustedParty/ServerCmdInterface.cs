@@ -88,15 +88,15 @@ namespace KPTrustedParty
                             }
                             File.Delete($"{username}_privKey");
                         }
-                        catch (AttributeNotFoundException)
+                        catch (AttributeNotFound)
                         {
                             Console.WriteLine("The policy contains some invalid attributes");
                         }
-                        catch (UnsatisfiablePolicyException ex)
+                        catch (UnsatisfiablePolicy ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
-                        catch (TrivialPolicyException ex)
+                        catch (TrivialPolicy ex)
                         {
                             Console.WriteLine(ex.Message);
                         }

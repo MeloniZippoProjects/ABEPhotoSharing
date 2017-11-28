@@ -49,10 +49,7 @@ namespace KPClient
             }
         }
 
-        protected override bool VerifyPolicy()
-        {
-            return ParentAlbum.IsPolicyVerified;
-        }
+        public override bool IsPolicyVerified => ParentAlbum.IsPolicyVerified;
 
         protected override byte[] GetSymmetricKey()
         {

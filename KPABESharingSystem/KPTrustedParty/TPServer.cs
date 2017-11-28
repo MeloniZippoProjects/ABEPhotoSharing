@@ -46,7 +46,7 @@ namespace KPTrustedParty
                     universe = KPService.Universe;
                     universeCheck = true;
                 }
-                catch(UniverseNotDefinedException ex)
+                catch(UniverseNotDefined ex)
                 {
                     Console.WriteLine($"WARNING: {ex.Message}");
                     Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");

@@ -125,7 +125,7 @@ namespace KPClient
         private void ApplyFilterOutOfPolicy()
         {
             _filteredSharedAreaItems = SharedItems.Where(item => !item.IsPolicyVerified).ToList();
-            var tmp = SharedItems.Where(item => item.IsPolicyVerified).ToList();
+            var tmp = SharedItems.Where(item => !_filteredSharedAreaItems.Contains(item)).ToList();
             SharedItems.Clear();
             tmp.ForEach(item => SharedItems.Add(item));
         }
