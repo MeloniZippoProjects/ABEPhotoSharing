@@ -9,7 +9,7 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              >
     <UserControl.Resources>
-        <local:DesignTimeWindowContext x:Key="DesignTimeContex" />
+        <local:DesignTimeSharedAreaContext x:Key="DesignTimeContex" />
         <Style x:Key="NoChromeButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -36,9 +36,9 @@
     </UserControl.Resources>
     <ScrollViewer>
         <ItemsControl 
-                Name="SharedAreaControl" 
+                Name="SharedFolderView" 
                 d:DataContext="{StaticResource DesignTimeContex}" 
-                ItemsSource="{Binding Path=SharedAreaItems}" >
+                ItemsSource="{Binding Path=SharedItems}" >
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal"/>

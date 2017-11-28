@@ -90,7 +90,7 @@ namespace KPClient
                 string ret = "";
                 foreach (TagSpecification tag in validTags)
                 {
-                    ret += $"'{universe.GetTagString(tag)}'";
+                    ret += $" '{universe.GetTagString(tag)}'";
                 }
                 return ret;
             }

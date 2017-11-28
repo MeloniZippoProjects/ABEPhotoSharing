@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SKIP_LOGIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -94,10 +94,13 @@
     <Compile Include="LoginForm.xaml.cs">
       <DependentUpon>LoginForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SharedAlbum.cs" />
+    <Compile Include="SharedAlbumImage.cs" />
     <Compile Include="SharedArea.xaml.cs">
       <DependentUpon>SharedArea.xaml</DependentUpon>
     </Compile>
     <Compile Include="SharedAreaInterface.cs" />
+    <Compile Include="SharedImage.cs" />
     <Compile Include="SharedItem.cs" />
     <Compile Include="StatusLed.xaml.cs">
       <DependentUpon>StatusLed.xaml</DependentUpon>

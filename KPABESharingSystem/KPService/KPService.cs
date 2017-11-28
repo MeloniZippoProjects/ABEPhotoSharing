@@ -155,8 +155,13 @@ namespace KPServices
 
             Process encryptProcess = new Process();
             encryptProcess.StartInfo.FileName = encryptPath;
-            encryptProcess.StartInfo.Arguments = $"{(deleteSourceFile ? "" : "--keep - input - file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}";
+            encryptProcess.StartInfo.Arguments = $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}";
             PrepareProcessStart(encryptProcess.StartInfo);
+
+#if DEBUG
+            Console.WriteLine($"Encrypt path: {encryptPath}");
+            Console.WriteLine($"Encrypt arguments: {encryptProcess.StartInfo.Arguments}");
+#endif
 
             encryptProcess.Start();
           
@@ -166,7 +171,7 @@ namespace KPServices
             //todo: add more specialized errors
 
             if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
-                throw new SuiteErrorException("Error during KPABE Setup");
+                throw new SuiteErrorException("Error during KPABE Encrypt");
         }
 
         public void Decrypt(String sourceFilePath, String destFilePath, bool deleteSourceFile = false)
@@ -183,6 +188,11 @@ namespace KPServices
             decryptProcess.StartInfo.FileName = decryptPath;
             decryptProcess.StartInfo.Arguments = $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\"";
             PrepareProcessStart(decryptProcess.StartInfo);
+
+#if DEBUG
+            Console.WriteLine($"Decrypt path: {decryptPath}");
+            Console.WriteLine($"Decrypt arguments: {decryptProcess.StartInfo.Arguments}");
+#endif
 
             decryptProcess.Start();
 
