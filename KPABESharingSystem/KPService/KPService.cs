@@ -52,6 +52,7 @@ namespace KPServices
         private static void PrepareProcessStart(ProcessStartInfo startInfo)
         {
             startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
         }
