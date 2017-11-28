@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using KPServices;
 
 namespace KPTrustedParty
@@ -13,15 +14,18 @@ namespace KPTrustedParty
             while (true)
             {
                 Console.Write("> ");
-                string command = Console.ReadLine();
-                if (command == null)
+                string commandLine = Console.ReadLine();
+                if (commandLine == null)
                     continue;
 
-                //todo: proper quote handling like in UniverseEditor
-
-                string[] commandWords = command.Split(null);
-                string[] args = commandWords.Skip(1).ToArray();
-                switch (commandWords[0])
+                Regex argumentFormat = new Regex("(?<quote>['\"])?(?<argument>(\w+(?(1)\s)?)+)(?(quote)['\"]) ");
+                string command = commandLine.Split(null)[0];
+                string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
+                    .Select(match => match.Groups["attribute"])
+                    .First().Captures.Cast<Capture>()
+                    .Select(capture => capture.Value)
+                    .ToArray();
+                switch (command)
                 {
                     case "universeEditor":
                     case "ue":
