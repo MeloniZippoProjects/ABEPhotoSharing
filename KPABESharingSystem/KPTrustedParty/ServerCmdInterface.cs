@@ -18,7 +18,7 @@ namespace KPTrustedParty
                 if (commandLine == null)
                     continue;
 
-                Regex argumentFormat = new Regex("(?<quote>['\"])?(?<argument>(\w+(?(1)\s)?)+)(?(quote)['\"]) ");
+                Regex argumentFormat = new Regex("(?<quote>['\"])?(?<argument>(\\w+(?(1)\\s)?)+)(?(quote)['\"]) ");
                 string command = commandLine.Split(null)[0];
                 string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
                     .Select(match => match.Groups["attribute"])
