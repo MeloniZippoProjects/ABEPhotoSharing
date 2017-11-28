@@ -31,8 +31,6 @@ namespace KPTrustedParty
             public DbSet<Token> Tokens { get; set; }
             public DbSet<Universe> Universes { get; set; }
         }
-
-        //todo: implement authentication.
     }
 
     
