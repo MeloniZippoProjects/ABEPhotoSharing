@@ -51,7 +51,7 @@ namespace KPClient
 
         public override bool IsPolicyVerified => ParentAlbum.IsPolicyVerified;
 
-        protected override byte[] GetSymmetricKey()
+        protected override SymmetricKey GetSymmetricKey()
         {
             if(Id == 0)
                 return ParentAlbum.SymmetricKey;

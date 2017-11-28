@@ -52,25 +52,6 @@ namespace KPClient
         public override bool IsValid => 
             File.Exists(ItemPath) && File.Exists(KeyPath);
 
-        protected override byte[] GetSymmetricKey()
-        {
-            try
-            {
-                string decryptedKeyPath = Path.GetTempFileName();
-                App app = (App)Application.Current;
-                app.KpService.Decrypt(
-                    sourceFilePath: KeyPath,
-                    destFilePath: decryptedKeyPath);
-                byte[] key = File.ReadAllBytes(decryptedKeyPath);
-                return key;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Operation failed: {e}");
-                return null;
-            }
-        }
-
         public byte[] _decryptedBytes = null;
         public byte[] DecryptedBytes => _decryptedBytes ?? (_decryptedBytes = GetDecryptedBytes());
 

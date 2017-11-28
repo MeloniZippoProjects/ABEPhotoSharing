@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
+using Newtonsoft.Json;
 
 namespace KPClient
 {
@@ -43,7 +44,7 @@ namespace KPClient
             && File.Exists(KeyPath)
             && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
 
-        protected override byte[] GetSymmetricKey()
+        protected override SymmetricKey GetSymmetricKey()
         {
             try
             {
@@ -52,8 +53,16 @@ namespace KPClient
                 app.KpService.Decrypt(
                     sourceFilePath: KeyPath,
                     destFilePath: decryptedKeyPath);
-                byte[] key = File.ReadAllBytes(decryptedKeyPath);
-                return key;
+
+                using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
+                {
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        string serializedKey = sr.ReadToEnd();
+                        var symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
+                        return symmetricKey;
+                    }
+                }
             }
             catch (Exception e)
             {

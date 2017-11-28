@@ -90,24 +90,23 @@ namespace KPClient
 
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var keyBytes = new byte[256/8];
-            var iv = new byte[128/8];
+            var symmetricKey = new SymmetricKey
+            {
+                Key = new byte[256 / 8],
+                IV = new byte[128 / 8]
+            };
+
             string workingDir = Path.GetTempPath();
 
-            GenerateKeyAndIv(ref keyBytes, ref iv);
+            GenerateKeyAndIv(symmetricKey);
 
             string keyPath = Path.Combine(workingDir, Path.GetRandomFileName());
-            var key = new
-            {
-                IV = iv,
-                Key = keyBytes
-            };
 
             using (FileStream fs = new FileStream(keyPath, FileMode.Create))
             {
                 using (StreamWriter sw = new StreamWriter(fs))
                 {
-                    string serializedKey = JsonConvert.SerializeObject(key);
+                    string serializedKey = JsonConvert.SerializeObject(symmetricKey);
                     sw.Write(serializedKey);
                 }
             }
@@ -128,7 +127,7 @@ namespace KPClient
             if (ImageItems.Count == 1)
             {
                 var imagePath = ImageItems.First().ImagePath;
-                UploadImage(imagePath, null, null, keyBytes, iv);
+                UploadImage(imagePath, null, null, symmetricKey);
                 finalKeyPath = Path.GetFileNameWithoutExtension(imagePath) + ".key.kpabe";
             }
             else
@@ -136,7 +135,7 @@ namespace KPClient
                 var albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
                 var albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
-                UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, keyBytes, iv);
+                UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, symmetricKey);
                 finalKeyPath = albumName + ".key.kpabe";
             }
 
@@ -147,18 +146,14 @@ namespace KPClient
                 overwrite: true);
         }
 
-        private void GenerateKeyAndIv(ref byte[] keyBytes, ref byte[] ivBytes)
+        private void GenerateKeyAndIv(SymmetricKey symmetricKey)
         {
             RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
-            if (keyBytes == null)
-                throw new ArgumentException("keyBytes must be initialized");
-            if (ivBytes == null)
-                throw new ArgumentException("ivBytes must be initialized");
-            rngCsp.GetBytes(keyBytes);
-            rngCsp.GetBytes(ivBytes);
+            rngCsp.GetBytes(symmetricKey.Key);
+            rngCsp.GetBytes(symmetricKey.IV);
         }
 
-        private void UploadImage(string imagePath, String albumName, int? imageId, byte[] keyBytes, byte[] ivBytes)
+        private void UploadImage(string imagePath, String albumName, int? imageId, SymmetricKey symmetricKey)
         {
             try
             {
@@ -174,9 +169,8 @@ namespace KPClient
 
                 Aes aes = new AesCng();
                 aes.KeySize = 256;
-                aes.Key = keyBytes;
-                aes.IV = ivBytes; //always 128 bits
-
+                aes.Key = symmetricKey.Key;
+                aes.IV = symmetricKey.IV; //always 128 bits
                 
                 var encryptor = aes.CreateEncryptor();
 
@@ -220,16 +214,16 @@ namespace KPClient
             }
         }
 
-        private void UploadAlbum(string[] imagePaths, string albumName, byte[] key, byte[] iv)
+        private void UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
         {
-            int i = 0;
+            int imageId = 0;
             foreach(var imagePath in imagePaths)
             {
                 var sha = new SHA256Cng();
-                UploadImage(imagePath, albumName, i, key, iv);
-                key = sha.ComputeHash(key);
-                iv = sha.ComputeHash(iv).Take(128/8).ToArray();
-                ++i;
+                UploadImage(imagePath, albumName, imageId, symmetricKey);
+                symmetricKey.Key = sha.ComputeHash(symmetricKey.IV);
+                symmetricKey.IV = sha.ComputeHash(symmetricKey.IV).Take(128/8).ToArray();
+                ++imageId;
             }
         }
     }

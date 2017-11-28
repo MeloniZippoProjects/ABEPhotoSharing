@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using KPServices;
 using MahApps.Metro.IconPacks;
+using Newtonsoft.Json;
 
 namespace KPClient
 {
@@ -63,10 +64,35 @@ namespace KPClient
 
         public virtual bool IsPolicyVerified => SymmetricKey != null;
 
-        private byte[] _symmetricKey;
-        protected abstract byte[] GetSymmetricKey();
+        private SymmetricKey _symmetricKey;
+        protected virtual SymmetricKey GetSymmetricKey()
+        {
+            try
+            {
+                string decryptedKeyPath = Path.GetTempFileName();
+                App app = (App)Application.Current;
+                app.KpService.Decrypt(
+                    sourceFilePath: KeyPath,
+                    destFilePath: decryptedKeyPath);
 
-        public byte[] SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
+                using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
+                {
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        string serializedKey = sr.ReadToEnd();
+                        var symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
+                        return symmetricKey;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Operation failed: {e}");
+                return null;
+            }
+        }
+
+        public SymmetricKey SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
     }
 
     public class SharedAreaItemButton : Button
