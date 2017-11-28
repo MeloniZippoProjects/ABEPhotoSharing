@@ -12,99 +12,23 @@ using MahApps.Metro.IconPacks;
 
 namespace KPClient
 {
-    public class SharedItem:DependencyObject
+    public abstract class SharedItem : DependencyObject
     {
         public static DrawingImage UndefinedThumbnail;
-        public static DrawingImage DefaultAlbumThumbnail;
-        public static DrawingImage DefaultImageThumbnail;
 
-        public enum SharedItemType
+        static SharedItem()
         {
-            Image,
-            Album,
-            AlbumImage
-        };
+            UndefinedThumbnail =
+                IconToDrawing(
+                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageBacklight });
+        }
 
-        public SharedItemType Type { get; set; }
-        public String Name { get; set; }
         public SharedArea SharedArea { get; set; }
-        public SharedItem ParentAlbum { get; set; }
 
-        public string ItemPath
-        {
-            get
-            {
-                switch (Type)
-                {
-                    case SharedItemType.Image:
-                        return Path.Combine(SharedArea.SharedFolderPath, "items", $"{Name}.png.aes");
-                    case SharedItemType.Album:
-                        return Path.Combine(SharedArea.SharedFolderPath, "items", Name);
-                    case SharedItemType.AlbumImage:
-                        return Path.Combine(SharedArea.SharedFolderPath, "items", ParentAlbum.Name, $"{ParentAlbum.Name}.{Name}.png.aes");
+        public abstract string ItemPath { get; }
+        public abstract string KeyPath { get; }
 
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        public string KeyPath
-        {
-            get
-            {
-                switch (Type)
-                {
-                    case SharedItemType.Image:
-                    case SharedItemType.Album:
-                        return Path.Combine(SharedArea.SharedFolderPath, "keys", $"{Name}.key.kpabe");
-                    
-                    case SharedItemType.AlbumImage:
-                        return Path.Combine(SharedArea.SharedFolderPath, "keys", $"{ParentAlbum.Name}.key.kpabe");
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        public bool IsValid
-        {
-            get
-            {
-                switch (Type)
-                {
-                    case SharedItemType.Image:
-                        return File.Exists(ItemPath) && File.Exists(KeyPath);
-                    case SharedItemType.Album:
-                    {
-                        if (Directory.Exists(ItemPath) && File.Exists(KeyPath))
-                            return File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.kpabe"));
-                        else
-                            return false;
-                    }
-                    case SharedItemType.AlbumImage:
-                    {
-                        if (ParentAlbum.IsValid)
-                        {
-                            var siblings = Directory.GetFiles(ParentAlbum.ItemPath)
-                                .Select(file => Path.GetFileName(file));
-                            for (int i = 0; i < Int32.Parse(Name); i++)
-                            {
-                                if (!siblings.Contains($"{ParentAlbum.Name}.{i}.png.kpabe"))
-                                    return false;
-                            }
-                            return true;
-                        }
-                        else
-                            return false;
-                    }
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+        public abstract bool IsValid { get; }
 
         //todo: could be cached
         public bool IsPolicyVerified
@@ -112,6 +36,8 @@ namespace KPClient
             get => VerifyPolicy();
         }
 
+        protected abstract bool VerifyPolicy();
+        
         private byte[] _symmetricKey;
         public byte[] SymmetricKey
         {
@@ -122,9 +48,18 @@ namespace KPClient
                 return _symmetricKey;
             }
         }
-        
-        //public string Path { get; set; }
-        
+
+        protected abstract byte[] GetSymmetricKey();
+
+        public virtual string Name
+        {
+            get => (string)GetValue(NameProperty);
+            set => SetValue(NameProperty, value);
+        }
+
+        public static readonly DependencyProperty NameProperty =
+            DependencyProperty.Register("Name", typeof(string), typeof(SharedItem), new PropertyMetadata(""));
+
         public ImageSource Thumbnail
         {
             get { return (ImageSource)GetValue(ThumbnailProperty); }
@@ -134,73 +69,9 @@ namespace KPClient
         public static readonly DependencyProperty ThumbnailProperty =
             DependencyProperty.Register("Thumbnail", typeof(ImageSource), typeof(SharedItem), new PropertyMetadata(UndefinedThumbnail));
 
-        private bool VerifyPolicy()
-        {
-            switch (Type)
-            {
-                case SharedItemType.Image:
-                case SharedItemType.Album:
-                    return GetSymmetricKey() != null;
+        public abstract void SetDefaultThumbnail();
 
-                case SharedItemType.AlbumImage:
-                    return ParentAlbum.IsPolicyVerified;
-            }
-
-            //How do you reach this?
-            return false;
-        }
-
-        private byte[] GetSymmetricKey()
-        {
-            switch (Type)
-            {
-                case SharedItemType.Image:
-                case SharedItemType.Album:
-                {
-                    string encKeyPath = Path.Combine(SharedArea.SharedFolderPath, "keys", Name, ".key.kpabe");
-                    try
-                    {
-                        string workingDir = Path.GetTempPath();
-                        string keyPath = Path.Combine(workingDir, Name, ".key");
-                        App app = (App)Application.Current;
-                        app.KpService.Decrypt(
-                            sourceFilePath: encKeyPath,
-                            destFilePath: keyPath);
-                        byte[] key = File.ReadAllBytes(keyPath);
-                        return key;
-                    }
-                    catch(Exception e)
-                    {
-                        Console.WriteLine($"Operation failed: {e}");
-                        return null;
-                    }
-                }
-
-                case SharedItemType.AlbumImage:
-                {
-                    return ParentAlbum.GetSymmetricKey();
-                }
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        static SharedItem()
-        {
-            UndefinedThumbnail =
-                IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageBacklight });
-
-            DefaultAlbumThumbnail =
-                IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageMultiple });
-
-            DefaultImageThumbnail =
-                IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.Image });
-        }
-        private static DrawingImage IconToDrawing(MahApps.Metro.IconPacks.PackIconModern icon)
+        protected static DrawingImage IconToDrawing(MahApps.Metro.IconPacks.PackIconModern icon)
         {
             Geometry geo = Geometry.Parse(icon.Data);
             GeometryDrawing gd = new GeometryDrawing();
@@ -211,6 +82,7 @@ namespace KPClient
             return geoImage;
         }
     }
+
     public class SharedAreaItemButton : Button
     {
         public SharedItem Item
@@ -223,54 +95,46 @@ namespace KPClient
         public static readonly DependencyProperty ItemProperty =
             DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton), new PropertyMetadata(null));
     }
-    public class DesignTimeWindowContext
+
+    public class DesignTimeSharedAreaContext
     {
-        public List<SharedItem> SharedAreaItems { get; set; } = new List<SharedItem>()
+        public List<SharedItem> SharedItems { get; set; } = new List<SharedItem>()
         {
-            new SharedItem()
+            new SharedAlbum()
             {
                 Name = "album",
-                Thumbnail = SharedItem.DefaultAlbumThumbnail
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "this is a very very long image name",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "this is a very very long image name.png.aes",
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "image",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "image.png.aes",
             },
-            new SharedItem()
+            new SharedAlbum()
             {
                 Name = "album",
-                Thumbnail = SharedItem.DefaultAlbumThumbnail
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "this is a very very long image name",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "this is a very very long image name.png.aes",
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "image",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "image.png.aes",
             },
-            new SharedItem()
+            new SharedAlbum()
             {
                 Name = "album",
-                Thumbnail = SharedItem.DefaultAlbumThumbnail
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "this is a very very long image name",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "this is a very very long image name.png.aes",
             },
-            new SharedItem()
+            new SharedImage()
             {
-                Name = "image",
-                Thumbnail = SharedItem.DefaultImageThumbnail
+                Name = "image.png.aes",
             }
         };
     }
