@@ -90,20 +90,80 @@ namespace KPClient
 
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
+            var keyBytes = new byte[256];
+            var iv = new byte[128];
+            string workingDir = Path.GetTempPath();
+
+            GenerateKeyAndIv(ref keyBytes, ref iv);
+
+            string keyPath = Path.Combine(workingDir, Path.GetRandomFileName());
+            var key = new
+            {
+                IV = iv,
+                Key = keyBytes
+            };
+
+            using (FileStream fs = new FileStream(keyPath, FileMode.Create))
+            {
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    string serializedKey = JsonConvert.SerializeObject(key);
+                    sw.Write(serializedKey);
+                }
+            }
+
+            string encryptedKeyPath = Path.GetRandomFileName();
+
+            App app = (App)Application.Current;
+
+            app.KpService.Encrypt(
+                sourceFilePath: keyPath,
+                destFilePath: encryptedKeyPath,
+                attributes: TagsSelector.GetTagsString());
+
+            //string finalKeyPath = (albumName ?? basename) + ".key.kpabe";
+
+            string finalKeyPath;
+
             if (ImageItems.Count == 1)
-                UploadImage(ImageItems.First().ImagePath);
+            {
+                var imagePath = ImageItems.First().ImagePath;
+                UploadImage(imagePath, null, null, keyBytes, iv);
+                finalKeyPath = Path.GetFileNameWithoutExtension(imagePath) + ".key.kpabe";
+            }
             else
-                UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray());
+            {
+                var albumName = DateTime.Now.ToString("yyyy-M-d_HH:mm");
+                UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, keyBytes, iv);
+                finalKeyPath = albumName + ".key.kpabe";
+            }
+
+            string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", finalKeyPath);
+
+            File.Copy(sourceFileName: encryptedKeyPath,
+                destFileName: keyDestPath,
+                overwrite: true);
         }
 
-        private void UploadImage(string imagePath)
+        private void GenerateKeyAndIv(ref byte[] keyBytes, ref byte[] ivBytes)
+        {
+            RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
+            if (keyBytes == null)
+                throw new ArgumentException("keyBytes must be initialized");
+            if (ivBytes == null)
+                throw new ArgumentException("ivBytes must be initialized");
+            rngCsp.GetBytes(keyBytes);
+            rngCsp.GetBytes(ivBytes);
+        }
+
+        private void UploadImage(string imagePath, String albumName, int? imageNumber, byte[] keyBytes, byte[] ivBytes)
         {
             try
             {
                 string workingDir = Path.GetTempPath();
                 Console.WriteLine(workingDir);
                 string basename = Path.GetFileNameWithoutExtension(imagePath);
-                string convertedFilepath = Path.Combine(workingDir, $"{basename}.png");
+                string convertedFilepath = Path.Combine(workingDir, Path.GetRandomFileName());
 
                 Bitmap b = new Bitmap(imagePath);
                 using (FileStream fs = new FileStream(convertedFilepath, FileMode.Create)) {
@@ -112,55 +172,28 @@ namespace KPClient
 
                 Aes aes = new AesCng();
                 aes.KeySize = 256;
-                aes.GenerateIV();
-                aes.GenerateKey();
+                aes.Key = keyBytes;
+                aes.IV = ivBytes; //always 128 bits
 
-                string keyPath = Path.Combine(workingDir, $"{basename}.key");
-                var key = new
-                {
-                    IV = aes.IV,
-                    Key = aes.Key
-                };
-                using (FileStream fs = new FileStream(keyPath, FileMode.Create))
-                {
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    {
-                        string serializedKey = JsonConvert.SerializeObject(key);
-                        sw.Write(serializedKey);
-                    }
-                }
-
-                string encryptedKeyPath = $"{keyPath}.kpabe";
-
-                App app = (App) Application.Current;
-
-                app.KpService.Encrypt(
-                    sourceFilePath: keyPath, 
-                    destFilePath: encryptedKeyPath,
-                    attributes: TagsSelector.GetTagsString());
                 
                 var encryptor = aes.CreateEncryptor();
 
-                string encryptedImagePath = $"{convertedFilepath}.aes";
-                using (FileStream outputFS = new FileStream(encryptedImagePath, FileMode.Create))
+                string encryptedImagePath = Path.GetRandomFileName();
+                using (FileStream outputFileStream = new FileStream(encryptedImagePath, FileMode.Create))
                 {
-                    using (CryptoStream encryptCS = new CryptoStream(outputFS, encryptor, CryptoStreamMode.Write))
+                    using (CryptoStream encryptCryptoStream = new CryptoStream(outputFileStream, encryptor, CryptoStreamMode.Write))
                     {
-                        using (FileStream inputFS = new FileStream(convertedFilepath, FileMode.Open))
+                        using (FileStream inputFileStream = new FileStream(convertedFilepath, FileMode.Open))
                         {
-                            inputFS.CopyTo(encryptCS);
+                            inputFileStream.CopyTo(encryptCryptoStream);
                         }
                     }
                 }
+                string finalImageName = basename + (imageNumber == null ? "" : $".{imageNumber}") + ".png.aes";
+                string finalImagePath = Path.Combine(albumName ?? "", finalImageName);
 
-                string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", Path.GetFileName(encryptedImagePath));
-                string imageDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", Path.GetFileName(encryptedKeyPath));
-                Console.WriteLine(keyDestPath);
+                string imageDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", finalImagePath);
                 Console.WriteLine(imageDestPath);
-
-                File.Copy(sourceFileName: encryptedKeyPath,
-                            destFileName: keyDestPath,
-                            overwrite: true);
                 
                 File.Copy(sourceFileName: encryptedImagePath,
                             destFileName : imageDestPath,
@@ -174,9 +207,17 @@ namespace KPClient
             }
         }
 
-        private void UploadAlbum(string[] imagePaths)
+        private void UploadAlbum(string[] imagePaths, string albumName, byte[] key, byte[] iv)
         {
-            MessageBox.Show("Not yet implemented!");
+            int i = 0;
+            foreach(var imagePath in imagePaths)
+            {
+                var sha = new SHA256Cng();
+                UploadImage(imagePath, albumName, i, key, iv);
+                key = sha.ComputeHash(key);
+                iv = sha.ComputeHash(iv).Take(128).ToArray();
+                ++i;
+            }
         }
     }
 
