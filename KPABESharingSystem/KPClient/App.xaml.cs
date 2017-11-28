@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace KPClient
                 LoginForm loginForm = new LoginForm();
                 loginForm.Show();
             }
-#endif
+#else
             if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
             {
                 //todo: should ask server
@@ -56,7 +57,14 @@ namespace KPClient
                 KPClient.Properties.Settings.Default.Save();
             }
 
-            ((App)Application.Current).Universe = Universe.FromString(KPClient.Properties.Settings.Default.Universe, false);
+            Universe = Universe.FromString(KPClient.Properties.Settings.Default.Universe, false);
+
+            KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
+            KpService = new KPService();
+            KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(),"pub_key"));
+            KpService.Keys.PrivateKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
+#endif
+
 #if DEBUG
             System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
 #endif
