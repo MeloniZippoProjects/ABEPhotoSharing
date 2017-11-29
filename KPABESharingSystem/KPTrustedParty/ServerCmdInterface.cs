@@ -75,18 +75,10 @@ namespace KPTrustedParty
                         var policy = args[1];
                         try
                         {
-                            KPService.Keygen(policy, $"{username}_privKey");
+                            byte[] privateKey = kpService.Keygen(policy);
                             KPDatabase.SetUserPolicy(username, policy);
-                            using (var privKeyStream = new MemoryStream())
-                            {
-                                using (var fileStream = File.Open($"{username}_privKey", FileMode.Open))
-                                {
-                                    fileStream.CopyTo(privKeyStream);
-                                }
-
-                                KPDatabase.SetUserPrivateKey(username, privKeyStream.ToArray());
-                            }
-                            File.Delete($"{username}_privKey");
+                            
+                            KPDatabase.SetUserPrivateKey(username, privateKey);
                         }
                         catch (AttributeNotFound)
                         {
@@ -116,16 +108,6 @@ namespace KPTrustedParty
                     }
                 }
             }
-        }
-
-        private static bool ArgumentCountCheck(string[] args, int required)
-        {
-            if (args.Length < required)
-            {
-                Console.WriteLine("Not enough arguments");
-                return false;
-            }
-            return true;
         }
 
         private static void DisplayHelp()

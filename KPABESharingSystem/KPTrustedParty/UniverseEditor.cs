@@ -27,11 +27,18 @@ namespace KPTrustedParty
 
                 Regex argumentFormat = new Regex("['\"](?<attribute>.+?)['\"]");
                 string command = commandLine.Split(null)[0];
-                string[] arguments = argumentFormat.Matches(commandLine).Cast<Match>()
-                                     .Select(match => match.Groups["attribute"])
-                                     .First().Captures.Cast<Capture>()
-                                     .Select(capture => capture.Value)
-                                     .ToArray();
+                string[] arguments;
+                try
+                {
+                     arguments = argumentFormat.Matches(commandLine).Cast<Match>()
+                        .Select(match => match.Groups["attribute"])
+                        .Select(capture => capture.Value)
+                        .ToArray();
+                }
+                catch (Exception e)
+                {
+                    arguments = new string[0];
+                }
 
                 switch (command)
                 {
@@ -39,12 +46,17 @@ namespace KPTrustedParty
                     case "a":
                     case "+":
                     {
+                        if (!ArgumentCountCheck(arguments, 1))
+                        {
+                            Console.WriteLine("At least one attribute needed; attribute format = '<attr>'");
+                            break;
+                        }
                         foreach (string argument in arguments)
                         {
                             try
                             {
                                 if (editedUniverse == null)
-                                    editedUniverse = Universe.FromString(argument, false);
+                                    editedUniverse = Universe.FromString($"'{argument}'", false);
                                 else
                                     editedUniverse.AddAttribute(argument);
                             }
@@ -62,6 +74,11 @@ namespace KPTrustedParty
                     case "r":
                     case "-":
                     {
+                        if (!ArgumentCountCheck(arguments, 1))
+                        {
+                            Console.WriteLine("At least one attribute needed; attribute format = '<attr>'");
+                            break;
+                        }
                         foreach (string argument in arguments)
                         {
                             bool? result = editedUniverse?.RemoveAttribute(argument);
@@ -83,41 +100,8 @@ namespace KPTrustedParty
 
                     case "commit":
                     {
-                        /* todo: make the changes effective
-                        * Make the changes effective. Should be important to make it transanctional so to not break everything
-                        * - Stop communications with clients, so stop giving old keys
-                        * - Compute the new ABE keys
-                        * - For each file, take its symmetric key, decrypt with old abe, encrypt with new abe
-                        * - Invalid user policies when necessary
-                        * - Resume communication like in a fresh start
-                        * asd
-                        */
-
-                        //todo: stop communications
                         universe = editedUniverse?.Copy();
-                        KPService.Universe = universe;
-                        KPService.Setup();
-                        foreach(var user in KPDatabase.GetUsersList())
-                        {
-                            try
-                            {
-                                var privKeyName = $"{user.Name}_privKey";
-                                KPService.Keygen(user.Policy, privKeyName);
-                                var privKeyFile = File.Open(privKeyName, FileMode.Open);
-                                var memStream = new MemoryStream();
-                                privKeyFile.CopyTo(memStream);
-                                var privKeyBytes = memStream.ToArray();
-                                KPDatabase.SetUserPrivateKey(user.Name, privKeyBytes); 
-                                File.Delete(privKeyName);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                                throw;
-                            }
-                        }
-                        
-                        break;
+                        return;
                     }
 
                     case "print":

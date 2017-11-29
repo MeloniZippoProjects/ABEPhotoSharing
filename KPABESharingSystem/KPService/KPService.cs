@@ -62,7 +62,7 @@ namespace KPServices
         /// </summary>
         public Keys Keys = new Keys();
       
-        public static Universe Universe { get; set; }
+        public Universe Universe { get; set; }
         
         /// <summary>
         /// Setups the KPABE encryption suite by creating the 
@@ -102,7 +102,7 @@ namespace KPServices
             Keys.MasterKey = File.ReadAllBytes(masterKey);
         }
 
-        public void Keygen(String policy)
+        public byte[] Keygen(String policy)
         {
             String keygenPath = GetTool(ExeNames.Keygen);
 
@@ -145,6 +145,7 @@ namespace KPServices
                 throw new KeygenException("Error during KPABE Setup");
 
             Keys.PrivateKey = File.ReadAllBytes(privateKey);
+            return Keys.PrivateKey;
         }
 
         public void Encrypt(String sourceFilePath, String destFilePath, String attributes, bool deleteSourceFile = false )

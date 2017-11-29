@@ -57,6 +57,9 @@
     <Reference Include="Grapevine, Version=4.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Grapevine.4.1.1.0\lib\net40\Grapevine.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />

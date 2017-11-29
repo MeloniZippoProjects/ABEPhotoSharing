@@ -19,6 +19,10 @@ namespace Tests
 
             Console.WriteLine(JsonConvert.SerializeObject(jsonResponse));
 
+            var x = JsonConvert.DeserializeObject("{\n    \"username\": \"ciao\",\n    \"password\": \"password\"\n}");
+
+            Console.WriteLine(x.GetType());
+
 
             //string universe = "canide eta=18 cosi";
 

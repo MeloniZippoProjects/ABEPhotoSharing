@@ -12,6 +12,8 @@ namespace KPTrustedParty
     {
         private static Universe universe;
         public static string Host;
+        public static byte[] KpPublicKey;
+        private static readonly KPService kpService = new KPService();
 
         static void Main()
         {
@@ -31,31 +33,42 @@ namespace KPTrustedParty
 
         private static void InitializeKPABE()
         {
-            KPService.SuitePath = @"./kpabe/bin";
+            KPService.SuitePath = @"../kpabe/bin";
             //KPService.UniversePath = @"./kpabe/universe";
-            KPDatabase.GetLatestUniverse();
+            var dbLatestUniverse = KPDatabase.GetLatestUniverse();
 
             //todo: remove this skipping after db development
-            bool universeCheck = false;
+            bool universeCreated;
             //bool universeCheck = true;
 
-            while (!universeCheck)
+            if (dbLatestUniverse != null)
             {
-                try
-                {
-                    universe = KPService.Universe;
-                    universeCheck = true;
-                }
-                catch(UniverseNotDefined ex)
-                {
-                    Console.WriteLine($"WARNING: {ex.Message}");
-                    Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");
-
-                    UniverseEditor();
-                }
+                kpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
+                universeCreated = false;
             }
+            else
+            {
+                Console.WriteLine($"WARNING: Universe not defined");
+                Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");
+                UniverseEditor();
+                kpService.Universe = universe;
+                universeCreated = true;
+            }
+            
+            kpService.Setup();
+            if(universeCreated)
+                KPDatabase.InsertUniverse(universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
+        }
 
-            //TODO: check for master and public key existance, generate them otherwise. Use toy encryption/decription for the test
+        private static bool ArgumentCountCheck(string[] args, int required)
+        {
+            if (args.Length < required)
+            {
+                Console.WriteLine("Not enough arguments");
+                return false;
+            }
+            return true;
         }
     }
+
 }
