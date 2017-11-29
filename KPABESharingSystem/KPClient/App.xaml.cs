@@ -25,18 +25,10 @@ namespace KPClient
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-#if !SKIP_LOGIN
-            if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.ServerAddress))
-            {
-                KPClient.Properties.Settings.Default.ServerAddress = @"localhost";
-                KPClient.Properties.Settings.Default.Save();
-            }
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            if (KPClient.Properties.Settings.Default.ServerPort == 0)
-            {
-                KPClient.Properties.Settings.Default.ServerPort = 1234;
-                KPClient.Properties.Settings.Default.Save();
-            }
+#if !SKIP_LOGIN
+            CheckServerSettings();
 
             RestClient = new RestClient
             {
@@ -47,7 +39,7 @@ namespace KPClient
             if (Username == null || Password == null)
             {
                 LoginForm loginForm = new LoginForm();
-                loginForm.Show();
+                loginForm.ShowDialog();
             }
 #else
             if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
@@ -70,7 +62,23 @@ namespace KPClient
 #endif
 
             MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            mainWindow.ShowDialog();
+            Shutdown();
+        }
+
+        private void CheckServerSettings()
+        {
+            if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.ServerAddress))
+            {
+                KPClient.Properties.Settings.Default.ServerAddress = @"localhost";
+                KPClient.Properties.Settings.Default.Save();
+            }
+
+            if (KPClient.Properties.Settings.Default.ServerPort == 0)
+            {
+                KPClient.Properties.Settings.Default.ServerPort = 1234;
+                KPClient.Properties.Settings.Default.Save();
+            }
         }
     }
 }
