@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -158,15 +159,31 @@ namespace KPClient
         
         private void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
         {
-            //todo: this needs to be implemented
-
             var button = sender as SharedAreaItemButton;
             var item = button.Item;
             if (item.IsPolicyVerified)
             {
-                
+                if (item is SharedImage)
+                    OpenImage(item as SharedImage);
+                else if (item is SharedAlbum)
+                    OpenAlbum(item as SharedAlbum);
             }
         }
-        
+
+        //todo: implement album opening
+        private void OpenAlbum(SharedAlbum sharedAlbum)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OpenImage(SharedImage sharedImage)
+        {
+            string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
+            File.WriteAllBytes(
+                bytes: sharedImage.DecryptedBytes, 
+                path: imagePath);
+
+            Process.Start(imagePath);
+        }
     }
 }
