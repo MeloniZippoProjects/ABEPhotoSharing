@@ -88,6 +88,7 @@ namespace KPClient
             return false;
         }
 
+        //todo: add control to choose image/album name. Use current settings as defaults
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
             var symmetricKey = new SymmetricKey
@@ -96,11 +97,9 @@ namespace KPClient
                 IV = new byte[128 / 8]
             };
 
-            string workingDir = Path.GetTempPath();
-
             GenerateKeyAndIv(symmetricKey);
 
-            string keyPath = Path.Combine(workingDir, Path.GetRandomFileName());
+            string keyPath = Path.GetTempFileName();
 
             using (FileStream fs = new FileStream(keyPath, FileMode.Create))
             {

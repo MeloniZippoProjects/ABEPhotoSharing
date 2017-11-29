@@ -61,6 +61,7 @@ namespace KPClient
             DependencyProperty.Register("Thumbnail", typeof(ImageSource), typeof(SharedItem), new PropertyMetadata(UndefinedThumbnail));
 
         public abstract void SetDefaultThumbnail();
+        public abstract void SetPreviewThumbnail();
 
         public virtual bool IsPolicyVerified => SymmetricKey != null;
 
@@ -112,42 +113,33 @@ namespace KPClient
     {
         public List<SharedItem> SharedItems { get; set; } = new List<SharedItem>()
         {
-            new SharedAlbum()
-            {
-                Name = "album",
-            },
-            new SharedImage()
-            {
-                Name = "this is a very very long image name.png.aes",
-            },
-            new SharedImage()
-            {
-                Name = "image.png.aes",
-            },
-            new SharedAlbum()
-            {
-                Name = "album",
-            },
-            new SharedImage()
-            {
-                Name = "this is a very very long image name.png.aes",
-            },
-            new SharedImage()
-            {
-                Name = "image.png.aes",
-            },
-            new SharedAlbum()
-            {
-                Name = "album",
-            },
-            new SharedImage()
-            {
-                Name = "this is a very very long image name.png.aes",
-            },
-            new SharedImage()
-            {
-                Name = "image.png.aes",
-            }
+            new SharedAlbum(
+                Name : "album",
+                SharedArea: null),
+            new SharedImage(
+                Name: "this is a very very long image name.png.aes",
+                SharedArea: null),
+            new SharedImage(
+                Name : "image.png.aes",
+                SharedArea: null),
+            new SharedAlbum(
+                Name : "album",
+                SharedArea: null),
+            new SharedImage(
+                Name: "this is a very very long image name.png.aes",
+                SharedArea: null),
+            new SharedImage(
+                Name : "image.png.aes",
+                SharedArea: null),
+            new SharedAlbum(
+                Name : "album",
+                SharedArea: null),
+            new SharedImage(
+                Name: "this is a very very long image name.png.aes",
+                SharedArea: null),
+            new SharedImage(
+                Name : "image.png.aes",
+                SharedArea: null)
         };
     }
 }

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using MahApps.Metro.IconPacks;
 
 namespace KPClient
@@ -22,11 +24,27 @@ namespace KPClient
                     new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.Image });
         }
 
-        public SharedImage() => Thumbnail = DefaultImageThumbnail;
+        public SharedImage(string Name, SharedArea SharedArea)
+        {
+            SetDefaultThumbnail();
+            this.Name = Name;
+            this.SharedArea = SharedArea;
+        }
 
         public override void SetDefaultThumbnail()
         {
             Thumbnail = DefaultImageThumbnail;
+        }
+
+        public override void SetPreviewThumbnail()
+        {
+            MemoryStream ms = new MemoryStream(DecryptedBytes);
+            BitmapImage thumbnail = new BitmapImage();
+            thumbnail.BeginInit();
+            thumbnail.StreamSource = ms;
+            thumbnail.EndInit();
+
+            Thumbnail = thumbnail;
         }
 
         public override string Name
@@ -57,8 +75,34 @@ namespace KPClient
 
         protected byte[] GetDecryptedBytes()
         {
-            //todo: implement decryption
-            return null;
+            try
+            {
+                Aes aes = new AesCng();
+                aes.KeySize = 256;
+                aes.Key = SymmetricKey.Key;
+                aes.IV = SymmetricKey.IV;
+
+                var decryptor = aes.CreateDecryptor();
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream decryptCryptoStream =
+                        new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                    {
+                        using (FileStream inFileStream = new FileStream(ItemPath, FileMode.Open))
+                        {
+                            inFileStream.CopyTo(decryptCryptoStream);
+                        }
+                    }
+
+                    return ms.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
+                return null;
+            }
         }
     }
 }
