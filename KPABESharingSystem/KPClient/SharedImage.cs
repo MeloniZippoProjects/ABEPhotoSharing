@@ -13,7 +13,7 @@ using MahApps.Metro.IconPacks;
 
 namespace KPClient
 {
-    class SharedImage : SharedItem
+    public class SharedImage : SharedItem
     {
         public static DrawingImage DefaultImageThumbnail;
 
@@ -75,6 +75,9 @@ namespace KPClient
 
         protected byte[] GetDecryptedBytes()
         {
+            if (!IsPolicyVerified)
+                return null;
+
             try
             {
                 Aes aes = new AesCng();

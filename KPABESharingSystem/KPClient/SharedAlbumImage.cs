@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KPClient
 {
-    class SharedAlbumImage : SharedImage
+    public class SharedAlbumImage : SharedImage
     {
         public SharedAlbum ParentAlbum { get; set; }
         public int ImageId;
@@ -45,9 +45,9 @@ namespace KPClient
                 {
                     var siblings = Directory.GetFiles(ParentAlbum.ItemPath)
                         .Select(file => Path.GetFileName(file));
-                    for (int i = 0; i < Int32.Parse(Name); i++)
+                    for (int i = 0; i <= ImageId; i++)
                     {
-                        if (!siblings.Contains($"{ParentAlbum.Name}.{i}.png.kpabe"))
+                        if (!siblings.Contains($"{ParentAlbum.Name}.{i}.png.aes"))
                             return false;
                     }
                     return true;

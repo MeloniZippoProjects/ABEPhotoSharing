@@ -108,38 +108,4 @@ namespace KPClient
         public static readonly DependencyProperty ItemProperty =
             DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton), new PropertyMetadata(null));
     }
-
-    public class DesignTimeSharedAreaContext
-    {
-        public List<SharedItem> SharedItems { get; set; } = new List<SharedItem>()
-        {
-            new SharedAlbum(
-                Name : "album",
-                SharedArea: null),
-            new SharedImage(
-                Name: "this is a very very long image name.png.aes",
-                SharedArea: null),
-            new SharedImage(
-                Name : "image.png.aes",
-                SharedArea: null),
-            new SharedAlbum(
-                Name : "album",
-                SharedArea: null),
-            new SharedImage(
-                Name: "this is a very very long image name.png.aes",
-                SharedArea: null),
-            new SharedImage(
-                Name : "image.png.aes",
-                SharedArea: null),
-            new SharedAlbum(
-                Name : "album",
-                SharedArea: null),
-            new SharedImage(
-                Name: "this is a very very long image name.png.aes",
-                SharedArea: null),
-            new SharedImage(
-                Name : "image.png.aes",
-                SharedArea: null)
-        };
-    }
 }
