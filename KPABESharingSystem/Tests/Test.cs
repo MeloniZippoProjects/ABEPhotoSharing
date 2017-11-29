@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KPServices;
+using Newtonsoft.Json;
 
 namespace Tests
 {
@@ -11,14 +12,22 @@ namespace Tests
     {
         static void Main(string[] args)
         {
+            var jsonResponse = new Dictionary<string, string>();
+            jsonResponse["error"] = "bad_format";
+            jsonResponse["errorDescription"] =
+                "The request format must be \"username=<username>;password=<password>\"";
+
+            Console.WriteLine(JsonConvert.SerializeObject(jsonResponse));
+
+
             //string universe = "canide eta=18 cosi";
 
             //KPService.UniversePath = "universe2";
             //KPService.SuitePath = @"D:\Documenti\GitHub\ABEPhotoSharing\KPABESharingSystem\Tests\bin\Debug\kpabe\";
 
-            NumericalAttributeParsingTest();
+            //NumericalAttributeParsingTest();
 
-            Console.ReadLine();
+            //Console.ReadLine();
 
             /*
             List<PolicyElement> policies = new List<PolicyElement>
@@ -78,6 +87,7 @@ namespace Tests
 
         private static void toolTest()
         {
+            /*
             KPService.SuitePath = @"D:\Users\Raff\Documents\GitHub\ABEPhotoSharing\bin\";
 
             List<UniverseAttribute> attributes = new List<UniverseAttribute>
@@ -95,6 +105,7 @@ namespace Tests
             KPService.Decrypt("prova.encrypted", "priv_key", false, "prova.decrypted");
 
             Console.ReadLine();
+            */
         }
     }
 }
