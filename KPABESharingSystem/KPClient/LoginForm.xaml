@@ -6,81 +6,75 @@
         xmlns:local="clr-namespace:KPClient"
         mc:Ignorable="d"
         Title="Login to KP Server" Height="300" Width="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="1.2*"/>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="1.2*"/>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="1.0*"/>
-            <RowDefinition Height="2*"/>
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.3*"/>
-            <ColumnDefinition Width="1.7*"/>
-            <ColumnDefinition Width="0.5*"/>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="0.5*"/>
-            <ColumnDefinition Width="1.5*"/>
-            <ColumnDefinition Width="0.5*"/>
-        </Grid.ColumnDefinitions>
-
+    <StackPanel
+        Margin="20"
+        Orientation="Vertical">
+        
         <Label
-            Grid.Row="1"
-            Grid.Column="2"
-            Grid.ColumnSpan="3"
             HorizontalAlignment="Center">
             Insert Login Info
         </Label>
 
-        <Label
-            Grid.Row="3"
-            Grid.Column="1"
-            HorizontalAlignment="Right">
-            Username:
-        </Label>
+        <Grid
+            Margin="5,20,5,20"
+            HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
 
-        <Label
-            Grid.Row="5"
-            Grid.Column="1"
-            HorizontalAlignment="Right">
-            Password:
-        </Label>
+            <Label
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="5"
+                HorizontalAlignment="Right">
+                Username:
+            </Label>
+            <TextBox
+                Grid.Row="0"
+                Grid.Column="1"
+                Margin="5"
+                Name="UsernameTextBox"
+                MinWidth="100"
+                TextAlignment="Left"
+                MaxLines="1">
+            </TextBox>
 
-        <Label
-            Grid.Row="9"
-            Grid.Column="1"
-            Grid.ColumnSpan="5"
-            HorizontalAlignment="Center"
-            Name="ErrorLabel">
-        </Label>
+            <Label
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="5"
+                HorizontalAlignment="Right">
+                Password:
+            </Label>
+            <PasswordBox
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="5"
+                Name="PasswordTextBox"
+                MinWidth="100">
+            </PasswordBox>
+        </Grid>
 
         <Button
+            Margin="15"
+            Height="25"
+            Width="100"
             Name="LoginButton"
-            Grid.Row="7"
-            Grid.Column="3" Click="LoginButton_Click">
+            Click="LoginButton_Click">
             Login
         </Button>
 
-        <TextBox
-            Name="UsernameTextBox"
-            Grid.Row="3"
-            Grid.Column="2"
-            Grid.ColumnSpan="3">
-        </TextBox>
-
-        <PasswordBox
-            Name="PasswordTextBox"
-            Grid.Row="5"
-            Grid.Column="2"
-            Grid.ColumnSpan="3">
-        </PasswordBox>
-
-    </Grid>
+        <Label
+           HorizontalAlignment="Center"
+           Height="25"
+           Name="ErrorLabel"
+           Foreground="IndianRed">
+           
+        </Label>
+    </StackPanel>
 </Window>
