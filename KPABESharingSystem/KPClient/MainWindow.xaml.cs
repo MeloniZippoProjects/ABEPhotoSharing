@@ -41,7 +41,7 @@ namespace KPClient
         {
             var uploadImagesWindow = new UploadImagesWindow();
             uploadImagesWindow.ShowDialog();
-            SharedArea.LoadSharedArea();
+            SharedArea.LoadRootItems();
         }
 
         private void SetSharedSpaceLocationButton_OnClick(object sender, RoutedEventArgs e)
@@ -61,7 +61,7 @@ namespace KPClient
 
         private void ReloadSharedSpaceButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SharedArea.LoadSharedArea();
+            SharedArea.LoadRootItems();
         }
     }
 }

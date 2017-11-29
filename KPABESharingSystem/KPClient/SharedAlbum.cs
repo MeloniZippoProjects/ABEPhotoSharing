@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace KPClient
 {
-    class SharedAlbum : SharedItem
+    public class SharedAlbum : SharedItem
     {
         public static DrawingImage DefaultAlbumThumbnail;
 
