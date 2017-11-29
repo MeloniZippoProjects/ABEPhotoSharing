@@ -92,10 +92,10 @@ namespace KPServices
                 throw new ToolNotFound($"Cannot find {setupPath}");
             }
 
-            String stderr = kpabeSetupProcess.StandardOutput.ReadToEnd();
+            String stderr = kpabeSetupProcess.StandardError.ReadToEnd();
             kpabeSetupProcess.WaitForExit();
 
-            if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 1)
+            if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
                 throw new SetupException("Error during KPABE Setup");
 
             Keys.PublicKey = File.ReadAllBytes(publicKey);

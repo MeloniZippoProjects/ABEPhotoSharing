@@ -35,7 +35,7 @@ namespace KPTrustedParty
                         .Select(capture => capture.Value)
                         .ToArray();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     arguments = new string[0];
                 }

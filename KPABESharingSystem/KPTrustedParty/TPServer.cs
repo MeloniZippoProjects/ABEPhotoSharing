@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ namespace KPTrustedParty
     {
         private static Universe universe;
         public static string Host;
-        public static byte[] KpPublicKey;
+
+        public static byte[] KpPublicKey => kpService.Keys.PublicKey;
         private static readonly KPService kpService = new KPService();
 
         static void Main()
@@ -33,7 +35,7 @@ namespace KPTrustedParty
 
         private static void InitializeKPABE()
         {
-            KPService.SuitePath = @"../kpabe/bin";
+            KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
             //KPService.UniversePath = @"./kpabe/universe";
             var dbLatestUniverse = KPDatabase.GetLatestUniverse();
 
@@ -44,18 +46,21 @@ namespace KPTrustedParty
             if (dbLatestUniverse != null)
             {
                 kpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
+                universe = kpService.Universe.Copy();
+                kpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
+                kpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
                 universeCreated = false;
             }
             else
             {
-                Console.WriteLine($"WARNING: Universe not defined");
+                Console.WriteLine("WARNING: Universe not defined");
                 Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");
                 UniverseEditor();
                 kpService.Universe = universe;
+                kpService.Setup();
                 universeCreated = true;
             }
             
-            kpService.Setup();
             if(universeCreated)
                 KPDatabase.InsertUniverse(universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
         }

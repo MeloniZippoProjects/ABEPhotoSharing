@@ -37,15 +37,26 @@ namespace KPTrustedParty
         }
         */
 
-        public static void LoginNeededMessage(IHttpContext context)
+        public static void LoginNeededMessage(IHttpResponse response)
         {
-            Dictionary<string, string> jsonResponse = new Dictionary<string, string>
+            var jsonResponse = new Dictionary<string, string>
             {
                 {"error", "login_needed"},
                 {"errorDescription", "You need to login before accessing this resource"}
             };
-            context.Response.StatusCode = HttpStatusCode.Forbidden;
-            context.Response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+            response.StatusCode = HttpStatusCode.Forbidden;
+            response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+        }
+
+        private static void BadRequestResponse(IHttpResponse response)
+        {
+            var jsonResponse = new Dictionary<string, string>
+            {
+                {"error", "bad_request_format"},
+                {"errorDescription", "The request must be a json object with 'username' and 'password' field"}
+            };
+            response.StatusCode = HttpStatusCode.BadRequest;
+            response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
         }
 
         [RestRoute(HttpMethod = HttpMethod.POST, PathInfo = "/login")]
@@ -57,17 +68,20 @@ namespace KPTrustedParty
             var responseEncoding = response.ContentEncoding;
             byte[] payloadBytes = responseEncoding.GetBytes(request.Payload);
             string payload = Encoding.UTF8.GetString(Encoding.Convert(responseEncoding, Encoding.UTF8, payloadBytes));
-
-            var jsonRequest = JObject.Parse(payload);
-            var jsonResponse = new Dictionary<string, string>();
+            JObject jsonRequest;
+            try
+            {
+                 jsonRequest = JObject.Parse(payload);
+            }
+            catch (JsonReaderException)
+            {
+                BadRequestResponse(response);
+                return context;
+            }
 
             if (jsonRequest["username"] == null || jsonRequest["password"] == null)
             {
-                jsonResponse["error"] = "bad_request_format";
-                jsonResponse["errorDescription"] =
-                    "The request format must be \"username=<username>;password=<password>\"";
-                response.StatusCode = HttpStatusCode.BadRequest;
-                response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+                BadRequestResponse(response);
                 return context;
             }
 
@@ -75,6 +89,8 @@ namespace KPTrustedParty
             var password = (string) jsonRequest["password"];
 
             var token = KPDatabase.LoginUser(username, password);
+
+            var jsonResponse = new Dictionary<string, string>();
 
             if (token == null)
             {
@@ -98,7 +114,6 @@ namespace KPTrustedParty
 
             return context;
         }
-
 
         [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/isLogged")]
         public IHttpContext IsLogged(IHttpContext context)
@@ -132,10 +147,22 @@ namespace KPTrustedParty
             context.Response.ContentType = ContentType.JSON;
 
 
-            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value); 
+            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
+            Dictionary<string, string> jsonResponse;
             if (user != null)
             {
-                var jsonResponse = new Dictionary<string, string>
+                if (user.PrivateKey == null)
+                {
+                    jsonResponse = new Dictionary<string, string>
+                    {
+                        {"error", "no_private_key"},
+                        {"errorDescription", "This user has no private key"}
+                    };
+                    response.StatusCode = HttpStatusCode.Ok;
+                    response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+                    return context;
+                }
+                jsonResponse = new Dictionary<string, string>
                 {
                     {"error", "none"},
                     {"content", Convert.ToBase64String(user.PrivateKey)},
@@ -146,7 +173,7 @@ namespace KPTrustedParty
                 return context;
             }
 
-            LoginNeededMessage(context);
+            LoginNeededMessage(response);
             return context;
         }
 
@@ -173,7 +200,7 @@ namespace KPTrustedParty
                 return context;
             }
 
-            LoginNeededMessage(context);
+            LoginNeededMessage(response);
             return context;
         }
 

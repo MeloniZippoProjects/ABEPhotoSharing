@@ -21,10 +21,9 @@ namespace KPTrustedParty
                 Regex argumentFormat = new Regex("(?<quote>['\"])?(?<argument>(\\w+(?(1)\\s)?)+)(?(quote)['\"]) ");
                 string command = commandLine.Split(null)[0];
                 string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
-                    .Select(match => match.Groups["attribute"])
-                    .First().Captures.Cast<Capture>()
+                    .Select(match => match.Groups["argument"])
                     .Select(capture => capture.Value)
-                    .ToArray();
+                    .Skip(1).ToArray();
                 switch (command)
                 {
                     case "universeEditor":
