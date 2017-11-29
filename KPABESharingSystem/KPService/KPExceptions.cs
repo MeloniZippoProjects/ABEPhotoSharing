@@ -48,10 +48,16 @@ namespace KPServices
         public UnsatisfiablePolicy(string message) : base(message) { }
     }
 
-    public class AttributeNotFound : KeygenException
+    public class AttributeNotFound : SuiteException
     {
         public AttributeNotFound() { }
         public AttributeNotFound(string message) : base(message) { }
+    }
+
+    public class AttributeBitResolutionException : AttributeNotFound
+    {
+        public AttributeBitResolutionException() { }
+        public AttributeBitResolutionException(string message) : base(message) { }
     }
 
     public class EncryptException : SuiteException

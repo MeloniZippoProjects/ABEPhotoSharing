@@ -172,7 +172,18 @@ namespace KPServices
             //todo: add more specialized errors
 
             if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
-                throw new EncryptException("Error during KPABE Encrypt");
+            {
+                if (new Regex("Certain attribute not include").IsMatch(stderr))
+                {
+                    //kpabe suite doesn't allow recognizing if attribute is missing
+                    //or if numerical attribute has different number of bits
+                    throw new AttributeNotFound(stderr);
+                }
+                if (new Regex("error parsing attribute").IsMatch(stderr))
+                {
+                    throw new AttributeBitResolutionException(stderr);
+                }
+            }
         }
 
         public void Decrypt(String sourceFilePath, String destFilePath, bool deleteSourceFile = false)
