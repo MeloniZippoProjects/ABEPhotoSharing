@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,16 +10,23 @@ namespace KPClient
 {
     class SharedAlbumImage : SharedImage
     {
-        public SharedItem ParentAlbum { get; set; }
-        public int Id;
+        public SharedAlbum ParentAlbum { get; set; }
+        public int ImageId;
 
+        public SharedAlbumImage(string Name, SharedArea SharedArea, SharedAlbum ParentAlbum, int ImageId) : base(Name,
+            SharedArea)
+        {
+            this.ParentAlbum = ParentAlbum;
+            this.ImageId = ImageId;
+        }
+        
         public override string ItemPath
         {
             get => Path.Combine(
                 SharedArea.SharedFolderPath,
                 "items",
                 ParentAlbum.Name,
-                $"{ParentAlbum.Name}.{Id}.png.aes");
+                $"{ParentAlbum.Name}.{ImageId}.png.aes");
         }
 
         public override string KeyPath
@@ -53,12 +61,21 @@ namespace KPClient
 
         protected override SymmetricKey GetSymmetricKey()
         {
-            if(Id == 0)
+            if (!IsValid)
+                return null;
+
+            if(ImageId == 0)
                 return ParentAlbum.SymmetricKey;
             else
             {
-                //todo: implement cascade key computation here
-                return null;
+                var precedent = ParentAlbum.Children[ImageId - 1];
+                var sha = new SHA256Cng();
+                var symmetricKey = new SymmetricKey
+                {
+                    Key = sha.ComputeHash(precedent.SymmetricKey.Key),
+                    IV = sha.ComputeHash(precedent.SymmetricKey.IV).Take(128/8).ToArray()
+                };
+                return symmetricKey;
             }
         }
     }

@@ -15,6 +15,8 @@ namespace KPClient
     {
         public static DrawingImage DefaultAlbumThumbnail;
 
+        public List<SharedAlbumImage> Children;
+
         static SharedAlbum()
         {
             DefaultAlbumThumbnail =
@@ -22,11 +24,45 @@ namespace KPClient
                     new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageMultiple });
         }
 
-        public SharedAlbum() => Thumbnail = DefaultAlbumThumbnail;
+        public SharedAlbum(string Name, SharedArea SharedArea)
+        {
+            SetDefaultThumbnail();
+            this.Name = Name;
+            this.SharedArea = SharedArea;
+
+            PopulateChildren();
+        }
+
+        private void PopulateChildren()
+        {
+            Children = new List<SharedAlbumImage>();
+            int childrenId = 0;
+            while (true)
+            {
+                string childrenName = $"{Name}.{childrenId}.png.aes";
+                string childrenPath = Path.Combine(ItemPath, childrenName);
+                if (File.Exists(childrenPath))
+                {
+                    Children.Add( new SharedAlbumImage(
+                        Name: childrenName,
+                        SharedArea: SharedArea,
+                        ParentAlbum: this,
+                        ImageId: childrenId));
+                    ++childrenId;
+                }
+                else
+                    return;
+            }
+        }
 
         public override void SetDefaultThumbnail()
         {
             Thumbnail = DefaultAlbumThumbnail;
+        }
+
+        public override void SetPreviewThumbnail()
+        {
+            SetDefaultThumbnail();
         }
 
         public override string ItemPath => Path.Combine(

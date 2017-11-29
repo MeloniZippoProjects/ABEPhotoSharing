@@ -77,9 +77,13 @@ namespace KPClient
                     var fileAttributes = File.GetAttributes(sharedItemPath);
                     SharedItem item;
                     if (fileAttributes.HasFlag(FileAttributes.Directory))
-                        item = new SharedAlbum();
+                        item = new SharedAlbum(
+                            Name: itemName,
+                            SharedArea: this);
                     else
-                        item = new SharedImage();
+                        item = new SharedImage(
+                            Name: itemName,
+                            SharedArea: this);
 
                     item.SharedArea = this;
                     item.Name = itemName;
@@ -108,16 +112,10 @@ namespace KPClient
 
         private void ApplyShowPreviews()
         {
-            //todo: reimplement with decription, possibly as abstract method
-
             SharedItems
-                .Where(sharedItem => sharedItem.IsPolicyVerified && sharedItem is SharedImage)
+                .Where(sharedItem => sharedItem.IsPolicyVerified)
                 .ToList()
-                .ForEach(sharedItem =>
-                {
-                    //BitmapImage thumbnail = new BitmapImage(new Uri(sharedItem.ItemPath));
-                    //sharedItem.Thumbnail = thumbnail;
-                });
+                .ForEach(sharedItem => sharedItem.SetPreviewThumbnail());
         }
 
         private void ApplyFilterOutOfPolicy()
