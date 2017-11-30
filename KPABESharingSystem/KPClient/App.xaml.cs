@@ -18,7 +18,7 @@ namespace KPClient
     public partial class App : Application
     {
         public Universe Universe;
-        public KPService KpService;
+        public KPService KpService = new KPService();
         public string Username;
         public string Password;
         public RestClient RestClient;
@@ -26,10 +26,30 @@ namespace KPClient
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            CheckAndPopulateDefaultSettings();
+            var settings = KPClient.Properties.Settings.Default;
+            KPService.SuitePath = settings.KPSuite;
+            if (!KPService.ValidClientSuite)
+            {
+                //todo: prompt error and ask to choose correct path
+                Shutdown();
+            }
+
+            try
+            {
+                Universe = Universe.FromString(settings.Universe);
+                KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKey);
+                KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKey);
+            }
+            catch (Exception ex)
+            {
+                //todo: this should mean we have to contact the server
+                GetKeys();
+            }
 
 #if !SKIP_LOGIN
-            CheckServerSettings();
 
+            GetKeys();
             RestClient = new RestClient
             {
                 Host = KPClient.Properties.Settings.Default.ServerAddress,
@@ -66,19 +86,31 @@ namespace KPClient
             Shutdown();
         }
 
-        private void CheckServerSettings()
+        private void GetKeys()
         {
-            if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.ServerAddress))
-            {
-                KPClient.Properties.Settings.Default.ServerAddress = @"localhost";
-                KPClient.Properties.Settings.Default.Save();
-            }
+            //
+        }
 
-            if (KPClient.Properties.Settings.Default.ServerPort == 0)
-            {
-                KPClient.Properties.Settings.Default.ServerPort = 1234;
-                KPClient.Properties.Settings.Default.Save();
-            }
+        private void CheckAndPopulateDefaultSettings()
+        {
+            var settings = KPClient.Properties.Settings.Default;
+
+            if (String.IsNullOrEmpty(settings.ServerAddress))
+                settings.ServerAddress = @"localhost";
+            
+            if (settings.ServerPort == 0)
+                settings.ServerPort = 1234;
+            
+            if(String.IsNullOrEmpty(settings.KPSuite))
+                settings.KPSuite = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
+
+            if(String.IsNullOrEmpty(settings.PublicKey))
+                settings.PublicKey = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
+
+            if (String.IsNullOrEmpty(settings.PrivateKey))
+                settings.PrivateKey = Path.Combine(Directory.GetCurrentDirectory(), "priv_key");
+            
+            settings.Save();
         }
     }
 }

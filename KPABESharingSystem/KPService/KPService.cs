@@ -63,7 +63,9 @@ namespace KPServices
         public Keys Keys = new Keys();
       
         public Universe Universe { get; set; }
-        
+
+        public static bool ValidClientSuite => File.Exists(GetTool(ExeNames.Encrypt)) && File.Exists(GetTool(ExeNames.Decrypt));
+
         /// <summary>
         /// Setups the KPABE encryption suite by creating the 
         /// master key and the public key.
