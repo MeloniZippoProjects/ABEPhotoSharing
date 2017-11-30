@@ -166,27 +166,16 @@ namespace KPClient
                     b.Save(fs, ImageFormat.Png);
                 }
 
-                Aes aes = new AesCng();
-                aes.KeySize = 256;
-                aes.Key = symmetricKey.Key;
-                aes.IV = symmetricKey.IV; //always 128 bits
-                
-                var encryptor = aes.CreateEncryptor();
-
                 string encryptedImagePath = Path.GetRandomFileName();
-                using (FileStream outputFileStream = new FileStream(encryptedImagePath, FileMode.Create))
+
+
+                using (Stream inputStream = new FileStream(convertedFilepath, FileMode.Open),
+                    outputStream = new FileStream(encryptedImagePath, FileMode.Create))
                 {
-                    using (CryptoStream encryptCryptoStream = new CryptoStream(outputFileStream, encryptor, CryptoStreamMode.Write))
-                    {
-                        using (FileStream inputFileStream = new FileStream(convertedFilepath, FileMode.Open))
-                        {
-                            inputFileStream.CopyTo(encryptCryptoStream);
-                        }
-                    }
+                    symmetricKey.EncryptFile(inputStream, outputStream);
                 }
 
-                string finalImageName;
-
+            string finalImageName;
                 if (albumName != null)
                 {
                     finalImageName = albumName + $".{imageId}" + ".png.aes";
@@ -205,7 +194,7 @@ namespace KPClient
                             destFileName : imageDestPath,
                             overwrite: true);
 
-                this.Close();
+                Close();
             }
             catch (Exception ex)
             {
@@ -218,10 +207,8 @@ namespace KPClient
             int imageId = 0;
             foreach(var imagePath in imagePaths)
             {
-                var sha = new SHA256Cng();
                 UploadImage(imagePath, albumName, imageId, symmetricKey);
-                symmetricKey.Key = sha.ComputeHash(symmetricKey.IV);
-                symmetricKey.IV = sha.ComputeHash(symmetricKey.IV).Take(128/8).ToArray();
+                symmetricKey = symmetricKey.GetNextKey();
                 ++imageId;
             }
         }

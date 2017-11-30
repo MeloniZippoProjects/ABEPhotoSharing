@@ -87,18 +87,11 @@ namespace KPClient
 
                 var decryptor = aes.CreateDecryptor();
 
-                using (MemoryStream ms = new MemoryStream())
+                using (Stream inputStream = new FileStream(ItemPath, FileMode.Open),
+                    outputStream = new MemoryStream())
                 {
-                    using (CryptoStream decryptCryptoStream =
-                        new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
-                    {
-                        using (FileStream inFileStream = new FileStream(ItemPath, FileMode.Open))
-                        {
-                            inFileStream.CopyTo(decryptCryptoStream);
-                        }
-                    }
-
-                    return ms.ToArray();
+                    SymmetricKey.DecryptFile(inputStream, outputStream);
+                    return ((MemoryStream)outputStream).ToArray();
                 }
             }
             catch (Exception ex)
