@@ -111,7 +111,8 @@ namespace KPTrustedParty
 
         private static void DisplayHelp()
         {
-            throw new NotImplementedException();
+            //todo: write this help page
+            Console.WriteLine("Check the source code.");
         }
     }
 }

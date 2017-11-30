@@ -21,27 +21,29 @@ namespace KPTrustedParty
         {
             InitializeKPABE();
             Console.InputEncoding = Encoding.UTF8;
-            //Initialize server component: async tasks or threads?
+            var settings = KPTrustedParty.Properties.Settings.Default;
+
+            //todo: server doesn't stop in case of exceptions
+            //todo: should rely on ssl/tls
             using (var server = new RestServer())
             {
                 server.LogToConsole();
+                server.Port = settings.ServerPort.ToString();
                 server.Start();
                 Host = server.Host;
                 CommandLineLoop();
                 server.Stop();
             }
-                
         }
 
         private static void InitializeKPABE()
         {
-            KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
-            //KPService.UniversePath = @"./kpabe/universe";
-            var dbLatestUniverse = KPDatabase.GetLatestUniverse();
+            CheckAndPopulateDefaultSettings();
 
-            //todo: remove this skipping after db development
-            bool universeCreated;
-            //bool universeCheck = true;
+            var settings = KPTrustedParty.Properties.Settings.Default;
+
+            KPService.SuitePath = settings.KPSuitePath;
+            var dbLatestUniverse = KPDatabase.GetLatestUniverse();
 
             if (dbLatestUniverse != null)
             {
@@ -49,7 +51,6 @@ namespace KPTrustedParty
                 universe = kpService.Universe.Copy();
                 kpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
                 kpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
-                universeCreated = false;
             }
             else
             {
@@ -58,11 +59,8 @@ namespace KPTrustedParty
                 UniverseEditor();
                 kpService.Universe = universe;
                 kpService.Setup();
-                universeCreated = true;
-            }
-            
-            if(universeCreated)
                 KPDatabase.InsertUniverse(universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
+            }
         }
 
         private static bool ArgumentCountCheck(string[] args, int required)
@@ -73,6 +71,19 @@ namespace KPTrustedParty
                 return false;
             }
             return true;
+        }
+
+        private static void CheckAndPopulateDefaultSettings()
+        {
+            var settings = KPTrustedParty.Properties.Settings.Default;
+
+            if (String.IsNullOrEmpty(settings.KPSuitePath))
+                settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
+
+            if (settings.ServerPort == 0)
+                settings.ServerPort = 1234;
+
+            settings.Save();
         }
     }
 
