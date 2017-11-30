@@ -4,11 +4,13 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Grapevine.Client;
+using Grapevine.Shared;
 using KPServices;
+using Newtonsoft.Json;
 
 namespace KPClient
 {
@@ -19,9 +21,9 @@ namespace KPClient
     {
         public Universe Universe;
         public KPService KpService = new KPService();
+        public KPRestClient KPRestClient;
         public string Username;
         public string Password;
-        public RestClient RestClient;
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
@@ -38,29 +40,17 @@ namespace KPClient
             try
             {
                 Universe = Universe.FromString(settings.Universe);
-                KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKey);
-                KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKey);
+                KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKeyPath);
+                KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKeyPath);
             }
             catch (Exception)
             {
-                //todo: this should mean we have to contact the server
-                GetKeys();
+                Console.WriteLine(ex.Message);
+                GetSettingsFromServer();
             }
 
 #if !SKIP_LOGIN
 
-            GetKeys();
-            RestClient = new RestClient
-            {
-                Host = KPClient.Properties.Settings.Default.ServerAddress,
-                Port = KPClient.Properties.Settings.Default.ServerPort
-            };
-
-            if (Username == null || Password == null)
-            {
-                LoginForm loginForm = new LoginForm();
-                loginForm.ShowDialog();
-            }
 #else
             if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
             {
@@ -73,8 +63,8 @@ namespace KPClient
 
             KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
             KpService = new KPService();
-            KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(),"pub_key"));
-            KpService.Keys.PrivateKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
+            KpService.Keys.PublicKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(),"pub_key"));
+            KpService.Keys.PrivateKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
 #endif
 
 #if DEBUG
@@ -86,9 +76,44 @@ namespace KPClient
             Shutdown();
         }
 
-        private void GetKeys()
+        private void GetSettingsFromServer()
         {
-            //
+            //todo: setup ssl/tls
+
+            var settings = KPClient.Properties.Settings.Default;
+
+            KPRestClient = new KPRestClient(
+                Host : settings.ServerAddress,
+                Port : settings.ServerPort
+            );
+
+            if (Username == null || Password == null || !KPRestClient.Login(Username, Password))
+            {
+                LoginForm loginForm = new LoginForm();
+                loginForm.ShowDialog();
+                if (!KPRestClient.IsLogged)
+                    Shutdown();
+            }
+
+            byte[] publicKey = KPRestClient.GetPublicKey();
+            byte[] privateKey = KPRestClient.GetPublicKey();
+
+            if (publicKey == null || privateKey == null)
+            {
+                MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
+                Shutdown();
+            }
+
+            KpService.Keys.PublicKey = publicKey;
+            KpService.Keys.PrivateKey = privateKey;
+
+            File.WriteAllBytes(
+                path: settings.PublicKeyPath,
+                bytes: publicKey);
+            File.WriteAllBytes(
+                path: settings.PrivateKeyPath,
+                bytes: privateKey);
+
         }
 
         private void CheckAndPopulateDefaultSettings()
@@ -104,11 +129,11 @@ namespace KPClient
             if(String.IsNullOrEmpty(settings.KPSuite))
                 settings.KPSuite = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
 
-            if(String.IsNullOrEmpty(settings.PublicKey))
-                settings.PublicKey = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
+            if(String.IsNullOrEmpty(settings.PublicKeyPath))
+                settings.PublicKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
 
-            if (String.IsNullOrEmpty(settings.PrivateKey))
-                settings.PrivateKey = Path.Combine(Directory.GetCurrentDirectory(), "priv_key");
+            if (String.IsNullOrEmpty(settings.PrivateKeyPath))
+                settings.PrivateKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "priv_key");
             
             settings.Save();
         }

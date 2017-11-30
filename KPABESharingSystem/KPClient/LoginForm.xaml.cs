@@ -15,6 +15,7 @@ using Grapevine.Client;
 using Grapevine.Shared;
 using Newtonsoft.Json;
 
+
 namespace KPClient
 {
     /// <summary>
@@ -31,21 +32,9 @@ namespace KPClient
         {
             var username = UsernameTextBox.Text;
             var password = PasswordTextBox.Password;
+            App app = (App) Application.Current;
 
-            RestRequest request = new RestRequest
-            {
-                Payload = JsonConvert.SerializeObject(
-                    new {
-                        Username = username,
-                        Password = password
-                    }),
-                Encoding = Encoding.UTF8,
-                HttpMethod = HttpMethod.POST,
-                ContentType = ContentType.TXT,
-                RequestUri = new Uri("/login")
-            };
-            var response = ((App) Application.Current).RestClient.Execute(request);
-            if (response.StatusCode == HttpStatusCode.Ok)
+            if (app.KPRestClient.Login(username, password))
                 this.Close();
             else
                 ErrorLabel.Content = "Wrong Username or Password";

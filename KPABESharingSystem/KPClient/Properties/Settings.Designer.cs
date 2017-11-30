@@ -74,24 +74,24 @@ namespace KPClient.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string PublicKey {
+        public string PublicKeyPath {
             get {
-                return ((string)(this["PublicKey"]));
+                return ((string)(this["PublicKeyPath"]));
             }
             set {
-                this["PublicKey"] = value;
+                this["PublicKeyPath"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string PrivateKey {
+        public string PrivateKeyPath {
             get {
-                return ((string)(this["PrivateKey"]));
+                return ((string)(this["PrivateKeyPath"]));
             }
             set {
-                this["PrivateKey"] = value;
+                this["PrivateKeyPath"] = value;
             }
         }
         

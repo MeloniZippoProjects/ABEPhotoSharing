@@ -90,10 +90,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="kpabe\kpabe-dec.exe" />
-    <Content Include="kpabe\kpabe-enc.exe" />
-    <Content Include="kpabe\kpabe-keygen.exe" />
-    <Content Include="kpabe\kpabe-setup.exe" />
+    <Content Include="kpabe\kpabe-dec.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="kpabe\kpabe-enc.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="kpabe\kpabe-keygen.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="kpabe\kpabe-setup.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="KPDatabase.mdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
