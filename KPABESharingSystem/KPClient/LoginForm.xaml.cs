@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Grapevine.Client;
 using Grapevine.Shared;
+using Newtonsoft.Json;
 
 namespace KPClient
 {
@@ -33,7 +34,11 @@ namespace KPClient
 
             RestRequest request = new RestRequest
             {
-                Payload = $"username={username};password={password}",
+                Payload = JsonConvert.SerializeObject(
+                    new {
+                        Username = username,
+                        Password = password
+                    }),
                 Encoding = Encoding.UTF8,
                 HttpMethod = HttpMethod.POST,
                 ContentType = ContentType.TXT,

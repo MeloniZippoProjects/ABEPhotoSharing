@@ -41,7 +41,7 @@ namespace KPClient
                 KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKey);
                 KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKey);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //todo: this should mean we have to contact the server
                 GetKeys();
