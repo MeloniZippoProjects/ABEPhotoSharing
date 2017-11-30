@@ -43,7 +43,7 @@ namespace KPClient
                 KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKeyPath);
                 KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKeyPath);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 GetSettingsFromServer();
