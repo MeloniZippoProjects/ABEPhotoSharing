@@ -32,6 +32,8 @@ namespace KPClient
 
         public bool Login(string Username, string Password)
         {
+            var requestUri = new UriBuilder(RestClient.BaseUrl) {Path = "/login"}.Uri;
+
             RestRequest request = new RestRequest
             {
                 Payload = JsonConvert.SerializeObject(
@@ -43,7 +45,7 @@ namespace KPClient
                 Encoding = Encoding.UTF8,
                 HttpMethod = HttpMethod.POST,
                 ContentType = ContentType.TXT,
-                RequestUri = new Uri("/login")
+                RequestUri = requestUri
             };
             var response = RestClient.Execute(request);
             return response.StatusCode == HttpStatusCode.Ok;
@@ -53,9 +55,10 @@ namespace KPClient
         {
             get
             {
+                var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/isLogged" }.Uri;
                 RestRequest request = new RestRequest
                 {
-                    RequestUri = new Uri("/isLogged"),
+                    RequestUri = requestUri,
                     HttpMethod = HttpMethod.GET
                 };
                 var response = RestClient.Execute(request);
@@ -74,9 +77,10 @@ namespace KPClient
 
         public byte[] GetPublicKey()
         {
+            var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/getPublicKey" }.Uri;
             RestRequest request = new RestRequest
             {
-                RequestUri = new Uri("/getPublicKey"),
+                RequestUri = requestUri,
                 HttpMethod = HttpMethod.GET
             };
             var response = RestClient.Execute(request);
@@ -93,9 +97,10 @@ namespace KPClient
 
         public byte[] GetPrivateKey()
         {
+            var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/getPrivateKey" }.Uri;
             RestRequest request = new RestRequest
             {
-                RequestUri = new Uri("/getPrivateKey"),
+                RequestUri = requestUri,
                 HttpMethod = HttpMethod.GET
             };
             var response = RestClient.Execute(request);

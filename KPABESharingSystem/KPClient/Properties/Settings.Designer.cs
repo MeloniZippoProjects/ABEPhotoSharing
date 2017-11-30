@@ -98,12 +98,12 @@ namespace KPClient.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string KPSuite {
+        public string KPSuitePath {
             get {
-                return ((string)(this["KPSuite"]));
+                return ((string)(this["KPSuitePath"]));
             }
             set {
-                this["KPSuite"] = value;
+                this["KPSuitePath"] = value;
             }
         }
     }

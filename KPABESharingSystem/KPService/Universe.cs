@@ -129,8 +129,11 @@ namespace KPServices
 
             if (!skipInvalidAttributes && exceptions.Count > 0)
                 throw new AggregateException("String contained invalid attributes", exceptions);
+            else if (universe.Count == 0)
+                throw new ArgumentException("The resulting universe is void");
             else
                 return universe;
+                
         }
         
         /// <summary>

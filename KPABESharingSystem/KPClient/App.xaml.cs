@@ -30,7 +30,7 @@ namespace KPClient
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             CheckAndPopulateDefaultSettings();
             var settings = KPClient.Properties.Settings.Default;
-            KPService.SuitePath = settings.KPSuite;
+            KPService.SuitePath = settings.KPSuitePath;
             if (!KPService.ValidClientSuite)
             {
                 //todo: prompt error and ask to choose correct path
@@ -126,8 +126,8 @@ namespace KPClient
             if (settings.ServerPort == 0)
                 settings.ServerPort = 1234;
             
-            if(String.IsNullOrEmpty(settings.KPSuite))
-                settings.KPSuite = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
+            if(String.IsNullOrEmpty(settings.KPSuitePath))
+                settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
 
             if(String.IsNullOrEmpty(settings.PublicKeyPath))
                 settings.PublicKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");

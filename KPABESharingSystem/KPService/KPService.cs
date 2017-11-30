@@ -97,6 +97,12 @@ namespace KPServices
             String stderr = kpabeSetupProcess.StandardError.ReadToEnd();
             kpabeSetupProcess.WaitForExit();
 
+#if DEBUG
+            Console.WriteLine($"Command: {setupPath}");
+            Console.WriteLine($"Arguments: {kpabeSetupProcess.StartInfo.Arguments}");
+            Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
+#endif
+
             if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
                 throw new SetupException("Error during KPABE Setup");
 
@@ -134,6 +140,10 @@ namespace KPServices
             String stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
             kpabeKeygenProcess.WaitForExit();
 
+#if DEBUG
+            Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
+#endif
+
             if (new Regex("unsatisfiable integer comparison").IsMatch(stderr))
                 throw new UnsatisfiablePolicy(stderr);
 
@@ -144,7 +154,7 @@ namespace KPServices
                 throw new AttributeNotFound(stderr);
 
             if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
-                throw new KeygenException("Error during KPABE Setup");
+                throw new KeygenException("Error during KPABE Keygen");
 
             Keys.PrivateKey = File.ReadAllBytes(privateKey);
             return Keys.PrivateKey;
