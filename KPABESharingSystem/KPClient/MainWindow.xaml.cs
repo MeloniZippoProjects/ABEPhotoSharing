@@ -63,5 +63,15 @@ namespace KPClient
         {
             SharedArea.LoadRootItems();
         }
+
+        private void DisconnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            //todo: implement disconnection button
+        }
+
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        {
+            //todo: implement home button
+        }
     }
 }

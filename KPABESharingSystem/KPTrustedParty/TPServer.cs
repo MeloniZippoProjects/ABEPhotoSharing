@@ -86,5 +86,4 @@ namespace KPTrustedParty
             settings.Save();
         }
     }
-
 }
