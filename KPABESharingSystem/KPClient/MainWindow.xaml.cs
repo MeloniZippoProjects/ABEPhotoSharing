@@ -66,7 +66,15 @@ namespace KPClient
 
         private void DisconnectButton_Click(object sender, RoutedEventArgs e)
         {
-            //todo: implement disconnection button
+            var settings = KPClient.Properties.Settings.Default;
+            settings.Universe = null;
+            File.Delete(settings.PublicKeyPath);
+            settings.PublicKeyPath = null;
+            File.Delete(settings.PrivateKeyPath);
+            settings.PrivateKeyPath = null;
+            settings.Save();
+
+            Application.Current.Shutdown();
         }
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
