@@ -15,14 +15,19 @@ namespace KPClient
 
         public SymmetricKey GetNextKey()
         {
+            if(Key == null || IV == null)
+                throw new InvalidOperationException("Undefined Key or IV, cannot compute next");
+
             var sha = new SHA256Cng();
-            var nextSymmetricKey = new SymmetricKey();
-            nextSymmetricKey.Key = sha.ComputeHash(nextSymmetricKey.IV);
-            nextSymmetricKey.IV = sha.ComputeHash(nextSymmetricKey.IV).Take(128 / 8).ToArray();
-            return nextSymmetricKey;
+            var next = new SymmetricKey
+            {
+                Key = sha.ComputeHash(Key),
+                IV = sha.ComputeHash(IV).Take(128 / 8).ToArray()
+            };
+            return next;
         }
 
-        public void EncryptFile(Stream inputStream, Stream outputStream)
+        public void Encrypt(Stream inputStream, Stream outputStream)
         {
             Aes aes = new AesCng();
             aes.KeySize = 256;
@@ -31,14 +36,13 @@ namespace KPClient
 
             var encryptor = aes.CreateEncryptor();
 
-            var decryptor = aes.CreateDecryptor();
-            using (CryptoStream decryptCryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
+            using (CryptoStream encryptStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
             {
-                inputStream.CopyTo(decryptCryptoStream);
+                inputStream.CopyTo(encryptStream);
             }
         }
 
-        public void DecryptFile(Stream inputStream, Stream outputStream)
+        public void Decrypt(Stream inputStream, Stream outputStream)
         {
             Aes aes = new AesCng();
             aes.KeySize = 256;

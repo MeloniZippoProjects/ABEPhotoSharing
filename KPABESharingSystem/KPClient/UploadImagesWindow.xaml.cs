@@ -172,7 +172,7 @@ namespace KPClient
                 using (Stream inputStream = new FileStream(convertedFilepath, FileMode.Open),
                     outputStream = new FileStream(encryptedImagePath, FileMode.Create))
                 {
-                    symmetricKey.EncryptFile(inputStream, outputStream);
+                    symmetricKey.Encrypt(inputStream, outputStream);
                 }
 
             string finalImageName;

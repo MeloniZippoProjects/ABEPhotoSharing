@@ -90,7 +90,7 @@ namespace KPClient
                 using (Stream inputStream = new FileStream(ItemPath, FileMode.Open),
                     outputStream = new MemoryStream())
                 {
-                    SymmetricKey.DecryptFile(inputStream, outputStream);
+                    SymmetricKey.Decrypt(inputStream, outputStream);
                     return ((MemoryStream)outputStream).ToArray();
                 }
             }
