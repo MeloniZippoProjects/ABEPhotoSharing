@@ -132,12 +132,64 @@ namespace KPTrustedParty
             return context;
         }
 
-        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/getPrivateKey")]
+        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/universe")]
+        public IHttpContext GetUniverse(IHttpContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+            context.Response.ContentType = ContentType.JSON;
+
+            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
+            if (user != null)
+            {
+                var publicKey = TPServer.KpPublicKey;
+                var jsonResponse = new KPRestResponse
+                {
+                    Error = "none",
+                    Content = TPServer.Universe.ToString(),
+                    ContentDescription = "Universe"
+                };
+                response.StatusCode = HttpStatusCode.Ok;
+                response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+                return context;
+            }
+
+            LoginNeededMessage(response);
+            return context;
+        }
+
+        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/publicKey")]
+        public IHttpContext GetPublicKey(IHttpContext context)
+        {
+            var request = context.Request;
+            var response = context.Response;
+            context.Response.ContentType = ContentType.JSON;
+
+            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
+            if (user != null)
+            {
+                var publicKey = TPServer.KpPublicKey;
+                var jsonResponse = new KPRestResponse
+                {
+                    Error = "none",
+                    Content = Convert.ToBase64String(publicKey),
+                    ContentDescription = "Public Key"
+                };
+                response.StatusCode = HttpStatusCode.Ok;
+                response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+                return context;
+            }
+
+            LoginNeededMessage(response);
+            return context;
+        }
+
+        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/privateKey")]
         public IHttpContext GetPrivateKey(IHttpContext context)
         {
             var response = context.Response;
             context.Response.ContentType = ContentType.JSON;
-            
+
             var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
             if (user != null)
             {
@@ -172,31 +224,5 @@ namespace KPTrustedParty
             }
         }
 
-        //todo: probably better to put public key inside shared folder
-        [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/getPublicKey")]
-        public IHttpContext GetPublicKey(IHttpContext context)
-        {
-            var request = context.Request;
-            var response = context.Response;
-            context.Response.ContentType = ContentType.JSON;
-
-            var user = KPDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
-            if (user != null)
-            {
-                var publicKey = TPServer.KpPublicKey;
-                var jsonResponse = new KPRestResponse
-                {
-                    Error = "none",
-                    Content = Convert.ToBase64String(publicKey),
-                    ContentDescription = "Public Key"
-                };
-                response.StatusCode = HttpStatusCode.Ok;
-                response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
-                return context;
-            }
-
-            LoginNeededMessage(response);
-            return context;
-        }
     }
 }

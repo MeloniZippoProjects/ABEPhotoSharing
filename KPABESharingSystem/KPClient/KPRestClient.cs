@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Grapevine.Client;
 using Grapevine.Shared;
+using KPServices;
 using Newtonsoft.Json;
 
 namespace KPClient
@@ -48,8 +49,7 @@ namespace KPClient
                         Password = Password
                     }),
                 HttpMethod = HttpMethod.POST,
-                ContentType = ContentType.JSON,
-                
+                ContentType = ContentType.JSON
             };
             var response = RestClient.Execute(request);
             return response.StatusCode == HttpStatusCode.Ok;
@@ -78,9 +78,28 @@ namespace KPClient
             }
         }
 
+        public Universe GetUniverse()
+        {
+            RestRequest request = new RestRequest("/universe")
+            {
+                HttpMethod = HttpMethod.GET,
+                RequestUri = RequestUri
+            };
+            var response = RestClient.Execute(request);
+            if (response.StatusCode == HttpStatusCode.Ok)
+            {
+                var jsonResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                    response.GetContent());
+                if (jsonResponse.Error == "none")
+                    return Universe.FromString(jsonResponse.Content);
+            }
+
+            return null;
+        }
+
         public byte[] GetPublicKey()
         {
-            RestRequest request = new RestRequest("/getPublicKey")
+            RestRequest request = new RestRequest("/publicKey")
             {
                 HttpMethod = HttpMethod.GET,
                 RequestUri = RequestUri
@@ -99,7 +118,7 @@ namespace KPClient
 
         public byte[] GetPrivateKey()
         {
-            RestRequest request = new RestRequest("/getPrivateKey")
+            RestRequest request = new RestRequest("/privateKey")
             {
                 HttpMethod = HttpMethod.GET,
                 RequestUri = RequestUri

@@ -16,7 +16,7 @@ namespace KPTrustedParty
             Console.WriteLine("------- UniverseEditor -------");
             UniverseEditorHelp();
 
-            Universe editedUniverse = universe?.Copy();
+            Universe editedUniverse = Universe?.Copy();
 
             while (true)
             {
@@ -94,13 +94,13 @@ namespace KPTrustedParty
 
                     case "reload":
                     {
-                        editedUniverse = universe?.Copy();
+                        editedUniverse = Universe?.Copy();
                         break;
                     }
 
                     case "commit":
                     {
-                        universe = editedUniverse?.Copy();
+                        Universe = editedUniverse?.Copy();
                         return;
                     }
 
@@ -132,33 +132,33 @@ namespace KPTrustedParty
         {
             //todo: write more about commit command
             Console.WriteLine(
-            @"The UniverseEditor tool is intended to define the KP attribute universe in a safe way.
+            @"The UniverseEditor tool is intended to define the KP attribute Universe in a safe way.
             It checks existing data and avoids conflicts before committing the changes. 
-            Until commit, all changes are on a temporary universe and do not interfere with the existing universe.
+            Until commit, all changes are on a temporary Universe and do not interfere with the existing Universe.
             In the following text, curly brackets {} contain aliases for the command. 
             For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
 
                 {add, a, +} attribute1 attribute2 ...
-                    Adds the listed attributes to the universe. In case of errors, they are reported and attributed is skipped.
+                    Adds the listed attributes to the Universe. In case of errors, they are reported and attributed is skipped.
                     The attribute must comply with the KPABE syntax, which is
                         - The attribute name can be any sequence of letters, digits and _ symbol that starts with a letter and is not one of 'and', 'or', 'of'
                         - In case of a numerical attribute, it has a = following the name and an optional '# k', 0 < k <= 64 which specifies the bit resolution
 
                 {remove, r, -} attributeName1 attribute
-                    Removes the listed attributes from the universe. In case of errors, they are reported and attributed is skipped.
+                    Removes the listed attributes from the Universe. In case of errors, they are reported and attributed is skipped.
 
                 commit
                     Make the changes definitive. # Lots of checks and stuff to be defined #
                     
 
                 reload
-                    Resets the edited universe to the current universe, that is the last committed version.
+                    Resets the edited Universe to the current Universe, that is the last committed version.
 
                 {print, p}
-                    Displays the attributes contained in the current universe and in the edited universe.
+                    Displays the attributes contained in the current Universe and in the edited Universe.
 
                 quit
-                    Quits the UniverseEditor. Any un-committed change to the universe is discarded.
+                    Quits the UniverseEditor. Any un-committed change to the Universe is discarded.
 
                 {help, anything that is not a valid command}
                     Displays this guide.
@@ -167,18 +167,18 @@ namespace KPTrustedParty
 
         private static void PrintUniverse()
         {
-            if(universe == null)
-                Console.WriteLine("There is no current universe defined.");
+            if(Universe == null)
+                Console.WriteLine("There is no current Universe defined.");
             else
-                Console.WriteLine($"The current universe is: {universe}");
+                Console.WriteLine($"The current Universe is: {Universe}");
         }
 
         private static void PrintEditedUniverse(Universe editedUniverse)
         {
             if (editedUniverse == null || editedUniverse.Count == 0)
-                Console.WriteLine("The edited universe is not defined");
+                Console.WriteLine("The edited Universe is not defined");
             else
-                Console.WriteLine($"The edited universe is: {editedUniverse}");
+                Console.WriteLine($"The edited Universe is: {editedUniverse}");
         }
     }
 }

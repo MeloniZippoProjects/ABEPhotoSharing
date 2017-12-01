@@ -95,10 +95,11 @@ namespace KPClient
                     Shutdown();
             }
 
+            Universe = KPRestClient.GetUniverse();
             byte[] publicKey = KPRestClient.GetPublicKey();
             byte[] privateKey = KPRestClient.GetPrivateKey();
 
-            if (publicKey == null || privateKey == null)
+            if (Universe == null || publicKey == null || privateKey == null)
             {
                 MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
                 Shutdown();
@@ -108,13 +109,17 @@ namespace KPClient
             KpService.Keys.PublicKey = publicKey;
             KpService.Keys.PrivateKey = privateKey;
 
+            settings.Universe = Universe.ToString();
+            settings.Save();
+
             File.WriteAllBytes(
                 path: settings.PublicKeyPath,
                 bytes: publicKey);
+
             File.WriteAllBytes(
                 path: settings.PrivateKeyPath,
                 bytes: privateKey);
-
+            
         }
 
         private void CheckAndPopulateDefaultSettings()

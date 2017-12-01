@@ -11,7 +11,7 @@ namespace KPTrustedParty
 {
     partial class TPServer
     {
-        private static Universe universe;
+        public static Universe Universe;
         public static string Host;
 
         public static byte[] KpPublicKey => kpService.Keys.PublicKey;
@@ -48,18 +48,18 @@ namespace KPTrustedParty
             if (dbLatestUniverse != null)
             {
                 kpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
-                universe = kpService.Universe.Copy();
+                Universe = kpService.Universe.Copy();
                 kpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
                 kpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
             }
             else
             {
                 Console.WriteLine("WARNING: Universe not defined");
-                Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the universe");
+                Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the Universe");
                 UniverseEditor();
-                kpService.Universe = universe;
+                kpService.Universe = Universe;
                 kpService.Setup();
-                KPDatabase.InsertUniverse(universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
+                KPDatabase.InsertUniverse(Universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
             }
         }
 
