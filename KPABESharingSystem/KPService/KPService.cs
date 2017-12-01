@@ -182,8 +182,6 @@ namespace KPServices
             String stderr = encryptProcess.StandardError.ReadToEnd();
             encryptProcess.WaitForExit();
 
-            //todo: add more specialized errors
-
             if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
             {
                 if (new Regex("Certain attribute not include").IsMatch(stderr))
@@ -223,9 +221,7 @@ namespace KPServices
 
             String stderr = decryptProcess.StandardError.ReadToEnd();
             decryptProcess.WaitForExit();
-
-            //todo: add more specialized errors
-            
+           
             if (stderr.Contains("cannot decrypt, attributes in ciphertext do not satisfy policy"))
                 throw new PolicyUnsatisfied("Attributes in ciphertext do not satisfy policy");
 
