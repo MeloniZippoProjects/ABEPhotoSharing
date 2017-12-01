@@ -125,7 +125,7 @@ namespace KPServices
             kpabeKeygenProcess.StartInfo.FileName = keygenPath;
             PrepareProcessStart(kpabeKeygenProcess.StartInfo);
 
-            String argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" {policy} ";
+            String argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" \"{policy}\" ";
             kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
 
             try

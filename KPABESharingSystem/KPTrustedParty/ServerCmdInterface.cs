@@ -59,6 +59,11 @@ namespace KPTrustedParty
                         string username = args[0];
                         string password = args[1];
 
+#if DEBUG
+                        Console.WriteLine($"Captured username is: [{username}]");
+                        Console.WriteLine($"Captured password is: [{password}]");
+#endif
+
                         KPDatabase.RegisterUser(username, password);
                         
                         break;
@@ -74,6 +79,7 @@ namespace KPTrustedParty
                         var policy = args[1];
                         try
                         {
+                            //todo: we could do some parsing just to make the policy syntax more flexible
                             byte[] privateKey = kpService.Keygen(policy);
                             KPDatabase.SetUserPolicy(username, policy);
                             
