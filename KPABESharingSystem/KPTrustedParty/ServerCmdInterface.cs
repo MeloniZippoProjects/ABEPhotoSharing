@@ -24,6 +24,9 @@ namespace KPTrustedParty
                     .Select(match => match.Groups["argument"])
                     .Select(capture => capture.Value)
                     .Skip(1).ToArray();
+
+                //todo: add commands to pilot the underlaying REST server
+                //todo: add commands to check and change the settings
                 switch (command)
                 {
                     case "universeEditor":
@@ -118,7 +121,7 @@ namespace KPTrustedParty
         private static void DisplayHelp()
         {
             //todo: write this help page
-            Console.WriteLine("Check the source code.");
+            Console.WriteLine("Help unavailable: check the source code.");
         }
     }
 }

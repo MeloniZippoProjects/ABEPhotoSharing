@@ -3,10 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="ServerPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">443</Value>
     </Setting>
     <Setting Name="KPSuitePath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ServerHost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0.0.0.0</Value>
     </Setting>
   </Settings>
 </SettingsFile>
