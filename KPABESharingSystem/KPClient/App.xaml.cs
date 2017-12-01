@@ -122,6 +122,7 @@ namespace KPClient
             
         }
 
+        //todo: add interfaces to handle all the settings via GUI
         private void CheckAndPopulateDefaultSettings()
         {
             var settings = KPClient.Properties.Settings.Default;
