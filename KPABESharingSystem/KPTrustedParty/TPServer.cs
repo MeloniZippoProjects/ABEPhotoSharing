@@ -24,13 +24,13 @@ namespace KPTrustedParty
             var settings = KPTrustedParty.Properties.Settings.Default;
 
             //todo: server doesn't stop in case of exceptions
-            //todo: should rely on ssl/tls
             using (var server = new RestServer())
             {
                 server.LogToConsole();
                 server.Port = settings.ServerPort.ToString();
+                server.UseHttps = true;
+                server.Host = settings.ServerHost;
                 server.Start();
-                Host = server.Host;
                 CommandLineLoop();
                 server.Stop();
             }
@@ -80,8 +80,11 @@ namespace KPTrustedParty
             if (String.IsNullOrEmpty(settings.KPSuitePath))
                 settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
 
+            if (String.IsNullOrEmpty(settings.ServerHost))
+                settings.ServerHost = "192.168.1.115";
+
             if (settings.ServerPort == 0)
-                settings.ServerPort = 1234;
+                settings.ServerPort = 443;
 
             settings.Save();
         }

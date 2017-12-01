@@ -118,7 +118,7 @@ namespace KPTrustedParty
         private static void DisplayHelp()
         {
             //todo: write this help page
-            Console.WriteLine("Check the source code.");
+            Console.WriteLine("Help unavailable: check the source code.");
         }
     }
 }
