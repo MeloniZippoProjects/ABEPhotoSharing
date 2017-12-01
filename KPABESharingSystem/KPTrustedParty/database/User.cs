@@ -120,7 +120,7 @@ namespace KPTrustedParty
                         var currentToken = existingTokenQuery.FirstOrDefault();
                         Debug.Assert(currentToken != null, nameof(currentToken) + " != null");
                         currentToken.TokenString = tokenString;
-                        currentToken.ExpirationDateTime = DateTime.Now.AddMinutes(5);
+                        currentToken.ExpirationDateTime = DateTime.Now.AddMinutes(30);
                         returnToken = currentToken;
                     }
                     else
@@ -128,7 +128,7 @@ namespace KPTrustedParty
                         var newToken = new Token
                         {
                             TokenString = tokenString,
-                            ExpirationDateTime = DateTime.Now.AddMinutes(5),
+                            ExpirationDateTime = DateTime.Now.AddMinutes(30),
                             UserName = authUser.Name
                         };
                         db.Tokens.Add(newToken);

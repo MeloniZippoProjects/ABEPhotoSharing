@@ -96,12 +96,13 @@ namespace KPClient
             }
 
             byte[] publicKey = KPRestClient.GetPublicKey();
-            byte[] privateKey = KPRestClient.GetPublicKey();
+            byte[] privateKey = KPRestClient.GetPrivateKey();
 
             if (publicKey == null || privateKey == null)
             {
                 MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
                 Shutdown();
+                return;
             }
 
             KpService.Keys.PublicKey = publicKey;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,21 +21,25 @@ namespace KPClient
         }
 
         public RestClient RestClient;
+        public Uri RequestUri;
 
         public KPRestClient(string Host, int Port)
-        {
+        { 
             RestClient = new RestClient
             {
                 Host = Host,
                 Port = Port
             };
+            UriBuilder ub = new UriBuilder()
+            {
+                Host = Host
+            };
+            RequestUri = ub.Uri;
         }
 
         public bool Login(string Username, string Password)
         {
-            var requestUri = new UriBuilder(RestClient.BaseUrl) {Path = "/login"}.Uri;
-
-            RestRequest request = new RestRequest
+            RestRequest request = new RestRequest("/login")
             {
                 Payload = JsonConvert.SerializeObject(
                     new
@@ -42,10 +47,9 @@ namespace KPClient
                         Username = Username,
                         Password = Password
                     }),
-                Encoding = Encoding.UTF8,
                 HttpMethod = HttpMethod.POST,
-                ContentType = ContentType.TXT,
-                RequestUri = requestUri
+                ContentType = ContentType.JSON,
+                
             };
             var response = RestClient.Execute(request);
             return response.StatusCode == HttpStatusCode.Ok;
@@ -55,11 +59,10 @@ namespace KPClient
         {
             get
             {
-                var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/isLogged" }.Uri;
-                RestRequest request = new RestRequest
+                RestRequest request = new RestRequest("/isLogged")
                 {
-                    RequestUri = requestUri,
-                    HttpMethod = HttpMethod.GET
+                    HttpMethod = HttpMethod.GET,
+                    RequestUri = RequestUri
                 };
                 var response = RestClient.Execute(request);
                 if (response.StatusCode == HttpStatusCode.Ok)
@@ -77,11 +80,10 @@ namespace KPClient
 
         public byte[] GetPublicKey()
         {
-            var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/getPublicKey" }.Uri;
-            RestRequest request = new RestRequest
+            RestRequest request = new RestRequest("/getPublicKey")
             {
-                RequestUri = requestUri,
-                HttpMethod = HttpMethod.GET
+                HttpMethod = HttpMethod.GET,
+                RequestUri = RequestUri
             };
             var response = RestClient.Execute(request);
             if (response.StatusCode == HttpStatusCode.Ok)
@@ -97,11 +99,10 @@ namespace KPClient
 
         public byte[] GetPrivateKey()
         {
-            var requestUri = new UriBuilder(RestClient.BaseUrl) { Path = "/getPrivateKey" }.Uri;
-            RestRequest request = new RestRequest
+            RestRequest request = new RestRequest("/getPrivateKey")
             {
-                RequestUri = requestUri,
-                HttpMethod = HttpMethod.GET
+                HttpMethod = HttpMethod.GET,
+                RequestUri = RequestUri
             };
             var response = RestClient.Execute(request);
             if (response.StatusCode == HttpStatusCode.Ok)

@@ -23,20 +23,6 @@ namespace KPTrustedParty
     {
         public static string SessionCookie { get; set; } = "KPABESESSIONID";
 
-        /*
-        public static KPDatabase.User UserLogged(IHttpContext context)
-        {
-            var sessionToken = context.Request.Cookies[SessionCookie]?.Value;
-
-            if (sessionToken != null)
-            {
-                return KPDatabase.UserLogged(sessionToken);
-            }
-
-            return null;
-        }
-        */
-
         internal class KPRestResponse
         {
             public string Error { get; set; } = "none";
@@ -114,8 +100,10 @@ namespace KPTrustedParty
                 response.StatusCode = HttpStatusCode.Ok;
                 response.AppendCookie(new Cookie {
                     Domain = TPServer.Host,
+                    Path = "/",
                     Name = SessionCookie,
-                    Value = token.TokenString
+                    Value = token.TokenString,
+                    Expires = token.ExpirationDateTime
                 });
             }
 
