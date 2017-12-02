@@ -9,7 +9,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="ServerHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)">0.0.0.0</Value>
+      <Value Profile="(Default)">+</Value>
     </Setting>
   </Settings>
 </SettingsFile>

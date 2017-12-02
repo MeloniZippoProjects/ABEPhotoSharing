@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using Grapevine.Client;
-using Grapevine.Shared;
+using System.Windows.Forms;
 using KPServices;
-using Newtonsoft.Json;
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace KPClient
 {
@@ -31,10 +25,24 @@ namespace KPClient
             CheckAndPopulateDefaultSettings();
             var settings = KPClient.Properties.Settings.Default;
             KPService.SuitePath = settings.KPSuitePath;
-            if (!KPService.ValidClientSuite)
+            while (!KPService.ValidClientSuite)
             {
-                //todo: prompt error and ask to choose correct path
-                Shutdown();
+                MessageBox.Show("Invalid path for the kpabe suite!");
+                using (var fbd = new FolderBrowserDialog())
+                {
+                    DialogResult result = fbd.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    {
+                        settings.KPSuitePath = fbd.SelectedPath;
+                        settings.Save();
+                        KPService.SuitePath = fbd.SelectedPath;
+                    }
+                    else
+                    {
+                        Shutdown();
+                        return;
+                    }
+                }
             }
 
             try
@@ -46,29 +54,17 @@ namespace KPClient
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                GetSettingsFromServer();
-            }
-
 #if !SKIP_LOGIN
-
+                GetSettingsFromServer();
 #else
-            if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
-            {
-                //todo: should ask server
-                KPClient.Properties.Settings.Default.Universe = @"'anime' 'mario' 'cose'";
-                KPClient.Properties.Settings.Default.Save();
-            }
-
-            Universe = Universe.FromString(KPClient.Properties.Settings.Default.Universe, false);
-
-            KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
-            KpService = new KPService();
-            KpService.Keys.PublicKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(),"pub_key"));
-            KpService.Keys.PrivateKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
+                Universe = Universe.FromString(@"'anime' 'mario' 'cose'");
+                KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "pub_key"));
+                KpService.Keys.PrivateKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
 #endif
+            }
 
 #if DEBUG
-            System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
+                System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
 #endif
 
             MainWindow mainWindow = new MainWindow();
@@ -78,13 +74,12 @@ namespace KPClient
 
         private void GetSettingsFromServer()
         {
-            //todo: setup ssl/tls
-
             var settings = KPClient.Properties.Settings.Default;
 
             KPRestClient = new KPRestClient(
                 Host : settings.ServerAddress,
-                Port : settings.ServerPort
+                Port : settings.ServerPort,
+                UseHTTPS: true
             );
 
             if (Username == null || Password == null || !KPRestClient.Login(Username, Password))

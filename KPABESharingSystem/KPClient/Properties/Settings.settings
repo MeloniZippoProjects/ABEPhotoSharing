@@ -11,9 +11,6 @@
     <Setting Name="ServerAddress" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ServerPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
     <Setting Name="PublicKeyPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -22,6 +19,9 @@
     </Setting>
     <Setting Name="KPSuitePath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ServerPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">443</Value>
     </Setting>
   </Settings>
 </SettingsFile>

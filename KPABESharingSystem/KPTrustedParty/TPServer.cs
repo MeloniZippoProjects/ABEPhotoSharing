@@ -22,6 +22,7 @@ namespace KPTrustedParty
             InitializeKPABE();
             Console.InputEncoding = Encoding.UTF8;
             var settings = KPTrustedParty.Properties.Settings.Default;
+            Host = settings.ServerHost;
 
             //todo: server doesn't stop in case of exceptions
             using (var server = new RestServer())
@@ -57,9 +58,6 @@ namespace KPTrustedParty
                 Console.WriteLine("WARNING: Universe not defined");
                 Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the Universe");
                 UniverseEditor();
-                kpService.Universe = Universe;
-                kpService.Setup();
-                KPDatabase.InsertUniverse(Universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
             }
         }
 
@@ -89,5 +87,4 @@ namespace KPTrustedParty
             settings.Save();
         }
     }
-
 }

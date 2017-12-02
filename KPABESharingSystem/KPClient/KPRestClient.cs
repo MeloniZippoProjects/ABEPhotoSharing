@@ -24,12 +24,13 @@ namespace KPClient
         public RestClient RestClient;
         public Uri RequestUri;
 
-        public KPRestClient(string Host, int Port)
+        public KPRestClient(string Host, int Port, bool UseHTTPS)
         { 
             RestClient = new RestClient
             {
+                Scheme = UseHTTPS ? UriScheme.Https : UriScheme.Http,
                 Host = Host,
-                Port = Port
+                Port = Port              
             };
             UriBuilder ub = new UriBuilder()
             {
