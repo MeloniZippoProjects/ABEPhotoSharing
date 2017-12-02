@@ -37,7 +37,6 @@ namespace KPClient
                 {
                     Properties.Settings.Default.SharedFolderPath = fbd.SelectedPath;
                     Properties.Settings.Default.Save();
-                    //UpdateSharedArea();
                 }
             }
         }

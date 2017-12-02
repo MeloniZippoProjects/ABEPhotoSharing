@@ -54,29 +54,17 @@ namespace KPClient
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                GetSettingsFromServer();
-            }
-
 #if !SKIP_LOGIN
-
+                GetSettingsFromServer();
 #else
-            if (String.IsNullOrEmpty(KPClient.Properties.Settings.Default.Universe))
-            {
-                //todo: should ask server
-                KPClient.Properties.Settings.Default.Universe = @"'anime' 'mario' 'cose'";
-                KPClient.Properties.Settings.Default.Save();
-            }
-
-            Universe = Universe.FromString(KPClient.Properties.Settings.Default.Universe, false);
-
-            KPService.SuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
-            KpService = new KPService();
-            KpService.Keys.PublicKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(),"pub_key"));
-            KpService.Keys.PrivateKeyPath = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
+                Universe = Universe.FromString(@"'anime' 'mario' 'cose'");
+                KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "pub_key"));
+                KpService.Keys.PrivateKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
 #endif
+            }
 
 #if DEBUG
-            System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
+                System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
 #endif
 
             MainWindow mainWindow = new MainWindow();
@@ -86,13 +74,12 @@ namespace KPClient
 
         private void GetSettingsFromServer()
         {
-            //todo: setup ssl/tls
-
             var settings = KPClient.Properties.Settings.Default;
 
             KPRestClient = new KPRestClient(
                 Host : settings.ServerAddress,
-                Port : settings.ServerPort
+                Port : settings.ServerPort,
+                UseHTTPS: true
             );
 
             if (Username == null || Password == null || !KPRestClient.Login(Username, Password))
