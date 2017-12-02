@@ -101,6 +101,9 @@ namespace KPTrustedParty
                     case "commit":
                     {
                         Universe = editedUniverse?.Copy();
+                        kpService.Universe = Universe;
+                        kpService.Setup();
+                        KPDatabase.InsertUniverse(Universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
                         return;
                     }
 

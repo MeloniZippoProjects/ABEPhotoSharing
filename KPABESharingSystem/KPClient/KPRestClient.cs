@@ -28,8 +28,9 @@ namespace KPClient
         { 
             RestClient = new RestClient
             {
+                Scheme = UriScheme.Https,
                 Host = Host,
-                Port = Port
+                Port = Port              
             };
             UriBuilder ub = new UriBuilder()
             {

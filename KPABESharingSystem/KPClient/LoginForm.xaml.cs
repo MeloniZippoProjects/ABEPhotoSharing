@@ -28,6 +28,7 @@ namespace KPClient
             InitializeComponent();
         }
 
+        //todo: should work also with enter in the textboxes
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             var username = UsernameTextBox.Text;

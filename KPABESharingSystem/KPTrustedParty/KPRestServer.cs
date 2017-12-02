@@ -99,7 +99,7 @@ namespace KPTrustedParty
                 jsonResponse.ErrorDescription = "login_ok";
                 response.StatusCode = HttpStatusCode.Ok;
                 response.AppendCookie(new Cookie {
-                    Domain = TPServer.Host,
+                    Domain = request.Headers["Host"],
                     Path = "/",
                     Name = SessionCookie,
                     Value = token.TokenString,

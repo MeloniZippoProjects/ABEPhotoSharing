@@ -83,6 +83,7 @@ namespace KPTrustedParty
                         try
                         {
                             //todo: we could do some parsing just to make the policy syntax more flexible
+                            //bug: 'mario or cose = 2' is parsed wrongly, only 'mario' is registered
                             byte[] privateKey = kpService.Keygen(policy);
                             KPDatabase.SetUserPolicy(username, policy);
                             
@@ -107,6 +108,8 @@ namespace KPTrustedParty
                         
                         break;
                     }
+
+                    //todo: add quit command
 
                     case "help":
                     default:
