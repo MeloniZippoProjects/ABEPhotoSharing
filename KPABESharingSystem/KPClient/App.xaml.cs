@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using Grapevine.Client;
-using Grapevine.Shared;
+using System.Windows.Forms;
 using KPServices;
-using Newtonsoft.Json;
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace KPClient
 {
@@ -31,10 +25,24 @@ namespace KPClient
             CheckAndPopulateDefaultSettings();
             var settings = KPClient.Properties.Settings.Default;
             KPService.SuitePath = settings.KPSuitePath;
-            if (!KPService.ValidClientSuite)
+            while (!KPService.ValidClientSuite)
             {
-                //todo: prompt error and ask to choose correct path
-                Shutdown();
+                MessageBox.Show("Invalid path for the kpabe suite!");
+                using (var fbd = new FolderBrowserDialog())
+                {
+                    DialogResult result = fbd.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    {
+                        settings.KPSuitePath = fbd.SelectedPath;
+                        settings.Save();
+                        KPService.SuitePath = fbd.SelectedPath;
+                    }
+                    else
+                    {
+                        Shutdown();
+                        return;
+                    }
+                }
             }
 
             try
