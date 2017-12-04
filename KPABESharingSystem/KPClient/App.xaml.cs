@@ -17,7 +17,6 @@ namespace KPClient
         public KPService KpService = new KPService();
         public KPRestClient KPRestClient;
         public string Username;
-        public string Password;
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
@@ -83,13 +82,10 @@ namespace KPClient
                 UseHTTPS: true
             );
 
-            if (Username == null || Password == null || !KPRestClient.Login(Username, Password))
-            {
-                LoginForm loginForm = new LoginForm();
-                loginForm.ShowDialog();
-                if (!KPRestClient.IsLogged)
-                    Environment.Exit(0);
-            }
+            LoginForm loginForm = new LoginForm();
+            loginForm.ShowDialog();
+            if (!KPRestClient.IsLogged)
+                Environment.Exit(0);
 
             Universe = KPRestClient.GetUniverse();
             byte[] publicKey = KPRestClient.GetPublicKey();

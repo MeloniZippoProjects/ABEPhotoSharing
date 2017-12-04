@@ -51,7 +51,10 @@ namespace KPClient
             try
             {
                 if (app.KPRestClient.Login(username, password))
+                {
+                    app.Username = username;
                     this.Close();
+                }
                 else
                     ErrorLabel.Content = "Wrong Username or Password";
             }

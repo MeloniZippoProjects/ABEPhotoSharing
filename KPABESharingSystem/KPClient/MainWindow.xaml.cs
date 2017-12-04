@@ -13,11 +13,10 @@ namespace KPClient
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            
+            App app = ((App) Application.Current);
+            UsernameLabel.Content = app.Username;
+            UniverseLabel.Content = UniverseLabel.Content.ToString()
+                .Replace("{}", app.Universe.ToString());
         }
 
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)

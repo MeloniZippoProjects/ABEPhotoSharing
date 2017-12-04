@@ -8,9 +8,7 @@
         mc:Ignorable="d"
         xmlns:metroIcons="using:MahApps.Metro.IconPacks"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="KPClient" Height="700" Width="1000"
-        Loaded="MainWindow_OnLoaded"
-        >
+        Title="KPClient" Height="700" Width="1000">
     <Window.Resources>
         <Style x:Key="InfoPanel" TargetType="StackPanel">
             <Setter Property="Background" Value="DodgerBlue"/>
@@ -154,16 +152,18 @@
                 Margin="2"
                 Content="{iconPacks:PackIconModern Kind=Disconnect}" Click="DisconnectButton_Click"
             />
-            <Label Style="{StaticResource WhiteLabel}">
-                todo: Bind me to username!
-            </Label>
+            <Label Style="{StaticResource WhiteLabel}"
+                   Name="UsernameLabel"
+                   Content="Username"/>
             
             <Line Style="{StaticResource SeparationLine}"/>
-            
-            <Label Style="{StaticResource WhiteLabel}">
-                Todo: current universe, stats like filtered content, etc. could go here
+
+            <Label 
+                Style="{StaticResource WhiteLabel}"
+                Name="UniverseLabel">
+                Universe is: {}
             </Label>
-            
+                   
         </StackPanel>
     </Grid>
 </Window>
