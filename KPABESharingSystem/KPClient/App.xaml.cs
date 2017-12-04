@@ -22,7 +22,8 @@ namespace KPClient
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            CheckAndPopulateDefaultSettings();
+            CheckAndSetDefaultPathSettings();
+
             var settings = KPClient.Properties.Settings.Default;
             KPService.SuitePath = settings.KPSuitePath;
             while (!KPService.ValidClientSuite)
@@ -117,16 +118,9 @@ namespace KPClient
             
         }
 
-        //todo: add interfaces to handle all the settings via GUI
-        private void CheckAndPopulateDefaultSettings()
+        private void CheckAndSetDefaultPathSettings()
         {
             var settings = KPClient.Properties.Settings.Default;
-
-            if (String.IsNullOrEmpty(settings.ServerAddress))
-                settings.ServerAddress = @"localhost";
-            
-            if (settings.ServerPort == 0)
-                settings.ServerPort = 1234;
             
             if(String.IsNullOrEmpty(settings.KPSuitePath))
                 settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
