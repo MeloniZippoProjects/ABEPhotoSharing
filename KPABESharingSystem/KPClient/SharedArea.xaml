@@ -34,59 +34,48 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        
-        <StackPanel Grid.Row="0">
-            <!-- todo: implement navigation bar here -->
-        </StackPanel>
-        
-        <ScrollViewer Grid.Row="1">
-            <ItemsControl 
-                Name="SharedFolderView" 
-                d:DataContext="{StaticResource DesignTimeContex}" 
-                ItemsSource="{Binding Path=DisplayedItems}" >
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+    <ScrollViewer>
+        <ItemsControl 
+            Name="SharedFolderView" 
+            d:DataContext="{StaticResource DesignTimeContex}" 
+            ItemsSource="{Binding Path=DisplayedItems}" >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="4"
-                              MaxWidth="150"
-                              VerticalAlignment="Top">
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="4"
+                            MaxWidth="150"
+                            VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                            <local:SharedAreaItemButton
-                                Grid.Row="0"
-                                MaxHeight="150"
-                                MaxWidth="150"
-                                Item="{Binding}"
-                                Style="{StaticResource NoChromeButton}"
-                                Click="SharedAreaItemButton_OnClick"
-                            >
-                                <Image Source="{Binding Thumbnail}"/>
-                            </local:SharedAreaItemButton>
+                        <local:SharedAreaItemButton
+                            Grid.Row="0"
+                            MaxHeight="150"
+                            MaxWidth="150"
+                            Item="{Binding}"
+                            Style="{StaticResource NoChromeButton}"
+                            Click="SharedAreaItemButton_OnClick"
+                        >
+                            <Image Source="{Binding Thumbnail}"/>
+                        </local:SharedAreaItemButton>
 
-                            <TextBlock
-                                Grid.Row="1"
-                                Text="{Binding Name}"
-                                TextWrapping="Wrap"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                            />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+                        <TextBlock
+                            Grid.Row="1"
+                            Text="{Binding Name}"
+                            TextWrapping="Wrap"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                        />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
 </UserControl>
