@@ -22,7 +22,8 @@ namespace KPClient
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            CheckAndPopulateDefaultSettings();
+            CheckAndSetDefaultPathSettings();
+
             var settings = KPClient.Properties.Settings.Default;
             KPService.SuitePath = settings.KPSuitePath;
             while (!KPService.ValidClientSuite)
@@ -87,7 +88,7 @@ namespace KPClient
                 LoginForm loginForm = new LoginForm();
                 loginForm.ShowDialog();
                 if (!KPRestClient.IsLogged)
-                    Shutdown();
+                    Environment.Exit(0);
             }
 
             Universe = KPRestClient.GetUniverse();
@@ -97,8 +98,7 @@ namespace KPClient
             if (Universe == null || publicKey == null || privateKey == null)
             {
                 MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
-                Shutdown();
-                return;
+                Environment.Exit(0);
             }
 
             KpService.Keys.PublicKey = publicKey;
@@ -117,16 +117,9 @@ namespace KPClient
             
         }
 
-        //todo: add interfaces to handle all the settings via GUI
-        private void CheckAndPopulateDefaultSettings()
+        private void CheckAndSetDefaultPathSettings()
         {
             var settings = KPClient.Properties.Settings.Default;
-
-            if (String.IsNullOrEmpty(settings.ServerAddress))
-                settings.ServerAddress = @"localhost";
-            
-            if (settings.ServerPort == 0)
-                settings.ServerPort = 1234;
             
             if(String.IsNullOrEmpty(settings.KPSuitePath))
                 settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");

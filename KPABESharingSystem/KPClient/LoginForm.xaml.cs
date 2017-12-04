@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,22 +24,41 @@ namespace KPClient
     /// </summary>
     public partial class LoginForm : Window
     {
+        static Regex usernameRegex = new Regex(@"^.+$");
+        static Regex passwordRegex = new Regex(@"^.{8,}$");
+
         public LoginForm()
         {
             InitializeComponent();
         }
 
-        //todo: should work also with enter in the textboxes
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             var username = UsernameTextBox.Text;
             var password = PasswordTextBox.Password;
-            App app = (App) Application.Current;
+            if (!usernameRegex.IsMatch(username))
+            {
+                ErrorLabel.Content = "Invalid username field";
+                return;
+            }
+            if (!passwordRegex.IsMatch(password))
+            {
+                ErrorLabel.Content = "Invalid password field";
+                return;
+            }
 
-            if (app.KPRestClient.Login(username, password))
-                this.Close();
-            else
-                ErrorLabel.Content = "Wrong Username or Password";
+            App app = (App) Application.Current;
+            try
+            {
+                if (app.KPRestClient.Login(username, password))
+                    this.Close();
+                else
+                    ErrorLabel.Content = "Wrong Username or Password";
+            }
+            catch (Exception ex)
+            {
+                ErrorLabel.Content = "Can't connect: check the settings";
+            }
         }
     }
 }

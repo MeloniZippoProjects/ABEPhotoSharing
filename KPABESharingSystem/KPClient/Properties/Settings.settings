@@ -9,7 +9,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="ServerAddress" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">localhost</Value>
     </Setting>
     <Setting Name="PublicKeyPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
