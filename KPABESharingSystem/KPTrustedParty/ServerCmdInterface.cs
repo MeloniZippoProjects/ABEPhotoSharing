@@ -65,8 +65,22 @@ namespace KPTrustedParty
                         string username = args[0];
                         string password = args[1];
 
+                        var usernameValid = new Regex(@"[\w\d]{3,21}");
+                        if (usernameValid.Matches(username).Count != 1)
+                        {
+                            Console.WriteLine("Username must be a alphanumeric string of 3 to 21 characters.");
+                            break;
+                        }
+
+                        var passwordValid = new Regex(@"[^\s'""]{8,}");
+                        if (passwordValid.Matches(password).Count != 1)
+                        {
+                            Console.WriteLine("Password must be a string of at least 8 characters without ' or \".");
+                            break;
+                        }
+
 #if DEBUG
-                        Console.WriteLine($"Captured username is: [{username}]");
+                            Console.WriteLine($"Captured username is: [{username}]");
                         Console.WriteLine($"Captured password is: [{password}]");
 #endif
 

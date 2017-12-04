@@ -12,7 +12,7 @@ namespace KPTrustedParty
     {
         public class User
         {
-            [Key]
+            [Key,RegularExpression(@"[\w\d]{3,21}")]
             public string Name { get; set; }
 
             [Required]
