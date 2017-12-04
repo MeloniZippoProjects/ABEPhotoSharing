@@ -60,19 +60,26 @@ namespace KPClient
         {
             get
             {
-                RestRequest request = new RestRequest("/isLogged")
+                try
                 {
-                    HttpMethod = HttpMethod.GET,
-                    RequestUri = RequestUri
-                };
-                var response = RestClient.Execute(request);
-                if (response.StatusCode == HttpStatusCode.Ok)
-                {
-                    var KPResponse = JsonConvert.DeserializeObject<KPRestResponse>(
-                        response.GetContent());
-                    return KPResponse.Content == "logged_in";
+                    RestRequest request = new RestRequest("/isLogged")
+                    {
+                        HttpMethod = HttpMethod.GET,
+                        RequestUri = RequestUri
+                    };
+                    var response = RestClient.Execute(request);
+                    if (response.StatusCode == HttpStatusCode.Ok)
+                    {
+                        var KPResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                            response.GetContent());
+                        return KPResponse.Content == "logged_in";
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
                     return false;
                 }

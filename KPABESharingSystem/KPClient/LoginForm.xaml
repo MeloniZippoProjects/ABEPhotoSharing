@@ -65,6 +65,7 @@
             Height="25"
             Width="100"
             Name="LoginButton"
+            IsDefault="True"
             Click="LoginButton_Click">
             Login
         </Button>

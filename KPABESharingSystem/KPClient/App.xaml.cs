@@ -88,7 +88,7 @@ namespace KPClient
                 LoginForm loginForm = new LoginForm();
                 loginForm.ShowDialog();
                 if (!KPRestClient.IsLogged)
-                    Shutdown();
+                    Environment.Exit(0);
             }
 
             Universe = KPRestClient.GetUniverse();
@@ -98,8 +98,7 @@ namespace KPClient
             if (Universe == null || publicKey == null || privateKey == null)
             {
                 MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
-                Shutdown();
-                return;
+                Environment.Exit(0);
             }
 
             KpService.Keys.PublicKey = publicKey;
