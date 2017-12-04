@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Grapevine.Server;
 using KPServices;
 
 namespace KPTrustedParty
@@ -110,7 +112,80 @@ namespace KPTrustedParty
                         break;
                     }
 
-                    //todo: add quit command
+                    case "q":
+                    case "exit":
+                    case "quit":
+                        Environment.Exit(0);
+                        break;
+
+                    case "server-stop":
+                        try
+                        {
+                            if (server.IsListening)
+                            {
+                                server.Stop();
+                                Console.WriteLine("REST Server succesfully stopped");
+                            }
+                            else
+                            {
+                                Console.WriteLine("REST Server is not running.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Cannot stop REST Server. Exception: {ex.Message}");
+                        }
+                        break;
+
+                    case "server-start":
+                        try
+                        {
+                            if (!server.IsListening)
+                            {
+                                server = new RestServer();
+                                SetupRestServer();
+                                server.Start();
+                                Console.WriteLine("REST Server succesfully started");
+                                DisplayServerStatus();
+                            }
+                            else
+                            {
+                                Console.WriteLine("REST Server is already running");
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine($"Cannot start REST Server. Exception: {ex.Message}");
+                        }
+                        
+                        break;
+
+                    case "server-restart":
+                        if (server.IsListening)
+                        {
+                            try
+                            {
+                                server.Stop();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Cannot restart REST Server; cause: cannot stop server. Exception: {ex.Message}");
+                            }
+                        }
+                        try
+                        {
+                            server = new RestServer();
+                            SetupRestServer();
+                            server.Start();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Cannot restart REST Server; cause: cannot start server. Exception: {ex.Message}");
+                        }
+                        Console.WriteLine("Server succesfully restarted");
+                        DisplayServerStatus();
+                        break;
+
 
                     case "help":
                     default:
@@ -126,6 +201,16 @@ namespace KPTrustedParty
         {
             //todo: write this help page
             Console.WriteLine("Help unavailable: check the source code.");
+        }
+
+        private static void DisplayServerStatus()
+        {
+            if(server.IsListening)
+                Console.WriteLine($"Server listening at: {server.Host}:{server.Port}");
+            else
+            {
+                Console.WriteLine("Server is not listening");
+            }
         }
     }
 }

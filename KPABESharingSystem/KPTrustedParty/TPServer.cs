@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Grapevine.Server;
 using KPServices;
+using KPTrustedParty.Properties;
 
 namespace KPTrustedParty
 {
@@ -16,6 +17,7 @@ namespace KPTrustedParty
 
         public static byte[] KpPublicKey => kpService.Keys.PublicKey;
         private static readonly KPService kpService = new KPService();
+        private static RestServer server = new RestServer();
 
         static void Main()
         {
@@ -25,16 +27,21 @@ namespace KPTrustedParty
             Host = settings.ServerHost;
 
             //todo: server doesn't stop in case of exceptions
-            using (var server = new RestServer())
-            {
-                server.LogToConsole();
-                server.Port = settings.ServerPort.ToString();
-                server.UseHttps = true;
-                server.Host = settings.ServerHost;
-                server.Start();
-                CommandLineLoop();
-                server.Stop();
-            }
+            
+            //server.LogToConsole();
+            SetupRestServer();
+            server.Start();
+            DisplayServerStatus();
+            CommandLineLoop();
+            server.Stop();
+        }
+
+        private static void SetupRestServer()
+        {
+            var settings = KPTrustedParty.Properties.Settings.Default;
+            server.Port = settings.ServerPort.ToString();
+            server.UseHttps = true;
+            server.Host = settings.ServerHost;
         }
 
         private static void InitializeKPABE()
