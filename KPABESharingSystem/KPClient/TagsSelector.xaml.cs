@@ -47,6 +47,9 @@ namespace KPClient
         {
             InitializeComponent();
 
+            Universe universe = ((App)Application.Current).Universe;
+            UniverseReminder.Text = $"The universe is: {universe}";
+
             ValidityChanged += (sender, args) =>
             {
                 TagsTextBox.Background =
@@ -75,8 +78,6 @@ namespace KPClient
                     IsValid = false;
                 else
                     IsValid = true;
-
-                //todo: use validTags for the AvailableTagsControl
             }
             else
                 IsValid = false;

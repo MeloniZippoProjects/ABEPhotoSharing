@@ -25,15 +25,9 @@
         >
         </TextBox>
 
-        <ScrollViewer 
+        <TextBlock
             Grid.Row="2"
-            VerticalScrollBarVisibility="Disabled"
-            HorizontalScrollBarVisibility="Auto">
-            <ItemsControl 
-                Name="AvailableTagsControl"
-                MinHeight="20">
-
-            </ItemsControl>
-        </ScrollViewer>
+            Name="UniverseReminder"
+            Margin="5"/>
     </Grid>
 </UserControl>
