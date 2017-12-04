@@ -118,7 +118,7 @@ namespace KPTrustedParty
                         Environment.Exit(0);
                         break;
 
-                    case "server-stop":
+                    case "serverStop":
                         try
                         {
                             if (server.IsListening)
@@ -137,7 +137,7 @@ namespace KPTrustedParty
                         }
                         break;
 
-                    case "server-start":
+                    case "serverStart":
                         try
                         {
                             if (!server.IsListening)
@@ -160,7 +160,7 @@ namespace KPTrustedParty
                         
                         break;
 
-                    case "server-restart":
+                    case "serverRestart":
                         if (server.IsListening)
                         {
                             try
@@ -200,7 +200,48 @@ namespace KPTrustedParty
         private static void DisplayHelp()
         {
             //todo: write this help page
-            Console.WriteLine("Help unavailable: check the source code.");
+            //Console.WriteLine("Help unavailable: check the source code.");
+
+            Console.WriteLine(@"
+SYNOPSIS
+This is the command line interface for the KPABE server. 
+It allows the administrator to create users, list users, set their policies 
+and start or stop the REST Server which is used by the clients to 
+obtain the keys. 
+
+UNIVERSE EDITOR
+    {ue, universeEditor}
+        Opens the Universe Editor interface. Further help can be found inside the utility.
+
+DETAIL USER
+    {d, detailUser} username
+        Shows information about the User with the specified username.
+
+LIST USERS
+    {l, listUsers}
+        Shows a list of every registered Users and their policies.
+
+REGISTER USER
+    {r, registerUser} username, password
+        Creates a new User without any policy, with the specified username and password. 
+
+SET POLICY
+    {s, setPolicy} username, policy
+        Set a policy for the User with the given username.
+
+SERVER START 
+    {serverStart} 
+        Starts the REST Server, if it is not listening.
+
+SERVER STOP
+    {serverStop}
+        Stops the REST Server, if it is listening.
+
+SERVER RESTART
+    {serverRestart}
+        Restarts the REST Server.
+
+");
         }
 
         private static void DisplayServerStatus()

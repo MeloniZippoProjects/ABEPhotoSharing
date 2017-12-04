@@ -117,7 +117,7 @@ namespace KPTrustedParty
 
                     case "quit":
                     {
-                        Console.WriteLine("------- Exiting from the UniverseEditor -------");
+                        Console.WriteLine(" ------- Exiting from the UniverseEditor -------");
                         return;
                     }
 
@@ -135,37 +135,48 @@ namespace KPTrustedParty
         {
             //todo: write more about commit command
             Console.WriteLine(
-            @"The UniverseEditor tool is intended to define the KP attribute Universe in a safe way.
-            It checks existing data and avoids conflicts before committing the changes. 
-            Until commit, all changes are on a temporary Universe and do not interfere with the existing Universe.
-            In the following text, curly brackets {} contain aliases for the command. 
-            For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
+            @"
+SYNOPSIS
+    The UniverseEditor tool is intended to define the KP attribute Universe in a safe way.
+    It checks existing data and avoids conflicts before committing the changes. 
+    Until commit, all changes are on a temporary Universe and do not interfere with the existing Universe.
+    In the following text, curly brackets {} contain aliases for the command. 
+    For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
 
-                {add, a, +} attribute1 attribute2 ...
-                    Adds the listed attributes to the Universe. In case of errors, they are reported and attributed is skipped.
-                    The attribute must comply with the KPABE syntax, which is
-                        - The attribute name can be any sequence of letters, digits and _ symbol that starts with a letter and is not one of 'and', 'or', 'of'
-                        - In case of a numerical attribute, it has a = following the name and an optional '# k', 0 < k <= 64 which specifies the bit resolution
+ADD
+    {add, a, +} attribute1 attribute2 ...
+        Adds the listed attributes to the Universe. 
+        In case of errors, they are reported and attributed is skipped.
+        The attribute must comply with the KPABE syntax, which is
+            - The attribute name can be any sequence of letters, digits and _ symbol 
+                that starts with a letter and is not one of 'and', 'or', 'of'
+            - In case of a numerical attribute, it has a = following the name and an 
+                optional '# k', 0 < k <= 64 which specifies the bit resolution
 
-                {remove, r, -} attributeName1 attribute
-                    Removes the listed attributes from the Universe. In case of errors, they are reported and attributed is skipped.
+REMOVE
+    {remove, r, -} attributeName1 attribute
+        Removes the listed attributes from the Universe. 
+        In case of errors, they are reported and attributed is skipped.
 
-                commit
-                    Make the changes definitive. # Lots of checks and stuff to be defined #
+COMMIT
+    commit
+        Make the changes definitive. # Lots of checks and stuff to be defined #
                     
+RELOAD
+    reload
+        Resets the edited Universe to the current Universe, that is the last committed version.
 
-                reload
-                    Resets the edited Universe to the current Universe, that is the last committed version.
+PRINT
+    {print, p}
+        Displays the attributes contained in the current Universe and in the edited Universe.
 
-                {print, p}
-                    Displays the attributes contained in the current Universe and in the edited Universe.
-
-                quit
-                    Quits the UniverseEditor. Any un-committed change to the Universe is discarded.
-
-                {help, anything that is not a valid command}
-                    Displays this guide.
-            ");
+QUIT
+    quit
+        Quits the UniverseEditor. Any un-committed change to the Universe is discarded.
+HELP
+    {help, anything that is not a valid command}
+        Displays this guide.
+        ");
         }
 
         private static void PrintUniverse()
