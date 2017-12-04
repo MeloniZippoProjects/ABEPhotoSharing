@@ -79,8 +79,8 @@
                     Current album:
                 </Label>
                 <Label
-                    Style="{StaticResource WhiteLabel}">
-                    todo: bind me to album name!
+                    Style="{StaticResource WhiteLabel}"
+                    Content="{Binding ElementName=SharedArea, Path=CurrentAlbum}">
                 </Label>
                 
             </StackPanel>

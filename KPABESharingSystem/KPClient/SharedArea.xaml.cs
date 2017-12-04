@@ -33,7 +33,7 @@ namespace KPClient
 
         private List<SharedItem> _filteredItems;
         
-        private string CurrentAlbum = null;
+        private string _currentAlbum = null;
 
         private static void SharedFolderPath_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -70,13 +70,15 @@ namespace KPClient
         private void ReloadView()
         {
             DisplayedItems.Clear();
-            if (CurrentAlbum != null)
+            if (_currentAlbum != null)
             {
+                CurrentAlbum = _currentAlbum;
                 AlbumImages.ForEach(
                     image => DisplayedItems.Add(image));
             }
             else
             {
+                CurrentAlbum = "Main folder";
                 RootItems.ForEach(
                     item => DisplayedItems.Add(item));
             }
@@ -131,7 +133,7 @@ namespace KPClient
                 AlbumImages.Clear();
                 sharedAlbum.Children.ForEach(
                     image => AlbumImages.Add(image));
-                CurrentAlbum = sharedAlbum.Name;
+                _currentAlbum = sharedAlbum.Name;
             }
             ReloadView();
         }

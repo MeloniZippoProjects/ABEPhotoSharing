@@ -49,6 +49,15 @@ namespace KPClient
                 SharedFolderPath_OnChange)
         );
 
+        public string CurrentAlbum
+        {
+            get { return (string)GetValue(CurrentAlbumProperty); }
+            set { SetValue(CurrentAlbumProperty, value); }
+        }
+
+        public static readonly DependencyProperty CurrentAlbumProperty =
+            DependencyProperty.Register("CurrentAlbum", typeof(string), typeof(SharedArea), new PropertyMetadata("Main folder"));
+
         public SharedArea()
         {
             InitializeComponent();
