@@ -40,11 +40,6 @@ namespace KPClient
             }
         }
 
-        private void ReloadSharedSpaceButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            SharedArea.LoadRootItems();
-        }
-
         private void DisconnectButton_Click(object sender, RoutedEventArgs e)
         {
             var settings = KPClient.Properties.Settings.Default;
@@ -60,7 +55,12 @@ namespace KPClient
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
-            //todo: implement home button
+            SharedArea.LoadRootItems();
+        }
+
+        private void ReloadSharedSpaceButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            SharedArea.ReloadView();
         }
     }
 }

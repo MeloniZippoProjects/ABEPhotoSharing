@@ -67,7 +67,7 @@ namespace KPClient
             }
         }
 
-        private void ReloadView()
+        public void ReloadView()
         {
             DisplayedItems.Clear();
             if (_currentAlbum != null)
@@ -92,6 +92,7 @@ namespace KPClient
         public void LoadRootItems()
         {
             RootItems.Clear();
+            _currentAlbum = null;
             IsValidSharedFolder = CheckSharedFolderStructure(SharedFolderPath);
             if (IsValidSharedFolder)
             {
