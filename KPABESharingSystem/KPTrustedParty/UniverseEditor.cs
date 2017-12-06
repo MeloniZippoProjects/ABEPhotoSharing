@@ -98,6 +98,7 @@ namespace KPTrustedParty
                         break;
                     }
 
+                    //todo: should also deal with private keys
                     case "commit":
                     {
                         Universe = editedUniverse?.Copy();
@@ -133,7 +134,6 @@ namespace KPTrustedParty
 
         private static void UniverseEditorHelp()
         {
-            //todo: write more about commit command
             Console.WriteLine(
             @"
 SYNOPSIS
@@ -160,7 +160,7 @@ REMOVE
 
 COMMIT
     commit
-        Make the changes definitive. # Lots of checks and stuff to be defined #
+        Makes the changes definitive, genereting a new set of master and public keys in place of the existing ones (if any).
                     
 RELOAD
     reload

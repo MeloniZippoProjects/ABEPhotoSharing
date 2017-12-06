@@ -28,7 +28,6 @@ namespace KPTrustedParty
                     .Select(capture => capture.Value)
                     .Skip(1).ToArray();
 
-                //todo: add commands to pilot the underlaying REST server
                 //todo: add commands to check and change the settings
                 switch (command)
                 {
@@ -129,10 +128,13 @@ namespace KPTrustedParty
                     case "q":
                     case "exit":
                     case "quit":
+                    {
                         Environment.Exit(0);
                         break;
+                    }
 
                     case "serverStop":
+                    {
                         try
                         {
                             if (server.IsListening)
@@ -150,8 +152,10 @@ namespace KPTrustedParty
                             Console.WriteLine($"Cannot stop REST Server. Exception: {ex.Message}");
                         }
                         break;
+                    }
 
                     case "serverStart":
+                    {
                         try
                         {
                             if (!server.IsListening)
@@ -167,14 +171,16 @@ namespace KPTrustedParty
                                 Console.WriteLine("REST Server is already running");
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Console.WriteLine($"Cannot start REST Server. Exception: {ex.Message}");
                         }
-                        
+
                         break;
+                    }
 
                     case "serverRestart":
+                    {
                         if (server.IsListening)
                         {
                             try
@@ -183,7 +189,8 @@ namespace KPTrustedParty
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Cannot restart REST Server; cause: cannot stop server. Exception: {ex.Message}");
+                                Console.WriteLine(
+                                    $"Cannot restart REST Server; cause: cannot stop server. Exception: {ex.Message}");
                             }
                         }
                         try
@@ -194,12 +201,13 @@ namespace KPTrustedParty
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Cannot restart REST Server; cause: cannot start server. Exception: {ex.Message}");
+                            Console.WriteLine(
+                                $"Cannot restart REST Server; cause: cannot start server. Exception: {ex.Message}");
                         }
                         Console.WriteLine("Server succesfully restarted");
                         DisplayServerStatus();
                         break;
-
+                    }
 
                     case "help":
                     default:
