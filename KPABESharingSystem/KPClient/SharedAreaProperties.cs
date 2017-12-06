@@ -24,6 +24,16 @@ namespace KPClient
             DependencyProperty.Register("ShowPreviews", typeof(bool), typeof(SharedArea),
                 new PropertyMetadata(false, ShowPreviews_OnChange));
 
+        public bool PreloadData
+        {
+            get => (bool)GetValue(PreloadDataProperty);
+            set => SetValue(PreloadDataProperty, value);
+        }
+
+        public static readonly DependencyProperty PreloadDataProperty =
+            DependencyProperty.Register("PreloadData", typeof(bool), typeof(SharedArea),
+                new PropertyMetadata(false, PreloadData_OnChange));
+
         public bool IsValidSharedFolder
         {
             get => (bool) GetValue(IsValidSharedFolderProperty);

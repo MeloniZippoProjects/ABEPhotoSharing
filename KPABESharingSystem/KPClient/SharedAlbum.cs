@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
-using Newtonsoft.Json;
 
 namespace KPClient
 {
     public sealed class SharedAlbum : SharedItem
     {
-        public static DrawingImage DefaultAlbumThumbnail;
+        public static Task<DrawingImage> DefaultAlbumThumbnail;
 
         public readonly Task<List<SharedAlbumImage>> Children;
 
         static SharedAlbum()
         {
-            DefaultAlbumThumbnail =
-                IconToDrawing(
+            DefaultAlbumThumbnail = IconToDrawing(
                     new PackIconModern() {Kind = PackIconModernKind.ImageMultiple});
         }
 
@@ -51,14 +47,21 @@ namespace KPClient
             }
         }
 
-        public override void SetDefaultThumbnail()
+        public override async void SetDefaultThumbnail()
         {
-            Thumbnail = DefaultAlbumThumbnail;
+            Thumbnail = await DefaultAlbumThumbnail;
         }
 
         public override void SetPreviewThumbnail()
         {
             SetDefaultThumbnail();
+        }
+
+        public override async void PreloadData()
+        {
+            if(await IsPolicyVerified())
+                (await Children).ForEach(
+                    child => child.PreloadData());
         }
 
         public override string ItemPath => Path.Combine(

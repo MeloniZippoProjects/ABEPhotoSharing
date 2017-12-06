@@ -50,7 +50,8 @@ namespace KPClient
             }
         }
 
-        public override bool IsPolicyVerified => ParentAlbum.IsPolicyVerified;
+        public override Task<bool> IsPolicyVerified() 
+            => ParentAlbum.IsPolicyVerified();
 
         protected override async Task<SymmetricKey> GetSymmetricKey()
         {

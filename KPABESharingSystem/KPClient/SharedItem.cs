@@ -11,26 +11,28 @@ namespace KPClient
 {
     public abstract class SharedItem : DependencyObject
     {
-        public static DrawingImage UndefinedThumbnail;
+        public static Task<DrawingImage> UndefinedThumbnail;
 
         static SharedItem()
         {
-            UndefinedThumbnail =
-                IconToDrawing(
+            UndefinedThumbnail = IconToDrawing(
                     new PackIconModern() {Kind = PackIconModernKind.ImageBacklight});
         }
 
-        protected static DrawingImage IconToDrawing(PackIconModern icon)
+        protected static async Task<DrawingImage> IconToDrawing(PackIconModern icon)
         {
-            Geometry geo = Geometry.Parse(icon.Data);
-            GeometryDrawing gd = new GeometryDrawing
+            return await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                Geometry = geo,
-                Brush = icon.BorderBrush,
-                Pen = new Pen(Brushes.Black, 1)
-            };
-            DrawingImage geoImage = new DrawingImage(gd);
-            return geoImage;
+                Geometry geo = Geometry.Parse(icon.Data);
+                GeometryDrawing gd = new GeometryDrawing
+                {
+                    Geometry = geo,
+                    Brush = icon.BorderBrush,
+                    Pen = new Pen(Brushes.Black, 1)
+                };
+                DrawingImage geoImage = new DrawingImage(gd);
+                return geoImage;
+            });
         }
 
         public SharedArea SharedArea { get; set; }
@@ -62,14 +64,18 @@ namespace KPClient
         public abstract void SetDefaultThumbnail();
         public abstract void SetPreviewThumbnail();
 
-        public virtual bool IsPolicyVerified => SymmetricKey != null;
+        public virtual async Task<bool> IsPolicyVerified()
+        {
+            return (await SymmetricKey) != null;
+        }
 
         private Task<SymmetricKey> _symmetricKey;
         public Task<SymmetricKey> SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
 
         public void PreloadSymmetricKey()
         {
-            _symmetricKey = GetSymmetricKey();
+            if(_symmetricKey == null)
+                _symmetricKey = GetSymmetricKey();
         }
 
         protected virtual async Task<SymmetricKey> GetSymmetricKey()
@@ -99,6 +105,8 @@ namespace KPClient
                 return null;
             }
         }
+
+        public abstract void PreloadData();
     }
 
     public class SharedAreaItemButton : Button

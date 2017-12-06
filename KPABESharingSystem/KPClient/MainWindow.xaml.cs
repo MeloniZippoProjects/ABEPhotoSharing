@@ -15,11 +15,17 @@ namespace KPClient
         {
             InitializeComponent();
             App app = ((App) Application.Current);
+
             UsernameLabel.Content = app.Username;
             UniverseLabel.Content = UniverseLabel.Content.ToString()
                 .Replace("{}", app.Universe.ToString());
-        }
 
+            var settings = Settings.Default;
+            FilterOutOfPolicyCheckBox.IsChecked = settings.FilterOutOfPolicy;
+            ShowPreviewsCheckBox.IsChecked = settings.ShowPreviews;
+            PreloadDataCheckBox.IsChecked = settings.PreloadData;
+        }
+        
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
         {
             UploadImagesWindow uploadImagesWindow = new UploadImagesWindow();
@@ -56,12 +62,31 @@ namespace KPClient
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
-            SharedArea.LoadRootItems();
+            SharedArea.NavigateRoot();
         }
 
         private void ReloadSharedSpaceButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SharedArea.ReloadView();
+            SharedArea.LoadRootItems();
+            SharedArea.NavigateRoot();
+        }
+
+        private void FilterOutOfPolicyCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.FilterOutOfPolicy = FilterOutOfPolicyCheckBox.IsChecked ?? false;
+            Settings.Default.Save();
+        }
+
+        private void ShowPreviewsCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.ShowPreviews = ShowPreviewsCheckBox.IsChecked ?? false;
+            Settings.Default.Save();
+        }
+
+        private void PreloadDataCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            Settings.Default.PreloadData = ShowPreviewsCheckBox.IsChecked ?? false;
+            Settings.Default.Save();
         }
     }
 }

@@ -11,13 +11,12 @@ namespace KPClient
 {
     public class SharedImage : SharedItem
     {
-        public static DrawingImage DefaultImageThumbnail;
+        public static Task<DrawingImage> DefaultImageThumbnail;
         
         static SharedImage()
         {
-            DefaultImageThumbnail =
-                IconToDrawing(
-                    new PackIconModern() {Kind = PackIconModernKind.Image});
+            DefaultImageThumbnail = IconToDrawing(
+                new PackIconModern() {Kind = PackIconModernKind.Image});
         }
 
         public SharedImage(string name, SharedArea sharedArea)
@@ -28,13 +27,16 @@ namespace KPClient
             SharedArea = sharedArea;
         }
 
-        public sealed override void SetDefaultThumbnail()
+        public sealed override async void SetDefaultThumbnail()
         {
-            Thumbnail = DefaultImageThumbnail;
+            Thumbnail = await DefaultImageThumbnail;
         }
 
         public override async void SetPreviewThumbnail()
         {
+            if (!await IsPolicyVerified())
+                return;
+
             var imageBytes = await DecryptedBytes;
 
             if (imageBytes == null)
@@ -46,9 +48,12 @@ namespace KPClient
             MemoryStream ms = new MemoryStream(imageBytes);
 
             BitmapImage thumbnail = new BitmapImage();
-            thumbnail.BeginInit();
-            thumbnail.StreamSource = ms;
-            thumbnail.EndInit();
+            await Dispatcher.InvokeAsync(() =>
+            {
+                thumbnail.BeginInit();
+                thumbnail.StreamSource = ms;
+                thumbnail.EndInit();
+            });
 
             Thumbnail = thumbnail;
         }
@@ -80,7 +85,7 @@ namespace KPClient
         
         protected async Task<byte[]> GetDecryptedBytes()
         {
-            if (!IsPolicyVerified)
+            if (!await IsPolicyVerified())
                 return null;
 
             try
@@ -98,6 +103,13 @@ namespace KPClient
                 MessageBox.Show($"Something went wrong: {ex}");
                 return null;
             }
+        }
+
+        public override async void PreloadData()
+        {
+            if(await IsPolicyVerified())
+                if (_decryptedBytes == null)
+                    _decryptedBytes = GetDecryptedBytes();
         }
     }
 }

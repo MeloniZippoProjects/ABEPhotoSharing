@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace KPClient
@@ -28,6 +29,7 @@ namespace KPClient
         private static void SharedFolderPath_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sharedArea = (SharedArea) d;
+            sharedArea._currentAlbum = null;
             sharedArea.LoadRootItems();
         }
 
@@ -41,6 +43,19 @@ namespace KPClient
             else
             {
                 sa.UnFilterOutOfPolicy();
+            }
+        }
+
+        private static void PreloadData_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SharedArea sa = (SharedArea)d;
+            if (sa.PreloadData)
+            {
+                sa.RootItems.ForEach(item => item.PreloadData());
+            }
+            else
+            {
+                sa.LoadRootItems();   
             }
         }
 
@@ -87,7 +102,6 @@ namespace KPClient
         public void LoadRootItems()
         {
             RootItems.Clear();
-            _currentAlbum = null;
             IsValidSharedFolder = CheckSharedFolderStructure(SharedFolderPath);
             if (IsValidSharedFolder)
             {
@@ -112,6 +126,9 @@ namespace KPClient
 
                     if (item.IsValid)
                         RootItems.Add(item);
+
+                    if (PreloadData)
+                        item.PreloadData();
                 }
 
                 if (FilterOutOfPolicy)
@@ -122,9 +139,15 @@ namespace KPClient
             ReloadView();
         }
 
+        public void NavigateRoot()
+        {
+            _currentAlbum = null;
+            ReloadView();
+        }
+
         private async void LoadAlbumImages(SharedAlbum sharedAlbum)
         {
-            if (sharedAlbum.IsValid && sharedAlbum.IsPolicyVerified)
+            if (sharedAlbum.IsValid && await sharedAlbum.IsPolicyVerified())
             {
                 AlbumImages.Clear();
                 var albumImages = await sharedAlbum.Children;
@@ -146,16 +169,20 @@ namespace KPClient
         private void ApplyShowPreviews()
         {
             DisplayedItems
-                .Where(sharedItem => sharedItem.IsPolicyVerified)
                 .OrderBy(sharedItem => sharedItem.Name)
                 .ToList()
                 .ForEach(sharedItem => sharedItem.SetPreviewThumbnail());
         }
 
-        private void ApplyFilterOutOfPolicy()
+        private async void ApplyFilterOutOfPolicy()
         {
-            _filteredItems = RootItems.Where(item => !item.IsPolicyVerified).ToList();
-            List<SharedItem> tmp = RootItems.Where(item => !_filteredItems.Contains(item)).ToList();
+            await Task.WhenAll(RootItems
+                .Select(item => item.IsPolicyVerified())
+                .ToArray()
+            );
+
+            _filteredItems = RootItems.Where(item => !item.IsPolicyVerified().Result).ToList();
+            List<SharedItem> tmp = RootItems.Where(item => item.IsPolicyVerified().Result).ToList();
             RootItems.Clear();
             tmp.ForEach(item => RootItems.Add(item));
             ReloadView();
@@ -192,12 +219,13 @@ namespace KPClient
                 return false;
         }
 
-        private void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
+        private async void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
         {
             SharedAreaItemButton button = sender as SharedAreaItemButton;
             Debug.Assert(button != null, nameof(button) + " != null");
             SharedItem item = button.Item;
-            if (!item.IsPolicyVerified) return;
+            if (!await item.IsPolicyVerified())
+                return;
             switch (item)
             {
                 case SharedImage _:

@@ -106,5 +106,41 @@ namespace KPClient.Properties {
                 this["ServerPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FilterOutOfPolicy {
+            get {
+                return ((bool)(this["FilterOutOfPolicy"]));
+            }
+            set {
+                this["FilterOutOfPolicy"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowPreviews {
+            get {
+                return ((bool)(this["ShowPreviews"]));
+            }
+            set {
+                this["ShowPreviews"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PreloadData {
+            get {
+                return ((bool)(this["PreloadData"]));
+            }
+            set {
+                this["PreloadData"] = value;
+            }
+        }
     }
 }

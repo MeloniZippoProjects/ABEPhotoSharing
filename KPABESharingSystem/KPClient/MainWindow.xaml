@@ -59,7 +59,8 @@
                     Width="30"
                     Margin="2"
                     Padding="0"
-                    Content="{iconPacks:PackIconModern Kind=HomeEmpty}" Click="HomeButton_Click" />
+                    Content="{iconPacks:PackIconModern Kind=HomeEmpty}" 
+                    Click="HomeButton_Click" />
 
                 <Line Style="{StaticResource SeparationLine}" />
 
@@ -84,8 +85,9 @@
             <kpclient:SharedArea
                 x:Name="SharedArea"
                 Grid.Row="1"
-                FilterOutOfPolicy="{Binding ElementName=HideOutOfPolicyCheckBox, Path=IsChecked}"
-                ShowPreviews="{Binding ElementName=ShowPreviewCheckBox, Path=IsChecked}"
+                FilterOutOfPolicy="{Binding ElementName=FilterOutOfPolicyCheckBox, Path=IsChecked}"
+                ShowPreviews="{Binding ElementName=ShowPreviewsCheckBox, Path=IsChecked}"
+                PreloadData="{Binding ElementName=PreloadDataCheckBox, Path=IsChecked}"
                 SharedFolderPath="{Binding Source={x:Static properties:Settings.Default}, Path=SharedFolderPath}" />
         </Grid>
 
@@ -124,13 +126,24 @@
             </Button>
 
             <CheckBox
-                x:Name="HideOutOfPolicyCheckBox">
+                x:Name="FilterOutOfPolicyCheckBox"
+                Checked="FilterOutOfPolicyCheckBox_Changed"
+                Unchecked="FilterOutOfPolicyCheckBox_Changed">
                 Hide files out of policy
             </CheckBox>
 
             <CheckBox
-                x:Name="ShowPreviewCheckBox">
+                x:Name="ShowPreviewsCheckBox"
+                Checked="ShowPreviewsCheckBox_Changed"
+                Unchecked="ShowPreviewsCheckBox_Changed">
                 Show previews
+            </CheckBox>
+            
+            <CheckBox
+                x:Name="PreloadDataCheckBox"
+                Checked="PreloadDataCheckBox_Changed"
+                Unchecked="PreloadDataCheckBox_Changed">
+                Preload data
             </CheckBox>
         </StackPanel>
 
