@@ -143,22 +143,18 @@ namespace KPClient
         {
             try
             {
-                string convertedFilepath = Path.GetTempFileName();
-
-                Bitmap b = new Bitmap(sourceImagePath);
-                using (FileStream fs = new FileStream(convertedFilepath, FileMode.Create))
-                {
-                    b.Save(fs, ImageFormat.Png);
-                }
-
                 string encryptedImagePath = Path.GetRandomFileName();
 
-                using (Stream inputStream = new FileStream(convertedFilepath, FileMode.Open),
-                    outputStream = new FileStream(encryptedImagePath, FileMode.Create))
+                Bitmap b = new Bitmap(sourceImagePath);
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    symmetricKey.Encrypt(inputStream, outputStream);
+                    //todo: could be optimized by converting in background after add
+                    b.Save(ms, ImageFormat.Png);
+                    using (var outputStream = new FileStream(encryptedImagePath, FileMode.Create))
+                    {
+                        symmetricKey.Encrypt(ms, outputStream);
+                    }
                 }
-
                 return encryptedImagePath;
             }
             catch (Exception ex)
