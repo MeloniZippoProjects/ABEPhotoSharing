@@ -24,7 +24,6 @@ namespace KPClient
         public UploadImagesWindow()
         {
             InitializeComponent();
-            //ImagesToUploadControl.ItemsSource = ImageItems;
 
             ImageItems.CollectionChanged += UpdateClearAllButtonStatus;
             ImageItems.CollectionChanged += UpdateUploadButtonStatus;
@@ -150,6 +149,7 @@ namespace KPClient
                 {
                     //todo: could be optimized by converting in background after add
                     b.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
                     using (var outputStream = new FileStream(encryptedImagePath, FileMode.Create))
                     {
                         symmetricKey.Encrypt(ms, outputStream);
