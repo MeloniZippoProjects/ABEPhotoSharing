@@ -151,12 +151,14 @@ namespace KPClient
             List<SharedItem> tmp = RootItems.Where(item => !_filteredItems.Contains(item)).ToList();
             RootItems.Clear();
             tmp.ForEach(item => RootItems.Add(item));
+            ReloadView();
         }
 
         private void UnFilterOutOfPolicy()
         {
             _filteredItems?.ForEach(item => RootItems.Add(item));
             _filteredItems = null;
+            ReloadView();
         }
 
         private static bool CheckSharedFolderStructure(string sharedFolderPath)
