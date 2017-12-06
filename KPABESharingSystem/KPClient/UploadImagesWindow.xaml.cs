@@ -83,11 +83,6 @@ namespace KPClient
             }
         }
 
-        private bool ValidateTags()
-        {
-            return false;
-        }
-
         //todo: add control to choose image/album name. Use current settings as defaults
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -119,14 +114,13 @@ namespace KPClient
                 destFilePath: encryptedKeyPath,
                 attributes: TagsSelector.GetTagsString());
 
-            //string finalKeyPath = (albumName ?? basename) + ".key.kpabe";
-
             string finalKeyPath;
 
             if (ImageItems.Count == 1)
             {
-                var imagePath = ImageItems.First().ImagePath;
-                UploadImage(imagePath, null, null, symmetricKey);
+                string imagePath = ImageItems.First().ImagePath;
+                string imageName = Path.GetFileNameWithoutExtension(imagePath);
+                UploadImage(imagePath, imageName, symmetricKey);
                 finalKeyPath = Path.GetFileNameWithoutExtension(imagePath) + ".key.kpabe";
             }
             else
@@ -145,29 +139,26 @@ namespace KPClient
                 overwrite: true);
         }
 
-        private void GenerateKeyAndIv(SymmetricKey symmetricKey)
+        private static void GenerateKeyAndIv(SymmetricKey symmetricKey)
         {
             RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
             rngCsp.GetBytes(symmetricKey.Key);
             rngCsp.GetBytes(symmetricKey.IV);
         }
 
-        private void UploadImage(string imagePath, String albumName, int? imageId, SymmetricKey symmetricKey)
+        private static string EncryptImage(string sourceImagePath, SymmetricKey symmetricKey)
         {
             try
             {
-                string workingDir = Path.GetTempPath();
-                Console.WriteLine(workingDir);
-                string basename = Path.GetFileNameWithoutExtension(imagePath);
-                string convertedFilepath = Path.Combine(workingDir, Path.GetRandomFileName());
+                string convertedFilepath = Path.GetTempFileName();
 
-                Bitmap b = new Bitmap(imagePath);
-                using (FileStream fs = new FileStream(convertedFilepath, FileMode.Create)) {
+                Bitmap b = new Bitmap(sourceImagePath);
+                using (FileStream fs = new FileStream(convertedFilepath, FileMode.Create))
+                {
                     b.Save(fs, ImageFormat.Png);
                 }
 
                 string encryptedImagePath = Path.GetRandomFileName();
-
 
                 using (Stream inputStream = new FileStream(convertedFilepath, FileMode.Open),
                     outputStream = new FileStream(encryptedImagePath, FileMode.Create))
@@ -175,19 +166,24 @@ namespace KPClient
                     symmetricKey.Encrypt(inputStream, outputStream);
                 }
 
-            string finalImageName;
-                if (albumName != null)
-                {
-                    finalImageName = albumName + $".{imageId}" + ".png.aes";
-                }
-                else
-                {
-                    finalImageName = $"{basename}.png.aes";
-                }
+                return encryptedImagePath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
+                return null;
+            }
+        }
 
-                string finalImagePath = Path.Combine(albumName ?? "", finalImageName);
-
-                string imageDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", finalImagePath);
+        private void UploadImage(string sourceImagePath, string imageName, SymmetricKey symmetricKey)
+        {
+            try
+            {
+                string encryptedImagePath = EncryptImage(sourceImagePath, symmetricKey);
+                string imageDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    $"{imageName}.png.aes");
                 Console.WriteLine(imageDestPath);
                 
                 File.Copy(sourceFileName: encryptedImagePath,
@@ -202,14 +198,38 @@ namespace KPClient
             }
         }
 
-        private void UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
+        private void UploadAlbum(IEnumerable<string> imagePaths, string albumName, SymmetricKey symmetricKey)
         {
             int imageId = 0;
             foreach(var imagePath in imagePaths)
             {
-                UploadImage(imagePath, albumName, imageId, symmetricKey);
+                UploadAlbumImage(imagePath, albumName, imageId, symmetricKey);
                 symmetricKey = symmetricKey.GetNextKey();
                 ++imageId;
+            }
+        }
+
+        private void UploadAlbumImage(string sourceImagePath, string albumName, int imageId, SymmetricKey symmetricKey)
+        {
+            try
+            {
+                string encryptedImagePath = EncryptImage(sourceImagePath, symmetricKey);
+                string imageDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    albumName,
+                    $"{albumName}.{imageId}.png.aes");
+                Console.WriteLine(imageDestPath);
+
+                File.Copy(sourceFileName: encryptedImagePath,
+                    destFileName: imageDestPath,
+                    overwrite: true);
+
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
             }
         }
     }
@@ -227,7 +247,6 @@ namespace KPClient
             set { SetValue(ItemProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
             DependencyProperty.Register("Item", typeof(ImageItem), typeof(ImageItemButton), null);
     }
