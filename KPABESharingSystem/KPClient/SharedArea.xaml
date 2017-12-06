@@ -4,11 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:KPClient"
+             xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="700"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <local:DesignTimeSharedAreaContext x:Key="DesignTimeContex" />
+        <CollectionViewSource
+            x:Key="SortedItems"
+            Source="{Binding Path=DisplayedItems}">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Name" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        
         <Style x:Key="NoChromeButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="1" />
@@ -39,8 +48,8 @@
     <ScrollViewer>
         <ItemsControl
             Name="SharedFolderView"
-            d:DataContext="{StaticResource DesignTimeContex}"
-            ItemsSource="{Binding Path=DisplayedItems}">
+            ItemsSource="{Binding Source={StaticResource SortedItems} }"
+            >
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" />
