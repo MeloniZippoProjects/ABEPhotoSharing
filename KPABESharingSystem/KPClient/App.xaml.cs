@@ -2,20 +2,21 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
+using KPClient.Properties;
 using KPServices;
-using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
 namespace KPClient
 {
+    /// <inheritdoc />
     /// <summary>
     /// Logica di interazione per App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         public Universe Universe;
-        public KPService KpService = new KPService();
-        public KPRestClient KPRestClient;
+        public KpService KpService = new KpService();
+        public KpRestClient KpRestClient;
         public string Username;
 
         private void App_OnStartup(object sender, StartupEventArgs e)
@@ -23,19 +24,19 @@ namespace KPClient
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             CheckAndSetDefaultPathSettings();
 
-            var settings = KPClient.Properties.Settings.Default;
-            KPService.SuitePath = settings.KPSuitePath;
-            while (!KPService.ValidClientSuite)
+            Settings settings = Settings.Default;
+            KpService.SuitePath = settings.KPSuitePath;
+            while (!KpService.ValidClientSuite)
             {
                 MessageBox.Show("Invalid path for the kpabe suite!");
-                using (var fbd = new FolderBrowserDialog())
+                using (FolderBrowserDialog fbd = new FolderBrowserDialog())
                 {
                     DialogResult result = fbd.ShowDialog();
-                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                     {
                         settings.KPSuitePath = fbd.SelectedPath;
                         settings.Save();
-                        KPService.SuitePath = fbd.SelectedPath;
+                        KpService.SuitePath = fbd.SelectedPath;
                     }
                     else
                     {
@@ -59,12 +60,13 @@ namespace KPClient
 #else
                 Universe = Universe.FromString(@"'anime' 'mario' 'cose'");
                 KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "pub_key"));
-                KpService.Keys.PrivateKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
+                KpService.Keys.PrivateKey =
+File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
 #endif
             }
 
 #if DEBUG
-                System.Windows.MessageBox.Show($"Universe is: {((App)Application.Current).Universe}");
+            MessageBox.Show($"Universe is: {((App)Current).Universe}");
 #endif
 
             MainWindow mainWindow = new MainWindow();
@@ -74,22 +76,22 @@ namespace KPClient
 
         private void GetSettingsFromServer()
         {
-            var settings = KPClient.Properties.Settings.Default;
+            Settings settings = Settings.Default;
 
-            KPRestClient = new KPRestClient(
-                Host : settings.ServerAddress,
-                Port : settings.ServerPort,
-                UseHTTPS: true
+            KpRestClient = new KpRestClient(
+                host: settings.ServerAddress,
+                port: settings.ServerPort,
+                useHttps: true
             );
 
             LoginForm loginForm = new LoginForm();
             loginForm.ShowDialog();
-            if (!KPRestClient.IsLogged)
+            if (!KpRestClient.IsLogged)
                 Environment.Exit(0);
 
-            Universe = KPRestClient.GetUniverse();
-            byte[] publicKey = KPRestClient.GetPublicKey();
-            byte[] privateKey = KPRestClient.GetPrivateKey();
+            Universe = KpRestClient.GetUniverse();
+            byte[] publicKey = KpRestClient.GetPublicKey();
+            byte[] privateKey = KpRestClient.GetPrivateKey();
 
             if (Universe == null || publicKey == null || privateKey == null)
             {
@@ -110,22 +112,21 @@ namespace KPClient
             File.WriteAllBytes(
                 path: settings.PrivateKeyPath,
                 bytes: privateKey);
-            
         }
 
         private void CheckAndSetDefaultPathSettings()
         {
-            var settings = KPClient.Properties.Settings.Default;
-            
-            if(String.IsNullOrEmpty(settings.KPSuitePath))
+            Settings settings = Settings.Default;
+
+            if (String.IsNullOrEmpty(settings.KPSuitePath))
                 settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");
 
-            if(String.IsNullOrEmpty(settings.PublicKeyPath))
+            if (String.IsNullOrEmpty(settings.PublicKeyPath))
                 settings.PublicKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "pub_key");
 
             if (String.IsNullOrEmpty(settings.PrivateKeyPath))
                 settings.PrivateKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "priv_key");
-            
+
             settings.Save();
         }
     }

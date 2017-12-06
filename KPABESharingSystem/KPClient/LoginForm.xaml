@@ -3,13 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KPClient"
         mc:Ignorable="d"
         Title="Login to KP Server" Height="300" Width="300">
     <StackPanel
         Margin="20"
         Orientation="Vertical">
-        
+
         <Label
             HorizontalAlignment="Center">
             Insert Login Info
@@ -19,12 +18,12 @@
             Margin="5,20,5,20"
             HorizontalAlignment="Center">
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition />
+                <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
             <Label
@@ -41,8 +40,7 @@
                 Name="UsernameTextBox"
                 MinWidth="100"
                 TextAlignment="Left"
-                MaxLines="1">
-            </TextBox>
+                MaxLines="1" />
 
             <Label
                 Grid.Row="1"
@@ -56,8 +54,7 @@
                 Grid.Column="1"
                 Margin="5"
                 Name="PasswordTextBox"
-                MinWidth="100">
-            </PasswordBox>
+                MinWidth="100" />
         </Grid>
 
         <Button
@@ -71,11 +68,9 @@
         </Button>
 
         <Label
-           HorizontalAlignment="Center"
-           Height="25"
-           Name="ErrorLabel"
-           Foreground="IndianRed">
-           
-        </Label>
+            HorizontalAlignment="Center"
+            Height="25"
+            Name="ErrorLabel"
+            Foreground="IndianRed" />
     </StackPanel>
 </Window>

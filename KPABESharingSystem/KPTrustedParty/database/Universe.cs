@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace KPTrustedParty
+namespace KPTrustedParty.Database
 {
-    public partial class KPDatabase
+    public partial class KpDatabase
     {
         public class Universe
         {
@@ -26,7 +26,7 @@ namespace KPTrustedParty
 
         public static Universe GetLatestUniverse()
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 return db.Universes.OrderByDescending(universe => universe.Version).FirstOrDefault();
             }
@@ -34,7 +34,7 @@ namespace KPTrustedParty
 
         public static Universe GetUniverse(int version)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 return db.Universes.FirstOrDefault(universe => universe.Version == version);
             }
@@ -42,7 +42,7 @@ namespace KPTrustedParty
 
         public static void InsertUniverse(string universeString, byte[] masterKey, byte[] publicKey)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 db.Universes.Add(new Universe
                 {
@@ -53,7 +53,6 @@ namespace KPTrustedParty
                 try
                 {
                     db.SaveChanges();
-                    return;
                 }
                 catch (ValidationException e)
                 {

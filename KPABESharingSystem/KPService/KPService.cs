@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace KPServices
@@ -21,11 +19,11 @@ namespace KPServices
         public byte[] PublicKey;
         public byte[] PrivateKey;
     }
-    
+
     /// <summary>
     /// Provides utilities for the KPABE suite
     /// </summary>
-    public class KPService
+    public class KpService
     {
         /// <summary>
         /// Configurable path for the KPABE suite
@@ -61,10 +59,11 @@ namespace KPServices
         /// Configurable filenames for KPABE keys
         /// </summary>
         public Keys Keys = new Keys();
-      
+
         public Universe Universe { get; set; }
 
-        public static bool ValidClientSuite => File.Exists(GetTool(ExeNames.Encrypt)) && File.Exists(GetTool(ExeNames.Decrypt));
+        public static bool ValidClientSuite =>
+            File.Exists(GetTool(ExeNames.Encrypt)) && File.Exists(GetTool(ExeNames.Decrypt));
 
         /// <summary>
         /// Setups the KPABE encryption suite by creating the 
@@ -79,17 +78,22 @@ namespace KPServices
 
             string publicKey = Path.GetTempFileName();
             string masterKey = Path.GetTempFileName();
-              
-            Process kpabeSetupProcess = new Process();
-            kpabeSetupProcess.StartInfo.FileName = setupPath;
-            kpabeSetupProcess.StartInfo.Arguments = $"-p \"{publicKey}\" -m \"{masterKey}\" {Universe}";
+
+            Process kpabeSetupProcess = new Process
+            {
+                StartInfo =
+                {
+                    FileName = setupPath,
+                    Arguments = $"-p \"{publicKey}\" -m \"{masterKey}\" {Universe}"
+                }
+            };
             PrepareProcessStart(kpabeSetupProcess.StartInfo);
 
             try
             {
                 kpabeSetupProcess.Start();
             }
-            catch(System.ComponentModel.Win32Exception)
+            catch (System.ComponentModel.Win32Exception)
             {
                 throw new ToolNotFound($"Cannot find {setupPath}");
             }
@@ -121,8 +125,7 @@ namespace KPServices
             File.WriteAllBytes(publicKey, Keys.PublicKey);
             File.WriteAllBytes(masterKey, Keys.MasterKey);
 
-            Process kpabeKeygenProcess = new Process();
-            kpabeKeygenProcess.StartInfo.FileName = keygenPath;
+            Process kpabeKeygenProcess = new Process {StartInfo = {FileName = keygenPath}};
             PrepareProcessStart(kpabeKeygenProcess.StartInfo);
 
             String argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" \"{policy}\" ";
@@ -160,16 +163,23 @@ namespace KPServices
             return Keys.PrivateKey;
         }
 
-        public void Encrypt(String sourceFilePath, String destFilePath, String attributes, bool deleteSourceFile = false )
+        public void Encrypt(String sourceFilePath, String destFilePath, String attributes,
+            bool deleteSourceFile = false)
         {
             String encryptPath = GetTool(ExeNames.Encrypt);
 
             String publicKey = Path.GetTempFileName();
             File.WriteAllBytes(publicKey, Keys.PublicKey);
 
-            Process encryptProcess = new Process();
-            encryptProcess.StartInfo.FileName = encryptPath;
-            encryptProcess.StartInfo.Arguments = $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}";
+            Process encryptProcess = new Process
+            {
+                StartInfo =
+                {
+                    FileName = encryptPath,
+                    Arguments =
+                        $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}"
+                }
+            };
             PrepareProcessStart(encryptProcess.StartInfo);
 
 #if DEBUG
@@ -178,7 +188,7 @@ namespace KPServices
 #endif
 
             encryptProcess.Start();
-          
+
             String stderr = encryptProcess.StandardError.ReadToEnd();
             encryptProcess.WaitForExit();
 
@@ -207,9 +217,15 @@ namespace KPServices
             String privateKey = Path.GetTempFileName();
             File.WriteAllBytes(privateKey, Keys.PrivateKey);
 
-            Process decryptProcess = new Process();
-            decryptProcess.StartInfo.FileName = decryptPath;
-            decryptProcess.StartInfo.Arguments = $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\"";
+            Process decryptProcess = new Process
+            {
+                StartInfo =
+                {
+                    FileName = decryptPath,
+                    Arguments =
+                        $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\""
+                }
+            };
             PrepareProcessStart(decryptProcess.StartInfo);
 
 #if DEBUG
@@ -221,7 +237,7 @@ namespace KPServices
 
             String stderr = decryptProcess.StandardError.ReadToEnd();
             decryptProcess.WaitForExit();
-           
+
             if (stderr.Contains("cannot decrypt, attributes in ciphertext do not satisfy policy"))
                 throw new PolicyUnsatisfied("Attributes in ciphertext do not satisfy policy");
 

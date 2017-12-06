@@ -6,8 +6,8 @@ namespace KPClient
     {
         public bool FilterOutOfPolicy
         {
-            get { return (bool) GetValue(FilterOutOfPolicyProperty); }
-            set { SetValue(FilterOutOfPolicyProperty, value); }
+            get => (bool) GetValue(FilterOutOfPolicyProperty);
+            set => SetValue(FilterOutOfPolicyProperty, value);
         }
 
         public static readonly DependencyProperty FilterOutOfPolicyProperty =
@@ -16,8 +16,8 @@ namespace KPClient
 
         public bool ShowPreviews
         {
-            get { return (bool) GetValue(ShowPreviewsProperty); }
-            set { SetValue(ShowPreviewsProperty, value); }
+            get => (bool) GetValue(ShowPreviewsProperty);
+            set => SetValue(ShowPreviewsProperty, value);
         }
 
         public static readonly DependencyProperty ShowPreviewsProperty =
@@ -26,8 +26,8 @@ namespace KPClient
 
         public bool IsValidSharedFolder
         {
-            get { return (bool) GetValue(IsValidSharedFolderProperty); }
-            private set { SetValue(IsValidSharedFolderProperty, value); }
+            get => (bool) GetValue(IsValidSharedFolderProperty);
+            private set => SetValue(IsValidSharedFolderProperty, value);
         }
 
         public static readonly DependencyProperty IsValidSharedFolderProperty =
@@ -36,8 +36,8 @@ namespace KPClient
 
         public string SharedFolderPath
         {
-            get { return (string) GetValue(SharedFolderPathProperty); }
-            set { SetValue(SharedFolderPathProperty, value); }
+            get => (string) GetValue(SharedFolderPathProperty);
+            set => SetValue(SharedFolderPathProperty, value);
         }
 
         public static readonly DependencyProperty SharedFolderPathProperty = DependencyProperty.Register(
@@ -51,12 +51,13 @@ namespace KPClient
 
         public string CurrentAlbum
         {
-            get { return (string)GetValue(CurrentAlbumProperty); }
-            set { SetValue(CurrentAlbumProperty, value); }
+            get => (string) GetValue(CurrentAlbumProperty);
+            set => SetValue(CurrentAlbumProperty, value);
         }
 
         public static readonly DependencyProperty CurrentAlbumProperty =
-            DependencyProperty.Register("CurrentAlbum", typeof(string), typeof(SharedArea), new PropertyMetadata("Main folder"));
+            DependencyProperty.Register("CurrentAlbum", typeof(string), typeof(SharedArea),
+                new PropertyMetadata("Main folder"));
 
         public SharedArea()
         {

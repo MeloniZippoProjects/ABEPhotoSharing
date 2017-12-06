@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using KPServices;
+using KPTrustedParty.Database;
 
 namespace KPTrustedParty
 {
-    partial class TPServer
+    partial class TpServer
     {
         private static void UniverseEditor()
         {
@@ -30,7 +27,7 @@ namespace KPTrustedParty
                 string[] arguments;
                 try
                 {
-                     arguments = argumentFormat.Matches(commandLine).Cast<Match>()
+                    arguments = argumentFormat.Matches(commandLine).Cast<Match>()
                         .Select(match => match.Groups["attribute"])
                         .Select(capture => capture.Value)
                         .ToArray();
@@ -82,12 +79,12 @@ namespace KPTrustedParty
                         foreach (string argument in arguments)
                         {
                             bool? result = editedUniverse?.RemoveAttribute(argument);
-                            if(result ?? false)
+                            if (result ?? false)
                                 Console.WriteLine($"Attribute {argument} removed.");
                             else
                                 Console.WriteLine($"Attribute {argument} not present.");
                         }
-                       
+
                         PrintEditedUniverse(editedUniverse);
                         break;
                     }
@@ -102,9 +99,10 @@ namespace KPTrustedParty
                     case "commit":
                     {
                         Universe = editedUniverse?.Copy();
-                        kpService.Universe = Universe;
-                        kpService.Setup();
-                        KPDatabase.InsertUniverse(Universe.ToString(), kpService.Keys.MasterKey, kpService.Keys.PublicKey);
+                        KpService.Universe = Universe;
+                        KpService.Setup();
+                        KpDatabase.InsertUniverse(Universe.ToString(), KpService.Keys.MasterKey,
+                            KpService.Keys.PublicKey);
                         return;
                     }
 
@@ -122,6 +120,7 @@ namespace KPTrustedParty
                         return;
                     }
 
+                    // ReSharper disable once RedundantCaseLabel
                     case "help":
                     default:
                     {
@@ -135,7 +134,7 @@ namespace KPTrustedParty
         private static void UniverseEditorHelp()
         {
             Console.WriteLine(
-            @"
+                @"
 SYNOPSIS
     The UniverseEditor tool is intended to define the KP attribute Universe in a safe way.
     It checks existing data and avoids conflicts before committing the changes. 
@@ -181,10 +180,9 @@ HELP
 
         private static void PrintUniverse()
         {
-            if(Universe == null)
-                Console.WriteLine("There is no current Universe defined.");
-            else
-                Console.WriteLine($"The current Universe is: {Universe}");
+            Console.WriteLine(Universe == null
+                ? "There is no current Universe defined."
+                : $"The current Universe is: {Universe}");
         }
 
         private static void PrintEditedUniverse(Universe editedUniverse)

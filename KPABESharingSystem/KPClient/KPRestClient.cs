@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Grapevine.Client;
 using Grapevine.Shared;
 using KPServices;
@@ -11,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace KPClient
 {
-    public class KPRestClient
+    public class KpRestClient
     {
-        internal class KPRestResponse
+        internal class KpRestResponse
         {
             public string Error { get; set; } = "none";
             public string ErrorDescription { get; set; }
@@ -24,35 +19,35 @@ namespace KPClient
         public RestClient RestClient;
         public Uri RequestUri;
 
-        public KPRestClient(string Host, int Port, bool UseHTTPS)
-        { 
+        public KpRestClient(string host, int port, bool useHttps)
+        {
             RestClient = new RestClient
             {
-                Scheme = UseHTTPS ? UriScheme.Https : UriScheme.Http,
-                Host = Host,
-                Port = Port              
+                Scheme = useHttps ? UriScheme.Https : UriScheme.Http,
+                Host = host,
+                Port = port
             };
             UriBuilder ub = new UriBuilder()
             {
-                Host = Host
+                Host = host
             };
             RequestUri = ub.Uri;
         }
 
-        public bool Login(string Username, string Password)
+        public bool Login(string username, string password)
         {
             RestRequest request = new RestRequest("/login")
             {
                 Payload = JsonConvert.SerializeObject(
                     new
                     {
-                        Username = Username,
-                        Password = Password
+                        Username = username,
+                        Password = password
                     }),
                 HttpMethod = HttpMethod.POST,
                 ContentType = ContentType.JSON
             };
-            var response = RestClient.Execute(request);
+            IRestResponse response = RestClient.Execute(request);
             return response.StatusCode == HttpStatusCode.Ok;
         }
 
@@ -67,19 +62,19 @@ namespace KPClient
                         HttpMethod = HttpMethod.GET,
                         RequestUri = RequestUri
                     };
-                    var response = RestClient.Execute(request);
+                    IRestResponse response = RestClient.Execute(request);
                     if (response.StatusCode == HttpStatusCode.Ok)
                     {
-                        var KPResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                        KpRestResponse kpResponse = JsonConvert.DeserializeObject<KpRestResponse>(
                             response.GetContent());
-                        return KPResponse.Content == "logged_in";
+                        return kpResponse.Content == "logged_in";
                     }
                     else
                     {
                         return false;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
@@ -93,10 +88,10 @@ namespace KPClient
                 HttpMethod = HttpMethod.GET,
                 RequestUri = RequestUri
             };
-            var response = RestClient.Execute(request);
+            IRestResponse response = RestClient.Execute(request);
             if (response.StatusCode == HttpStatusCode.Ok)
             {
-                var jsonResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                KpRestResponse jsonResponse = JsonConvert.DeserializeObject<KpRestResponse>(
                     response.GetContent());
                 if (jsonResponse.Error == "none")
                     return Universe.FromString(jsonResponse.Content);
@@ -112,10 +107,10 @@ namespace KPClient
                 HttpMethod = HttpMethod.GET,
                 RequestUri = RequestUri
             };
-            var response = RestClient.Execute(request);
+            IRestResponse response = RestClient.Execute(request);
             if (response.StatusCode == HttpStatusCode.Ok)
             {
-                var jsonResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                KpRestResponse jsonResponse = JsonConvert.DeserializeObject<KpRestResponse>(
                     response.GetContent());
                 if (jsonResponse.Error == "none")
                     return Convert.FromBase64String(jsonResponse.Content);
@@ -131,10 +126,10 @@ namespace KPClient
                 HttpMethod = HttpMethod.GET,
                 RequestUri = RequestUri
             };
-            var response = RestClient.Execute(request);
+            IRestResponse response = RestClient.Execute(request);
             if (response.StatusCode == HttpStatusCode.Ok)
             {
-                var jsonResponse = JsonConvert.DeserializeObject<KPRestResponse>(
+                KpRestResponse jsonResponse = JsonConvert.DeserializeObject<KpRestResponse>(
                     response.GetContent());
                 if (jsonResponse.Error == "none")
                     return Convert.FromBase64String(jsonResponse.Content);

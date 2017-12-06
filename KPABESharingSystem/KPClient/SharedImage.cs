@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -21,17 +16,18 @@ namespace KPClient
         {
             DefaultImageThumbnail =
                 IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.Image });
+                    new PackIconModern() {Kind = PackIconModernKind.Image});
         }
 
-        public SharedImage(string Name, SharedArea SharedArea)
+        public SharedImage(string name, SharedArea sharedArea)
         {
             SetDefaultThumbnail();
-            this.Name = Name;
-            this.SharedArea = SharedArea;
+            // ReSharper disable once VirtualMemberCallInConstructor
+            Name = name;
+            SharedArea = sharedArea;
         }
 
-        public override void SetDefaultThumbnail()
+        public sealed override void SetDefaultThumbnail()
         {
             Thumbnail = DefaultImageThumbnail;
         }
@@ -52,7 +48,7 @@ namespace KPClient
             set
             {
                 Regex imageRegex = new Regex(@"^(?<name>.+).png.aes$");
-                var match = imageRegex.Match(value);
+                Match match = imageRegex.Match(value);
                 base.Name = match.Groups["name"].Value;
             }
         }
@@ -67,10 +63,9 @@ namespace KPClient
             "keys",
             $"{Name}.key.kpabe");
 
-        public override bool IsValid => 
-            File.Exists(ItemPath) && File.Exists(KeyPath);
+        public override bool IsValid => File.Exists(ItemPath) && File.Exists(KeyPath);
 
-        public byte[] _decryptedBytes = null;
+        private byte[] _decryptedBytes;
         public byte[] DecryptedBytes => _decryptedBytes ?? (_decryptedBytes = GetDecryptedBytes());
 
         protected byte[] GetDecryptedBytes()
@@ -80,18 +75,11 @@ namespace KPClient
 
             try
             {
-                Aes aes = new AesCng();
-                aes.KeySize = 256;
-                aes.Key = SymmetricKey.Key;
-                aes.IV = SymmetricKey.IV;
-
-                var decryptor = aes.CreateDecryptor();
-
                 using (Stream inputStream = new FileStream(ItemPath, FileMode.Open),
                     outputStream = new MemoryStream())
                 {
                     SymmetricKey.Decrypt(inputStream, outputStream);
-                    return ((MemoryStream)outputStream).ToArray();
+                    return ((MemoryStream) outputStream).ToArray();
                 }
             }
             catch (Exception ex)

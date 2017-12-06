@@ -1,20 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Grapevine.Client;
-using Grapevine.Shared;
-using Newtonsoft.Json;
 
 
 namespace KPClient
@@ -22,10 +8,10 @@ namespace KPClient
     /// <summary>
     /// Logica di interazione per LoginForm.xaml
     /// </summary>
-    public partial class LoginForm : Window
+    public partial class LoginForm
     {
-        static Regex usernameRegex = new Regex(@"^.+$");
-        static Regex passwordRegex = new Regex(@"^.{8,}$");
+        static readonly Regex UsernameRegex = new Regex(@"^.+$");
+        static readonly Regex PasswordRegex = new Regex(@"^.{8,}$");
 
         public LoginForm()
         {
@@ -34,14 +20,14 @@ namespace KPClient
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            var username = UsernameTextBox.Text;
-            var password = PasswordTextBox.Password;
-            if (!usernameRegex.IsMatch(username))
+            string username = UsernameTextBox.Text;
+            string password = PasswordTextBox.Password;
+            if (!UsernameRegex.IsMatch(username))
             {
                 ErrorLabel.Content = "Invalid username field";
                 return;
             }
-            if (!passwordRegex.IsMatch(password))
+            if (!PasswordRegex.IsMatch(password))
             {
                 ErrorLabel.Content = "Invalid password field";
                 return;
@@ -50,15 +36,15 @@ namespace KPClient
             App app = (App) Application.Current;
             try
             {
-                if (app.KPRestClient.Login(username, password))
+                if (app.KpRestClient.Login(username, password))
                 {
                     app.Username = username;
-                    this.Close();
+                    Close();
                 }
                 else
                     ErrorLabel.Content = "Wrong Username or Password";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ErrorLabel.Content = "Can't connect: check the settings";
             }

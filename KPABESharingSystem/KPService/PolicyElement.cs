@@ -14,28 +14,27 @@ namespace KPServices
 
     public class PolicyElement
     {
-        private UniverseAttribute Attribute;
+        private readonly UniverseAttribute _attribute;
 
-        private PolicyType PolicyType;
+        private readonly PolicyType _policyType;
 
 
         public PolicyElement(UniverseAttribute numericalAttribute, PolicyType policyType = PolicyType.Equal)
         {
-            Attribute = numericalAttribute;
+            _attribute = numericalAttribute;
 
             PolicyType maxValue = Enum.GetValues(typeof(PolicyType)).Cast<PolicyType>().Max();
             if (!(0 <= policyType && policyType <= maxValue))
-                throw new ArgumentOutOfRangeException("policyType", "The value is not a valid PolicyType");
-            PolicyType = policyType;
+                throw new ArgumentOutOfRangeException(nameof(policyType), "The value is not a valid PolicyType");
+            _policyType = policyType;
         }
 
         public override string ToString()
         {
-            String policyComparator;
-
-            if (Attribute is NumericalAttribute numericalAttribute)
+            if (_attribute is NumericalAttribute numericalAttribute)
             {
-                switch (PolicyType)
+                String policyComparator;
+                switch (_policyType)
                 {
                     case PolicyType.Equal:
                         policyComparator = "=";
@@ -60,7 +59,7 @@ namespace KPServices
                 //return numericalAttribute.Name + policyComparator + numericalAttribute.Number + "#" + numericalAttribute.NumberResolution;
                 return numericalAttribute.ToString().Replace("=", policyComparator);
             }
-            return Attribute.Name;
+            return _attribute.Name;
         }
     }
 }

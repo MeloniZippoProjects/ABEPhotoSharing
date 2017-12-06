@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using KPServices;
 using Newtonsoft.Json;
+// ReSharper disable All
 
 namespace Tests
 {
@@ -12,14 +10,16 @@ namespace Tests
     {
         static void Main(string[] args)
         {
-            var jsonResponse = new Dictionary<string, string>();
-            jsonResponse["error"] = "bad_format";
-            jsonResponse["errorDescription"] =
-                "The request format must be \"username=<username>;password=<password>\"";
+            Dictionary<string, string> jsonResponse = new Dictionary<string, string>
+            {
+                ["error"] = "bad_format",
+                ["errorDescription"] = "The request format must be \"username=<username>;password=<password>\""
+            };
 
             Console.WriteLine(JsonConvert.SerializeObject(jsonResponse));
 
-            var x = JsonConvert.DeserializeObject("{\n    \"username\": \"ciao\",\n    \"password\": \"password\"\n}");
+            object x = JsonConvert.DeserializeObject(
+                "{\n    \"username\": \"ciao\",\n    \"password\": \"password\"\n}");
 
             Console.WriteLine(x.GetType());
 
@@ -48,14 +48,11 @@ namespace Tests
             */
 
 
-
             //Console.WriteLine(KPService.Universe);
 
             //KPService.Keygen(policies);
 
             //Console.WriteLine();
-            return;
-            
         }
 
         private static void NumericalAttributeParsingTest()
@@ -79,7 +76,7 @@ namespace Tests
             {
                 try
                 {
-                    var na = new NumericalAttribute(numericalAttribute);
+                    NumericalAttribute na = new NumericalAttribute(numericalAttribute);
                     Console.WriteLine(na);
                 }
                 catch (Exception ex)
@@ -89,7 +86,7 @@ namespace Tests
             }
         }
 
-        private static void toolTest()
+        private static void ToolTest()
         {
             /*
             KPService.SuitePath = @"D:\Users\Raff\Documents\GitHub\ABEPhotoSharing\bin\";

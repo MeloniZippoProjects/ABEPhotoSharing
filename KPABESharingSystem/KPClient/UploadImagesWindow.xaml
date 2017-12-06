@@ -7,16 +7,14 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Title="Upload images" Height="500" Width="840"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        >
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid
-        VerticalAlignment="Stretch"
-    >
+        VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="2*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Label Grid.Row="0">Images to upload</Label>
@@ -29,7 +27,7 @@
                 ItemsSource="{Binding Path=ImageItems}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
+                        <WrapPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
@@ -39,15 +37,15 @@
                               Height="100"
                               Width="100">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="4*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="4*" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="4*"/>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="4*" />
                             </Grid.RowDefinitions>
 
-                            <Image 
+                            <Image
                                 Grid.RowSpan="2"
                                 Grid.ColumnSpan="2"
                                 Source="{Binding ImagePath}" />
@@ -58,39 +56,38 @@
                                 Content="{iconPacks:PackIconModern Close}"
                                 BorderBrush="Transparent"
                                 Background="Transparent"
-                                Click="RemoveButton_OnClick"
-                                />
+                                Click="RemoveButton_OnClick" />
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        
+
         <local:TagsSelector
             x:Name="TagsSelector"
-            Grid.Row="2"/>
+            Grid.Row="2" />
 
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid.Resources>
                 <Style TargetType="Button">
-                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="Margin" Value="5" />
                 </Style>
             </Grid.Resources>
 
-            <Button 
+            <Button
                 Name="AddImagesButton"
                 Grid.Column="0" Click="AddImagesButton_Click">
                 Add images
             </Button>
-            <Button 
+            <Button
                 Name="ClearAllButton"
-                Grid.Column="1" 
+                Grid.Column="1"
                 IsEnabled="False"
                 Click="ClearAllButton_Click">
                 Clear all

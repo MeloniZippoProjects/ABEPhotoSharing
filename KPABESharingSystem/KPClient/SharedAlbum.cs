@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
@@ -11,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace KPClient
 {
-    public class SharedAlbum : SharedItem
+    public sealed class SharedAlbum : SharedItem
     {
         public static DrawingImage DefaultAlbumThumbnail;
 
@@ -21,14 +18,14 @@ namespace KPClient
         {
             DefaultAlbumThumbnail =
                 IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageMultiple });
+                    new PackIconModern() {Kind = PackIconModernKind.ImageMultiple});
         }
 
-        public SharedAlbum(string Name, SharedArea SharedArea)
+        public SharedAlbum(string name, SharedArea sharedArea)
         {
             SetDefaultThumbnail();
-            this.Name = Name;
-            this.SharedArea = SharedArea;
+            Name = name;
+            SharedArea = sharedArea;
 
             PopulateChildren();
         }
@@ -43,11 +40,11 @@ namespace KPClient
                 string childrenPath = Path.Combine(ItemPath, childrenName);
                 if (File.Exists(childrenPath))
                 {
-                    Children.Add( new SharedAlbumImage(
-                        Name: childrenName,
-                        SharedArea: SharedArea,
-                        ParentAlbum: this,
-                        ImageId: childrenId));
+                    Children.Add(new SharedAlbumImage(
+                        name: childrenName,
+                        sharedArea: SharedArea,
+                        parentAlbum: this,
+                        imageId: childrenId));
                     ++childrenId;
                 }
                 else
@@ -76,7 +73,7 @@ namespace KPClient
             $"{Name}.key.kpabe");
 
         public override bool IsValid =>
-            Directory.Exists(ItemPath) 
+            Directory.Exists(ItemPath)
             && File.Exists(KeyPath)
             && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
 
@@ -85,7 +82,7 @@ namespace KPClient
             try
             {
                 string decryptedKeyPath = Path.GetTempFileName();
-                App app = (App)Application.Current;
+                App app = (App) Application.Current;
                 app.KpService.Decrypt(
                     sourceFilePath: KeyPath,
                     destFilePath: decryptedKeyPath);
@@ -95,7 +92,7 @@ namespace KPClient
                     using (StreamReader sr = new StreamReader(fs))
                     {
                         string serializedKey = sr.ReadToEnd();
-                        var symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
+                        SymmetricKey symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
                         return symmetricKey;
                     }
                 }
@@ -106,6 +103,5 @@ namespace KPClient
                 return null;
             }
         }
-
     }
 }

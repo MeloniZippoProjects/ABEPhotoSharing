@@ -1,37 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Data.Entity;
-using System.Data.Entity.Core.EntityClient;
-using System.Diagnostics;
+﻿using System.Data.Entity;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace KPTrustedParty
+namespace KPTrustedParty.Database
 {
-    public partial class KPDatabase
+    public partial class KpDatabase
     {
-        private static RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
-        private static SHA256 sha256 = SHA256CryptoServiceProvider.Create();
+        private static readonly RNGCryptoServiceProvider RngCsp = new RNGCryptoServiceProvider();
+        private static readonly SHA256 Sha256 = SHA256.Create();
 
-        public class KPDatabaseContext : DbContext
+        public class KpDatabaseContext : DbContext
         {
-            private static string DBConnectionString = @"Data Source=(LocalDb)\mssqllocaldb;" + 
-                "Initial Catalog=database;Integrated Security=SSPI;" + 
-                "AttachDBFilename=" + Directory.GetCurrentDirectory() + @"\KPDatabase.mdf";
+            private static readonly string DbConnectionString = @"Data Source=(LocalDb)\mssqllocaldb;" +
+                                                       "Initial Catalog=database;Integrated Security=SSPI;" +
+                                                       "AttachDBFilename=" + Directory.GetCurrentDirectory() +
+                                                       @"\KPDatabase.mdf";
 
-            public KPDatabaseContext() : base(DBConnectionString) { }
+            public KpDatabaseContext() : base(DbConnectionString)
+            {
+            }
 
             public DbSet<User> Users { get; set; }
             public DbSet<Token> Tokens { get; set; }
             public DbSet<Universe> Universes { get; set; }
         }
     }
-
-    
 }

@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace KPTrustedParty
+namespace KPTrustedParty.Database
 {
-    public partial class KPDatabase
+    public partial class KpDatabase
     {
         public class Token
         {
@@ -21,9 +21,9 @@ namespace KPTrustedParty
 
         public static Token TokenExists(string sessionToken)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
-                var findToken = db.Tokens.FirstOrDefault(token => token.TokenString.Equals(sessionToken));
+                Token findToken = db.Tokens.FirstOrDefault(token => token.TokenString.Equals(sessionToken));
 
                 return findToken;
             }

@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -33,11 +31,11 @@ using System.Windows;
 
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None, //dove si trovano i dizionari delle risorse specifiche del tema
-                                     //(da usare se nella pagina non viene trovata una risorsa,
-                                     // oppure nei dizionari delle risorse dell'applicazione)
+    //(da usare se nella pagina non viene trovata una risorsa,
+    // oppure nei dizionari delle risorse dell'applicazione)
     ResourceDictionaryLocation.SourceAssembly //dove si trova il dizionario delle risorse generiche
-                                              //(da usare se nella pagina non viene trovata una risorsa,
-                                              // nell'applicazione o nei dizionari delle risorse specifiche del tema)
+    //(da usare se nella pagina non viene trovata una risorsa,
+    // nell'applicazione o nei dizionari delle risorse specifiche del tema)
 )]
 
 

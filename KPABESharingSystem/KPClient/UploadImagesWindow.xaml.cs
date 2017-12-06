@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using KPServices;
 using Newtonsoft.Json;
 using Path = System.IO.Path;
 
@@ -28,7 +16,7 @@ namespace KPClient
     /// <summary>
     /// Logica di interazione per UploadImagesWindow.xaml
     /// </summary>
-    public partial class UploadImagesWindow : Window
+    public partial class UploadImagesWindow
     {
         public ObservableCollection<ImageItem> ImageItems { get; private set; } = new ObservableCollection<ImageItem>();
 
@@ -68,9 +56,11 @@ namespace KPClient
 
         private void AddImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
-            openFileDialog.Filter = "Image files(*.jpg, *.jpeg, *.png, *.bmp)|*.jpg; *.jpeg; *.png; *.bmp";
-            openFileDialog.Multiselect = true;
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Image files(*.jpg, *.jpeg, *.png, *.bmp)|*.jpg; *.jpeg; *.png; *.bmp",
+                Multiselect = true
+            };
 
             bool? result = openFileDialog.ShowDialog();
 
@@ -78,7 +68,7 @@ namespace KPClient
             {
                 foreach (string filename in openFileDialog.FileNames)
                 {
-                    ImageItems.Add(new ImageItem() { ImagePath = filename});
+                    ImageItems.Add(new ImageItem() {ImagePath = filename});
                 }
             }
         }
@@ -86,10 +76,10 @@ namespace KPClient
         //todo: add control to choose image/album name. Use current settings as defaults
         private void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var symmetricKey = new SymmetricKey
+            SymmetricKey symmetricKey = new SymmetricKey
             {
                 Key = new byte[256 / 8],
-                IV = new byte[128 / 8]
+                Iv = new byte[128 / 8]
             };
 
             GenerateKeyAndIv(symmetricKey);
@@ -107,7 +97,7 @@ namespace KPClient
 
             string encryptedKeyPath = Path.GetRandomFileName();
 
-            App app = (App)Application.Current;
+            App app = (App) Application.Current;
 
             app.KpService.Encrypt(
                 sourceFilePath: keyPath,
@@ -125,8 +115,8 @@ namespace KPClient
             }
             else
             {
-                var albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
-                var albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
+                string albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
+                string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
                 UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, symmetricKey);
                 finalKeyPath = albumName + ".key.kpabe";
@@ -143,7 +133,7 @@ namespace KPClient
         {
             RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
             rngCsp.GetBytes(symmetricKey.Key);
-            rngCsp.GetBytes(symmetricKey.IV);
+            rngCsp.GetBytes(symmetricKey.Iv);
         }
 
         private static string EncryptImage(string sourceImagePath, SymmetricKey symmetricKey)
@@ -185,10 +175,10 @@ namespace KPClient
                     "items",
                     $"{imageName}.png.aes");
                 Console.WriteLine(imageDestPath);
-                
+
                 File.Copy(sourceFileName: encryptedImagePath,
-                            destFileName : imageDestPath,
-                            overwrite: true);
+                    destFileName: imageDestPath,
+                    overwrite: true);
 
                 Close();
             }
@@ -201,7 +191,7 @@ namespace KPClient
         private void UploadAlbum(IEnumerable<string> imagePaths, string albumName, SymmetricKey symmetricKey)
         {
             int imageId = 0;
-            foreach(var imagePath in imagePaths)
+            foreach (string imagePath in imagePaths)
             {
                 UploadAlbumImage(imagePath, albumName, imageId, symmetricKey);
                 symmetricKey = symmetricKey.GetNextKey();
@@ -243,8 +233,8 @@ namespace KPClient
     {
         public ImageItem Item
         {
-            get { return (ImageItem)GetValue(ItemProperty); }
-            set { SetValue(ItemProperty, value); }
+            get => (ImageItem) GetValue(ItemProperty);
+            set => SetValue(ItemProperty, value);
         }
 
         public static readonly DependencyProperty ItemProperty =

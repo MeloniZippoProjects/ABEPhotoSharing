@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -10,9 +9,11 @@ namespace KPServices
 {
     public class Universe
     {
-        HashSet<UniverseAttribute> Attributes = new HashSet<UniverseAttribute>();
+        readonly HashSet<UniverseAttribute> _attributes = new HashSet<UniverseAttribute>();
 
-        public Universe() { }
+        public Universe()
+        {
+        }
 
         public Universe(IEnumerable<UniverseAttribute> attributes)
         {
@@ -24,18 +25,16 @@ namespace KPServices
 
         public Universe Copy()
         {
+            // ReSharper disable once ArrangeThisQualifier
             return FromString(this.ToString());
         }
 
-        public int Count
-        {
-            get => Attributes.Count;
-        }
+        public int Count => _attributes.Count;
 
-        override public string ToString()
+        public override string ToString()
         {
             string universeString = "";
-            foreach (UniverseAttribute attribute in Attributes)
+            foreach (UniverseAttribute attribute in _attributes)
             {
                 universeString += "'" + attribute + "' ";
             }
@@ -45,17 +44,17 @@ namespace KPServices
 
         public void AddAttribute(UniverseAttribute attributeToAdd)
         {
-            if (Attributes.Any(
+            if (_attributes.Any(
                 attribute => attribute.Name.Equals(attributeToAdd.Name)))
                 throw new ArgumentNullException($"The attribute {attributeToAdd.Name} is already present.");
 
-            Attributes.Add(attributeToAdd);
+            _attributes.Add(attributeToAdd);
         }
 
         public void AddAttribute(string attributeString)
         {
             Regex isNumericalAttribute = new Regex("=");
-            UniverseAttribute attributeToAdd = null;
+            UniverseAttribute attributeToAdd;
             if (isNumericalAttribute.IsMatch(attributeString))
                 attributeToAdd = new NumericalAttribute(attributeString);
             else
@@ -66,41 +65,45 @@ namespace KPServices
 
         public bool RemoveAttribute(string attributeName)
         {
-            int removed = Attributes.RemoveWhere(
+            int removed = _attributes.RemoveWhere(
                 attribute => attribute.Name.Equals(attributeName));
             return (removed > 0);
         }
 
         public bool ValidateTag(TagSpecification tag)
         {
-            var candidateAttribute = Attributes.Where(attr => attr.Name == tag.Name);
+            var candidateAttribute = _attributes
+                .Where(attr => attr.Name == tag.Name)
+                .ToList().AsReadOnly();
 
             if (!candidateAttribute.Any())
                 return false;
 
             UniverseAttribute attribute = candidateAttribute.First();
-            
+
             if (attribute is SimpleAttribute)
             {
                 return tag.Value == null;
             }
             else
             {
-                return tag.Value == null ? false : (attribute as NumericalAttribute).CanBeValue((UInt64)tag.Value);
+                // ReSharper disable once BuiltInTypeReferenceStyle
+                return tag.Value != null && ((NumericalAttribute) attribute).CanBeValue((UInt64) tag.Value);
             }
         }
 
         public string GetTagString(TagSpecification tag)
         {
-            if(!ValidateTag(tag))
+            if (!ValidateTag(tag))
                 throw new ArgumentException("Invalid tag for this universe");
 
             if (tag.Value == null)
                 return tag.Name;
             else
             {
-                var numericalAttribute = Attributes.First(attr => attr.Name == tag.Name) as NumericalAttribute;
-                return numericalAttribute.GetTagString(tag);
+                NumericalAttribute numericalAttribute =
+                    _attributes.First(attr => attr.Name == tag.Name) as NumericalAttribute;
+                return numericalAttribute?.GetTagString(tag);
             }
         }
 
@@ -109,7 +112,7 @@ namespace KPServices
             Universe universe = new Universe();
 
             Regex attributeFormat = new Regex("['\"](?<attribute>.+?)['\"]");
-            var attributesStrings = attributeFormat.Matches(universeString)
+            IEnumerable<string> attributesStrings = attributeFormat.Matches(universeString)
                 .Cast<Match>()
                 .Select(match => match.Groups["attribute"].Value);
 
@@ -121,7 +124,7 @@ namespace KPServices
                 {
                     universe.AddAttribute(attributeString);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     exceptions.Add(ex);
                 }
@@ -133,16 +136,15 @@ namespace KPServices
                 throw new ArgumentException("The resulting universe is void");
             else
                 return universe;
-                
         }
-        
+
         /// <summary>
         /// Returns the string to which the universeString is set. Reads the file "universeString"
         /// </summary>
         /// <exception cref="System.IO.IOException">Thrown if file is locked by another thread</exception>
         /// <returns>The current universeString string</returns>
-        public static Universe ReadFromFile(string filename, bool skipInvalidAttributes = true )
-        {       
+        public static Universe ReadFromFile(string filename, bool skipInvalidAttributes = true)
+        {
             using (FileStream universeFile = File.Open(filename, FileMode.Open))
             {
                 byte[] universeBytes = new byte[universeFile.Length];
@@ -169,6 +171,5 @@ namespace KPServices
                 universeFile.Unlock(0, oldLength);
             }
         }
-
     }
 }

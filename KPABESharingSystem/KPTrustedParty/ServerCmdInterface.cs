@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Text.RegularExpressions;
 using Grapevine.Server;
 using KPServices;
+using KPTrustedParty.Database;
 
 namespace KPTrustedParty
 {
-    partial class TPServer
+    partial class TpServer
     {
         private static void CommandLineLoop()
         {
@@ -20,9 +19,10 @@ namespace KPTrustedParty
                 if (commandLine == null)
                     continue;
 
-                Regex argumentFormat = new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s=)?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
-       
-                       string command = commandLine.Split(null)[0];
+                Regex argumentFormat =
+                    new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s=)?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
+
+                string command = commandLine.Split(null)[0];
                 string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
                     .Select(match => match.Groups["argument"])
                     .Select(capture => capture.Value)
@@ -45,14 +45,14 @@ namespace KPTrustedParty
                             break;
                         string username = args[0];
 
-                        KPDatabase.DetailUser(username);
+                        KpDatabase.DetailUser(username);
                         break;
                     }
 
                     case "listUsers":
                     case "l":
                     {
-                        KPDatabase.ListUsers();
+                        KpDatabase.ListUsers();
                         break;
                     }
 
@@ -64,14 +64,14 @@ namespace KPTrustedParty
                         string username = args[0];
                         string password = args[1];
 
-                        var usernameValid = new Regex(@"[\w\d]{3,21}");
+                        Regex usernameValid = new Regex(@"[\w\d]{3,21}");
                         if (usernameValid.Matches(username).Count != 1)
                         {
                             Console.WriteLine("Username must be a alphanumeric string of 3 to 21 characters.");
                             break;
                         }
 
-                        var passwordValid = new Regex(@"[^\s'""]{8,}");
+                        Regex passwordValid = new Regex(@"[^\s'""]{8,}");
                         if (passwordValid.Matches(password).Count != 1)
                         {
                             Console.WriteLine("Password must be a string of at least 8 characters without ' or \".");
@@ -79,12 +79,12 @@ namespace KPTrustedParty
                         }
 
 #if DEBUG
-                            Console.WriteLine($"Captured username is: [{username}]");
+                        Console.WriteLine($"Captured username is: [{username}]");
                         Console.WriteLine($"Captured password is: [{password}]");
 #endif
 
-                        KPDatabase.RegisterUser(username, password);
-                        
+                        KpDatabase.RegisterUser(username, password);
+
                         break;
                     }
 
@@ -94,16 +94,16 @@ namespace KPTrustedParty
                         if (!ArgumentCountCheck(args, 2))
                             break;
 
-                        var username = args[0];
-                        var policy = args[1];
+                        string username = args[0];
+                        string policy = args[1];
                         try
                         {
                             //todo: we could do some parsing just to make the policy syntax more flexible
                             //bug: 'mario or cose = 2' is parsed wrongly, only 'mario' is registered
-                            byte[] privateKey = kpService.Keygen(policy);
-                            KPDatabase.SetUserPolicy(username, policy);
-                            
-                            KPDatabase.SetUserPrivateKey(username, privateKey);
+                            byte[] privateKey = KpService.Keygen(policy);
+                            KpDatabase.SetUserPolicy(username, policy);
+
+                            KpDatabase.SetUserPrivateKey(username, privateKey);
                         }
                         catch (AttributeNotFound)
                         {
@@ -121,7 +121,7 @@ namespace KPTrustedParty
                         {
                             Console.WriteLine("FATAL: can't find file created right now");
                         }
-                        
+
                         break;
                     }
 
@@ -137,9 +137,9 @@ namespace KPTrustedParty
                     {
                         try
                         {
-                            if (server.IsListening)
+                            if (_server.IsListening)
                             {
-                                server.Stop();
+                                _server.Stop();
                                 Console.WriteLine("REST Server succesfully stopped");
                             }
                             else
@@ -158,11 +158,11 @@ namespace KPTrustedParty
                     {
                         try
                         {
-                            if (!server.IsListening)
+                            if (!_server.IsListening)
                             {
-                                server = new RestServer();
+                                _server = new RestServer();
                                 SetupRestServer();
-                                server.Start();
+                                _server.Start();
                                 Console.WriteLine("REST Server succesfully started");
                                 DisplayServerStatus();
                             }
@@ -181,11 +181,11 @@ namespace KPTrustedParty
 
                     case "serverRestart":
                     {
-                        if (server.IsListening)
+                        if (_server.IsListening)
                         {
                             try
                             {
-                                server.Stop();
+                                _server.Stop();
                             }
                             catch (Exception ex)
                             {
@@ -195,9 +195,9 @@ namespace KPTrustedParty
                         }
                         try
                         {
-                            server = new RestServer();
+                            _server = new RestServer();
                             SetupRestServer();
-                            server.Start();
+                            _server.Start();
                         }
                         catch (Exception ex)
                         {
@@ -209,6 +209,7 @@ namespace KPTrustedParty
                         break;
                     }
 
+                    // ReSharper disable once RedundantCaseLabel
                     case "help":
                     default:
                     {
@@ -265,12 +266,9 @@ SERVER RESTART
 
         private static void DisplayServerStatus()
         {
-            if(server.IsListening)
-                Console.WriteLine($"Server listening at: {server.Host}:{server.Port}");
-            else
-            {
-                Console.WriteLine("Server is not listening");
-            }
+            Console.WriteLine(_server.IsListening
+                ? $"Server listening at: {_server.Host}:{_server.Port}"
+                : "Server is not listening");
         }
     }
 }

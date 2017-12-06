@@ -1,24 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace KPClient
 {
     /// <summary>
     /// Interaction logic for StatusLed.xaml
     /// </summary>
-    public partial class StatusLed : UserControl
+    public partial class StatusLed
     {
         public enum StatusEnum
         {
@@ -29,8 +17,8 @@ namespace KPClient
 
         public StatusEnum Status
         {
-            get { return (StatusEnum) GetValue(StatusProperty); }
-            set { SetValue(StatusProperty, value); }
+            get => (StatusEnum) GetValue(StatusProperty);
+            set => SetValue(StatusProperty, value);
         }
 
         public static readonly DependencyProperty StatusProperty =
@@ -40,8 +28,8 @@ namespace KPClient
                 typeof(StatusLed),
                 new PropertyMetadata(
                     StatusEnum.Ok,
-                    new PropertyChangedCallback(OnStatusChanged))
-                );
+                    OnStatusChanged)
+            );
 
         private static void OnStatusChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

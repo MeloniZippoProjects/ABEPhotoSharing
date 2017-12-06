@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using KPServices;
 
 namespace KPClient
@@ -20,15 +12,15 @@ namespace KPClient
     /// <summary>
     /// Interaction logic for TagsSelector.xaml
     /// </summary>
-    public partial class TagsSelector : UserControl
+    public partial class TagsSelector
     {
-        private static Regex TagSequence = new Regex(@"^\s*(?<attribute>[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\d+)?\s+)+\s*$");
+        private static readonly Regex TagSequence = new Regex(@"^\s*(?<attribute>[a-zA-Z][a-zA-Z0-9_]*(?:\s*=\s*\d+)?\s+)+\s*$");
 
-        private List<TagSpecification> validTags = new List<TagSpecification>();
+        private List<TagSpecification> _validTags = new List<TagSpecification>();
 
         public event EventHandler ValidityChanged;
 
-        private bool? _isValid = null;
+        private bool? _isValid;
 
         public bool IsValid
         {
@@ -47,7 +39,7 @@ namespace KPClient
         {
             InitializeComponent();
 
-            Universe universe = ((App)Application.Current).Universe;
+            Universe universe = ((App) Application.Current).Universe;
             UniverseReminder.Text = $"The universe is: {universe}";
 
             ValidityChanged += (sender, args) =>
@@ -66,15 +58,16 @@ namespace KPClient
 
                 var tags = tagSequenceMatch.Groups["attribute"].Captures
                     .Cast<Capture>()
-                    .Select(tag => new TagSpecification(tag.Value));
+                    .Select(tag => new TagSpecification(tag.Value))
+                    .ToList().AsReadOnly();
 
                 bool duplicateCheck = tags.GroupBy(tag => tag.Name)
                     .Any(group => group.Count() > 1);
 
                 Universe universe = ((App) Application.Current).Universe;
-                validTags = tags.Where(tag => universe.ValidateTag(tag)).ToList();
+                _validTags = tags.Where(tag => universe.ValidateTag(tag)).ToList();
 
-                if (duplicateCheck || validTags.Count() < tags.Count())
+                if (duplicateCheck || _validTags.Count < tags.Count)
                     IsValid = false;
                 else
                     IsValid = true;
@@ -87,9 +80,9 @@ namespace KPClient
         {
             if (IsValid)
             {
-                Universe universe = ((App)Application.Current).Universe;
+                Universe universe = ((App) Application.Current).Universe;
                 string ret = "";
-                foreach (TagSpecification tag in validTags)
+                foreach (TagSpecification tag in _validTags)
                 {
                     ret += $" '{universe.GetTagString(tag)}'";
                 }

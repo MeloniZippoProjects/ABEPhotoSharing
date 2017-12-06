@@ -1,28 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
+// ReSharper disable BuiltInTypeReferenceStyle
 
 namespace KPServices
 {
     public class TagSpecification
     {
-        private static Regex TagStructure = new Regex(@"(?<name>[a-zA-Z][a-zA-Z0-9_]*)(?:\s*=\s*(?<value>\d+))?");
+        private static readonly Regex TagStructure = new Regex(@"(?<name>[a-zA-Z][a-zA-Z0-9_]*)(?:\s*=\s*(?<value>\d+))?");
 
-        public string Name { get; private set; }
-        public UInt64? Value { get; private set; }
+        public string Name { get; }
+        public UInt64? Value { get; }
 
         public TagSpecification(string tagSpecification)
         {
-            var tagMatch = TagStructure.Match(tagSpecification);
+            Match tagMatch = TagStructure.Match(tagSpecification);
             Name = tagMatch.Groups["name"].Value;
             Value = tagMatch.Groups["value"].Success
-                ? UInt64.TryParse(tagMatch.Groups["value"].Value, out var parsed)
+                ? UInt64.TryParse(tagMatch.Groups["value"].Value, out ulong parsed)
                     ? parsed
                     : (UInt64?) null
-                : (UInt64?) null;
+                : null;
         }
     }
 }

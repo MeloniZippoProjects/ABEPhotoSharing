@@ -1,39 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 
 namespace KPClient
 {
     /// <summary>
     /// Interaction logic for SharedArea.xaml
     /// </summary>
-    public partial class SharedArea : UserControl
+    public partial class SharedArea
     {
         public ObservableCollection<SharedItem> DisplayedItems { get; set; } =
             new ObservableCollection<SharedItem>();
 
         public List<SharedItem> RootItems { get; set; } =
-            new List<SharedItem>();  
+            new List<SharedItem>();
 
         public List<SharedAlbumImage> AlbumImages { get; set; } =
             new List<SharedAlbumImage>();
 
         private List<SharedItem> _filteredItems;
-        
-        private string _currentAlbum = null;
+
+        private string _currentAlbum;
 
         private static void SharedFolderPath_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -43,7 +33,7 @@ namespace KPClient
 
         private static void FilterOutOfPolicy_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            SharedArea sa = (SharedArea)d;
+            SharedArea sa = (SharedArea) d;
             if (sa.FilterOutOfPolicy)
             {
                 sa.ApplyFilterOutOfPolicy();
@@ -56,7 +46,7 @@ namespace KPClient
 
         private static void ShowPreviews_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            SharedArea sa = (SharedArea)d;
+            SharedArea sa = (SharedArea) d;
             if (sa.ShowPreviews)
             {
                 sa.ApplyShowPreviews();
@@ -96,26 +86,26 @@ namespace KPClient
             IsValidSharedFolder = CheckSharedFolderStructure(SharedFolderPath);
             if (IsValidSharedFolder)
             {
-                var sharedItemPaths = Directory.GetFileSystemEntries(
+                string[] sharedItemPaths = Directory.GetFileSystemEntries(
                     Path.Combine(SharedFolderPath, "items"));
                 foreach (string sharedItemPath in sharedItemPaths)
                 {
                     string itemName = Path.GetFileName(sharedItemPath);
-                    var fileAttributes = File.GetAttributes(sharedItemPath);
+                    FileAttributes fileAttributes = File.GetAttributes(sharedItemPath);
                     SharedItem item;
                     if (fileAttributes.HasFlag(FileAttributes.Directory))
                         item = new SharedAlbum(
-                            Name: itemName,
-                            SharedArea: this);
+                            name: itemName,
+                            sharedArea: this);
                     else
                         item = new SharedImage(
-                            Name: itemName,
-                            SharedArea: this);
+                            name: itemName,
+                            sharedArea: this);
 
                     item.SharedArea = this;
                     item.Name = itemName;
-                
-                    if(item.IsValid)
+
+                    if (item.IsValid)
                         RootItems.Add(item);
                 }
 
@@ -158,7 +148,7 @@ namespace KPClient
         private void ApplyFilterOutOfPolicy()
         {
             _filteredItems = RootItems.Where(item => !item.IsPolicyVerified).ToList();
-            var tmp = RootItems.Where(item => !_filteredItems.Contains(item)).ToList();
+            List<SharedItem> tmp = RootItems.Where(item => !_filteredItems.Contains(item)).ToList();
             RootItems.Clear();
             tmp.ForEach(item => RootItems.Add(item));
         }
@@ -173,8 +163,8 @@ namespace KPClient
         {
             if (Directory.Exists(sharedFolderPath))
             {
-                var subdirs = Directory.GetDirectories(sharedFolderPath);
-                var requiredDirs = new List<string>()
+                string[] subdirs = Directory.GetDirectories(sharedFolderPath);
+                List<string> requiredDirs = new List<string>()
                 {
                     "items",
                     "keys"
@@ -192,17 +182,21 @@ namespace KPClient
             else
                 return false;
         }
-        
+
         private void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var button = sender as SharedAreaItemButton;
-            var item = button.Item;
-            if (item.IsPolicyVerified)
+            SharedAreaItemButton button = sender as SharedAreaItemButton;
+            Debug.Assert(button != null, nameof(button) + " != null");
+            SharedItem item = button.Item;
+            if (!item.IsPolicyVerified) return;
+            switch (item)
             {
-                if (item is SharedImage)
+                case SharedImage _:
                     OpenImage(item as SharedImage);
-                else if (item is SharedAlbum)
+                    break;
+                case SharedAlbum _:
                     LoadAlbumImages(item as SharedAlbum);
+                    break;
             }
         }
 
@@ -210,7 +204,7 @@ namespace KPClient
         {
             string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
             File.WriteAllBytes(
-                bytes: sharedImage.DecryptedBytes, 
+                bytes: sharedImage.DecryptedBytes,
                 path: imagePath);
 
             Process.Start(imagePath);

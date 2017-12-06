@@ -6,13 +6,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace KPTrustedParty
+namespace KPTrustedParty.Database
 {
-    public partial class KPDatabase
+    public partial class KpDatabase
     {
         public class User
         {
-            [Key,RegularExpression(@"[\w\d]{3,21}")]
+            [Key, RegularExpression(@"[\w\d]{3,21}")]
             public string Name { get; set; }
 
             [Required]
@@ -34,7 +34,7 @@ namespace KPTrustedParty
 
             public override string ToString()
             {
-                var retString = $"Username: {Name} ; Policy: {Policy};";
+                string retString = $"Username: {Name} ; Policy: {Policy};";
                 return retString;
             }
         }
@@ -50,15 +50,15 @@ namespace KPTrustedParty
             User newUser = new User {Name = username};
 
             byte[] salt = new byte[256];
-            rngCsp.GetBytes(salt);
+            RngCsp.GetBytes(salt);
             newUser.Salt = salt;
 
             byte[] toHash = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(salt) + password);
-            newUser.SaltedPasswordHash = sha256.ComputeHash(toHash);
+            newUser.SaltedPasswordHash = Sha256.ComputeHash(toHash);
 
             try
             {
-                using (var db = new KPDatabaseContext())
+                using (KpDatabaseContext db = new KpDatabaseContext())
                 {
                     db.Users.Add(newUser);
                     db.SaveChanges();
@@ -66,11 +66,11 @@ namespace KPTrustedParty
             }
             catch (DbEntityValidationException validationException)
             {
-                foreach (var entityError in validationException.EntityValidationErrors)
+                foreach (DbEntityValidationResult entityError in validationException.EntityValidationErrors)
                 {
                     User invalidUser = (User) entityError.Entry.Entity;
                     Console.WriteLine($"There are validation errors in entity {invalidUser.Name}");
-                    foreach (var validationError in entityError.ValidationErrors)
+                    foreach (DbValidationError validationError in entityError.ValidationErrors)
                     {
                         Console.WriteLine($"{validationError.PropertyName}: {validationError.ErrorMessage}");
                     }
@@ -80,7 +80,7 @@ namespace KPTrustedParty
 
         public static User AuthenticateUser(string username, string password)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 User targetUser = db.Users.Find(username);
                 if (targetUser == null)
@@ -90,30 +90,30 @@ namespace KPTrustedParty
                 byte[] hashedPassword = targetUser.SaltedPasswordHash;
 
                 byte[] toHash = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(salt) + password);
-                byte[] hashed = sha256.ComputeHash(toHash);
+                byte[] hashed = Sha256.ComputeHash(toHash);
                 return hashed.SequenceEqual(hashedPassword) ? targetUser : null;
             }
         }
 
         public static Token LoginUser(string username, string password)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 User authUser = AuthenticateUser(username, password);
                 if (authUser != null)
                 {
                     byte[] tokenBytes = new byte[128];
-                    rngCsp.GetBytes(tokenBytes);
-                    var tokenString = Convert.ToBase64String(tokenBytes);
+                    RngCsp.GetBytes(tokenBytes);
+                    string tokenString = Convert.ToBase64String(tokenBytes);
 
-                    var existingTokenQuery = from token in db.Tokens
+                    IQueryable<Token> existingTokenQuery = from token in db.Tokens
                         where token.User.Name == authUser.Name
                         select token;
 
-                    Token returnToken = null;
+                    Token returnToken;
                     if (existingTokenQuery.Count() == 1)
                     {
-                        var currentToken = existingTokenQuery.FirstOrDefault();
+                        Token currentToken = existingTokenQuery.FirstOrDefault();
                         Debug.Assert(currentToken != null, nameof(currentToken) + " != null");
                         currentToken.TokenString = tokenString;
                         currentToken.ExpirationDateTime = DateTime.Now.AddMinutes(30);
@@ -121,7 +121,7 @@ namespace KPTrustedParty
                     }
                     else
                     {
-                        var newToken = new Token
+                        Token newToken = new Token
                         {
                             TokenString = tokenString,
                             ExpirationDateTime = DateTime.Now.AddMinutes(30),
@@ -150,7 +150,7 @@ namespace KPTrustedParty
 
         public static void DetailUser(string username)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 User targetUser = db.Users.Find(username);
                 if (targetUser == null)
@@ -162,7 +162,7 @@ namespace KPTrustedParty
 
         public static void ListUsers()
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 Console.WriteLine($"Total users count: {db.Users.Count()}");
                 foreach (User user in db.Users.ToList())
@@ -174,7 +174,7 @@ namespace KPTrustedParty
 
         public static IEnumerable<User> GetUsersList()
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
                 return db.Users.ToList();
             }
@@ -184,9 +184,9 @@ namespace KPTrustedParty
         {
             if (sessionToken == null)
                 return null;
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
-                var token = TokenExists(sessionToken);
+                Token token = TokenExists(sessionToken);
                 if (token != null && token.ExpirationDateTime.CompareTo(DateTime.Now) > 0)
                     return db.Users.First(user => user.Token.TokenString == token.TokenString);
                 return null;
@@ -195,9 +195,9 @@ namespace KPTrustedParty
 
         public static void SetUserPolicy(string username, string policy)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
-                var user = db.Users.FirstOrDefault(dbUser => dbUser.Name == username);
+                User user = db.Users.FirstOrDefault(dbUser => dbUser.Name == username);
                 if (user != null)
                 {
                     user.Policy = policy;
@@ -215,9 +215,9 @@ namespace KPTrustedParty
 
         public static void SetUserPrivateKey(string username, byte[] privateKey)
         {
-            using (var db = new KPDatabaseContext())
+            using (KpDatabaseContext db = new KpDatabaseContext())
             {
-                var user = db.Users.FirstOrDefault(dbUser => dbUser.Name == username);
+                User user = db.Users.FirstOrDefault(dbUser => dbUser.Name == username);
                 if (user != null)
                 {
                     user.PrivateKey = privateKey;

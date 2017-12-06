@@ -1,69 +1,68 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Grapevine.Server;
 using KPServices;
+using KPTrustedParty.Database;
 using KPTrustedParty.Properties;
 
 namespace KPTrustedParty
 {
-    partial class TPServer
+    partial class TpServer
     {
         public static Universe Universe;
         public static string Host;
 
-        public static byte[] KpPublicKey => kpService.Keys.PublicKey;
-        private static readonly KPService kpService = new KPService();
-        private static RestServer server = new RestServer();
+        public static byte[] KpPublicKey => KpService.Keys.PublicKey;
+        private static readonly KpService KpService = new KpService();
+        private static RestServer _server = new RestServer();
 
         static void Main()
         {
-            InitializeKPABE();
+            InitializeKpabe();
             Console.InputEncoding = Encoding.UTF8;
-            var settings = KPTrustedParty.Properties.Settings.Default;
+            Settings settings = Settings.Default;
             Host = settings.ServerHost;
 
             //todo: server doesn't stop in case of exceptions
-            
+
             //server.LogToConsole();
             SetupRestServer();
-            server.Start();
+            _server.Start();
             DisplayServerStatus();
             CommandLineLoop();
-            server.Stop();
+            _server.Stop();
         }
 
         private static void SetupRestServer()
         {
-            var settings = KPTrustedParty.Properties.Settings.Default;
-            server.Port = settings.ServerPort.ToString();
-            server.UseHttps = true;
-            server.Host = settings.ServerHost;
+            Settings settings = Settings.Default;
+            _server.Port = settings.ServerPort.ToString();
+            _server.UseHttps = true;
+            _server.Host = settings.ServerHost;
         }
 
-        private static void InitializeKPABE()
+        private static void InitializeKpabe()
         {
             CheckAndPopulateDefaultSettings();
 
-            var settings = KPTrustedParty.Properties.Settings.Default;
+            Settings settings = Settings.Default;
 
-            KPService.SuitePath = settings.KPSuitePath;
-            var dbLatestUniverse = KPDatabase.GetLatestUniverse();
+            KpService.SuitePath = settings.KPSuitePath;
+            KpDatabase.Universe dbLatestUniverse = KpDatabase.GetLatestUniverse();
 
             if (dbLatestUniverse != null)
             {
-                kpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
-                Universe = kpService.Universe.Copy();
-                kpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
-                kpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
+                KpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
+                Universe = KpService.Universe.Copy();
+                KpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
+                KpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
             }
             else
             {
                 Console.WriteLine("WARNING: Universe not defined");
-                Console.WriteLine("If this is the first execution of the server, continue with the UniverseEditor to define the Universe");
+                Console.WriteLine(
+                    "If this is the first execution of the server, continue with the UniverseEditor to define the Universe");
                 UniverseEditor();
             }
         }
@@ -80,7 +79,7 @@ namespace KPTrustedParty
 
         private static void CheckAndPopulateDefaultSettings()
         {
-            var settings = KPTrustedParty.Properties.Settings.Default;
+            Settings settings = Settings.Default;
 
             if (String.IsNullOrEmpty(settings.KPSuitePath))
                 settings.KPSuitePath = Path.Combine(Directory.GetCurrentDirectory(), "kpabe");

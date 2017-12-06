@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using KPServices;
 using MahApps.Metro.IconPacks;
 using Newtonsoft.Json;
 
@@ -21,16 +16,18 @@ namespace KPClient
         {
             UndefinedThumbnail =
                 IconToDrawing(
-                    new MahApps.Metro.IconPacks.PackIconModern() { Kind = PackIconModernKind.ImageBacklight });
+                    new PackIconModern() {Kind = PackIconModernKind.ImageBacklight});
         }
 
-        protected static DrawingImage IconToDrawing(MahApps.Metro.IconPacks.PackIconModern icon)
+        protected static DrawingImage IconToDrawing(PackIconModern icon)
         {
             Geometry geo = Geometry.Parse(icon.Data);
-            GeometryDrawing gd = new GeometryDrawing();
-            gd.Geometry = geo;
-            gd.Brush = icon.BorderBrush;
-            gd.Pen = new Pen(Brushes.Black, 1);
+            GeometryDrawing gd = new GeometryDrawing
+            {
+                Geometry = geo,
+                Brush = icon.BorderBrush,
+                Pen = new Pen(Brushes.Black, 1)
+            };
             DrawingImage geoImage = new DrawingImage(gd);
             return geoImage;
         }
@@ -44,7 +41,7 @@ namespace KPClient
 
         public virtual string Name
         {
-            get => (string)GetValue(NameProperty);
+            get => (string) GetValue(NameProperty);
             set => SetValue(NameProperty, value);
         }
 
@@ -53,12 +50,13 @@ namespace KPClient
 
         public ImageSource Thumbnail
         {
-            get { return (ImageSource)GetValue(ThumbnailProperty); }
-            set { SetValue(ThumbnailProperty, value); }
+            get => (ImageSource) GetValue(ThumbnailProperty);
+            set => SetValue(ThumbnailProperty, value);
         }
 
         public static readonly DependencyProperty ThumbnailProperty =
-            DependencyProperty.Register("Thumbnail", typeof(ImageSource), typeof(SharedItem), new PropertyMetadata(UndefinedThumbnail));
+            DependencyProperty.Register("Thumbnail", typeof(ImageSource), typeof(SharedItem),
+                new PropertyMetadata(UndefinedThumbnail));
 
         public abstract void SetDefaultThumbnail();
         public abstract void SetPreviewThumbnail();
@@ -66,12 +64,13 @@ namespace KPClient
         public virtual bool IsPolicyVerified => SymmetricKey != null;
 
         private SymmetricKey _symmetricKey;
+
         protected virtual SymmetricKey GetSymmetricKey()
         {
             try
             {
                 string decryptedKeyPath = Path.GetTempFileName();
-                App app = (App)Application.Current;
+                App app = (App) Application.Current;
                 app.KpService.Decrypt(
                     sourceFilePath: KeyPath,
                     destFilePath: decryptedKeyPath);
@@ -81,7 +80,7 @@ namespace KPClient
                     using (StreamReader sr = new StreamReader(fs))
                     {
                         string serializedKey = sr.ReadToEnd();
-                        var symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
+                        SymmetricKey symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
                         return symmetricKey;
                     }
                 }
@@ -100,12 +99,13 @@ namespace KPClient
     {
         public SharedItem Item
         {
-            get { return (SharedItem)GetValue(ItemProperty); }
-            set { SetValue(ItemProperty, value); }
+            get => (SharedItem) GetValue(ItemProperty);
+            set => SetValue(ItemProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
-            DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton), new PropertyMetadata(null));
+            DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton),
+                new PropertyMetadata(null));
     }
 }

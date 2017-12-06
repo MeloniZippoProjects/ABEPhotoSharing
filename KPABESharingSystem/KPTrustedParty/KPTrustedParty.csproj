@@ -73,9 +73,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="database\Token.cs" />
-    <Compile Include="database\Universe.cs" />
-    <Compile Include="database\User.cs" />
+    <Compile Include="Database\Token.cs" />
+    <Compile Include="Database\Universe.cs" />
+    <Compile Include="Database\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KPRestServer.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -86,7 +86,7 @@
     <Compile Include="ServerCmdInterface.cs" />
     <Compile Include="TPServer.cs" />
     <Compile Include="UniverseEditor.cs" />
-    <Compile Include="database\KPDatabase.cs" />
+    <Compile Include="Database\KPDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
