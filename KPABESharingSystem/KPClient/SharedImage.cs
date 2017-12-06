@@ -34,6 +34,12 @@ namespace KPClient
 
         public override void SetPreviewThumbnail()
         {
+            if (DecryptedBytes == null)
+            {
+                Console.WriteLine($"Cannot decrypt: {Name}");
+                return;
+            }
+
             MemoryStream ms = new MemoryStream(DecryptedBytes);
             BitmapImage thumbnail = new BitmapImage();
             thumbnail.BeginInit();

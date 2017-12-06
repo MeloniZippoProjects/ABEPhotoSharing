@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Newtonsoft.Json;
@@ -127,6 +128,8 @@ namespace KPClient
             File.Copy(sourceFileName: encryptedKeyPath,
                 destFileName: keyDestPath,
                 overwrite: true);
+
+            Close();
         }
 
         private static void GenerateKeyAndIv(SymmetricKey symmetricKey)
@@ -179,8 +182,6 @@ namespace KPClient
                 File.Copy(sourceFileName: encryptedImagePath,
                     destFileName: imageDestPath,
                     overwrite: true);
-
-                Close();
             }
             catch (Exception ex)
             {
@@ -188,7 +189,7 @@ namespace KPClient
             }
         }
 
-        private void UploadAlbum(IEnumerable<string> imagePaths, string albumName, SymmetricKey symmetricKey)
+        private void SingleTaskUploadAlbum(IEnumerable<string> imagePaths, string albumName, SymmetricKey symmetricKey)
         {
             int imageId = 0;
             foreach (string imagePath in imagePaths)
@@ -197,6 +198,32 @@ namespace KPClient
                 symmetricKey = symmetricKey.GetNextKey();
                 ++imageId;
             }
+        }
+
+        private void UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
+        {
+            var uploadTasks = new List<Task>();
+
+            var keys = new SymmetricKey[imagePaths.Count()];
+            keys[0] = symmetricKey;
+            for (int i = 1; i < keys.Length; i++)
+                keys[i] = keys[i - 1].GetNextKey();
+
+            for (int imageId = 0; imageId < imagePaths.Count(); imageId++)
+            {
+                int id = imageId;
+                uploadTasks.Add(
+                    Task.Factory.StartNew(() =>
+                    {
+                        UploadAlbumImage(
+                            sourceImagePath: imagePaths[id],
+                            albumName: albumName,
+                            imageId: id,
+                            symmetricKey: keys[id]);
+                    })
+                );
+            }
+            Task.WaitAll(uploadTasks.ToArray());
         }
 
         private void UploadAlbumImage(string sourceImagePath, string albumName, int imageId, SymmetricKey symmetricKey)
@@ -214,8 +241,6 @@ namespace KPClient
                 File.Copy(sourceFileName: encryptedImagePath,
                     destFileName: imageDestPath,
                     overwrite: true);
-
-                Close();
             }
             catch (Exception ex)
             {
