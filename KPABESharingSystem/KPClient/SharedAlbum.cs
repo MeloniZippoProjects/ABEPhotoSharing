@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
@@ -12,7 +13,7 @@ namespace KPClient
     {
         public static DrawingImage DefaultAlbumThumbnail;
 
-        public List<SharedAlbumImage> Children;
+        public readonly Task<List<SharedAlbumImage>> Children;
 
         static SharedAlbum()
         {
@@ -27,28 +28,26 @@ namespace KPClient
             Name = name;
             SharedArea = sharedArea;
 
-            PopulateChildren();
+            Children = Dispatcher.InvokeAsync(PopulateChildren).Task;
         }
 
-        private void PopulateChildren()
+        private List<SharedAlbumImage> PopulateChildren()
         {
-            Children = new List<SharedAlbumImage>();
-            int childrenId = 0;
-            while (true)
+            var children = new List<SharedAlbumImage>();
+            for(int childrenId = 0; ; childrenId++)
             {
                 string childrenName = $"{Name}.{childrenId}.png.aes";
                 string childrenPath = Path.Combine(ItemPath, childrenName);
                 if (File.Exists(childrenPath))
                 {
-                    Children.Add(new SharedAlbumImage(
+                    children.Add(new SharedAlbumImage(
                         name: childrenName,
                         sharedArea: SharedArea,
                         parentAlbum: this,
                         imageId: childrenId));
-                    ++childrenId;
                 }
                 else
-                    return;
+                    return children;
             }
         }
 
@@ -76,32 +75,5 @@ namespace KPClient
             Directory.Exists(ItemPath)
             && File.Exists(KeyPath)
             && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
-
-        protected override SymmetricKey GetSymmetricKey()
-        {
-            try
-            {
-                string decryptedKeyPath = Path.GetTempFileName();
-                App app = (App) Application.Current;
-                app.KpService.Decrypt(
-                    sourceFilePath: KeyPath,
-                    destFilePath: decryptedKeyPath);
-
-                using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
-                {
-                    using (StreamReader sr = new StreamReader(fs))
-                    {
-                        string serializedKey = sr.ReadToEnd();
-                        SymmetricKey symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
-                        return symmetricKey;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Operation failed: {e}");
-                return null;
-            }
-        }
     }
 }

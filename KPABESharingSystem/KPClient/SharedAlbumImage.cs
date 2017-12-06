@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace KPClient
 {
@@ -51,21 +52,23 @@ namespace KPClient
 
         public override bool IsPolicyVerified => ParentAlbum.IsPolicyVerified;
 
-        protected override SymmetricKey GetSymmetricKey()
+        protected override async Task<SymmetricKey> GetSymmetricKey()
         {
             if (!IsValid)
                 return null;
 
             if (ImageId == 0)
-                return ParentAlbum.SymmetricKey;
+                return await ParentAlbum.SymmetricKey;
             else
             {
-                SharedAlbumImage precedent = ParentAlbum.Children[ImageId - 1];
+                var siblings = await ParentAlbum.Children;
+                SharedAlbumImage precedent = siblings[ImageId - 1];
+                SymmetricKey precedentKey = await precedent.SymmetricKey;
                 SHA256Cng sha = new SHA256Cng();
                 SymmetricKey symmetricKey = new SymmetricKey
                 {
-                    Key = sha.ComputeHash(precedent.SymmetricKey.Key),
-                    Iv = sha.ComputeHash(precedent.SymmetricKey.Iv).Take(128 / 8).ToArray()
+                    Key = sha.ComputeHash(precedentKey.Key),
+                    Iv = sha.ComputeHash(precedentKey.Iv).Take(128 / 8).ToArray()
                 };
                 return symmetricKey;
             }

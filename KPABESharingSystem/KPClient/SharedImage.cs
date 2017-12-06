@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -11,7 +12,7 @@ namespace KPClient
     public class SharedImage : SharedItem
     {
         public static DrawingImage DefaultImageThumbnail;
-
+        
         static SharedImage()
         {
             DefaultImageThumbnail =
@@ -32,15 +33,18 @@ namespace KPClient
             Thumbnail = DefaultImageThumbnail;
         }
 
-        public override void SetPreviewThumbnail()
+        public override async void SetPreviewThumbnail()
         {
-            if (DecryptedBytes == null)
+            var imageBytes = await DecryptedBytes;
+
+            if (imageBytes == null)
             {
                 Console.WriteLine($"Cannot decrypt: {Name}");
                 return;
             }
+            
+            MemoryStream ms = new MemoryStream(imageBytes);
 
-            MemoryStream ms = new MemoryStream(DecryptedBytes);
             BitmapImage thumbnail = new BitmapImage();
             thumbnail.BeginInit();
             thumbnail.StreamSource = ms;
@@ -71,10 +75,10 @@ namespace KPClient
 
         public override bool IsValid => File.Exists(ItemPath) && File.Exists(KeyPath);
 
-        private byte[] _decryptedBytes;
-        public byte[] DecryptedBytes => _decryptedBytes ?? (_decryptedBytes = GetDecryptedBytes());
-
-        protected byte[] GetDecryptedBytes()
+        private Task<byte[]> _decryptedBytes;
+        public Task<byte[]> DecryptedBytes => _decryptedBytes ?? (_decryptedBytes = GetDecryptedBytes());
+        
+        protected async Task<byte[]> GetDecryptedBytes()
         {
             if (!IsPolicyVerified)
                 return null;
@@ -84,7 +88,8 @@ namespace KPClient
                 using (Stream inputStream = new FileStream(ItemPath, FileMode.Open),
                     outputStream = new MemoryStream())
                 {
-                    SymmetricKey.Decrypt(inputStream, outputStream);
+                    SymmetricKey symmetricKey = await SymmetricKey;
+                    await symmetricKey.Decrypt(inputStream, outputStream);
                     return ((MemoryStream) outputStream).ToArray();
                 }
             }

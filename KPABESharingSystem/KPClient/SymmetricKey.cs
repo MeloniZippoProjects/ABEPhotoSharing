@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace KPClient
 {
@@ -9,6 +10,15 @@ namespace KPClient
     {
         public byte[] Key { get; set; }
         public byte[] Iv { get; set; }
+
+        public void GenerateKey()
+        {
+            RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
+            Key = new byte[256 / 8];
+            Iv = new byte[128 / 8];
+            rngCsp.GetBytes(Key);
+            rngCsp.GetBytes(Iv);
+        }
 
         public SymmetricKey GetNextKey()
         {
@@ -24,7 +34,7 @@ namespace KPClient
             return next;
         }
 
-        public void Encrypt(Stream inputStream, Stream outputStream)
+        public async Task Encrypt(Stream inputStream, Stream outputStream)
         {
             Aes aes = new AesCng();
             aes.KeySize = 256;
@@ -35,11 +45,11 @@ namespace KPClient
 
             using (CryptoStream encryptStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
             {
-                inputStream.CopyTo(encryptStream);
+                await inputStream.CopyToAsync(encryptStream);
             }
         }
 
-        public void Decrypt(Stream inputStream, Stream outputStream)
+        public async Task Decrypt(Stream inputStream, Stream outputStream)
         {
             Aes aes = new AesCng();
             aes.KeySize = 256;
@@ -49,7 +59,7 @@ namespace KPClient
             ICryptoTransform decryptor = aes.CreateDecryptor();
             using (CryptoStream decryptCryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
             {
-                inputStream.CopyTo(decryptCryptoStream);
+                await inputStream.CopyToAsync(decryptCryptoStream);
             }
         }
     }

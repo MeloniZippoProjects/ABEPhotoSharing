@@ -74,71 +74,130 @@ namespace KPClient
         }
 
         //todo: add control to choose image/album name. Use current settings as defaults
-        private void UploadButton_OnClick(object sender, RoutedEventArgs e)
+        //todo: catch IO errors, delete files eventually written
+        private async void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SymmetricKey symmetricKey = new SymmetricKey
-            {
-                Key = new byte[256 / 8],
-                Iv = new byte[128 / 8]
-            };
-
-            GenerateKeyAndIv(symmetricKey);
-
-            string keyPath = Path.GetTempFileName();
-
-            using (FileStream fs = new FileStream(keyPath, FileMode.Create))
-            {
-                using (StreamWriter sw = new StreamWriter(fs))
-                {
-                    string serializedKey = JsonConvert.SerializeObject(symmetricKey);
-                    sw.Write(serializedKey);
-                }
-            }
-
-            string encryptedKeyPath = Path.GetRandomFileName();
-
-            App app = (App) Application.Current;
-
-            app.KpService.Encrypt(
-                sourceFilePath: keyPath,
-                destFilePath: encryptedKeyPath,
-                attributes: TagsSelector.GetTagsString());
-
-            string finalKeyPath;
+            SymmetricKey symmetricKey = new SymmetricKey();
+            symmetricKey.GenerateKey();
+            
+            var tasks = new List<Task>();
 
             if (ImageItems.Count == 1)
             {
                 string imagePath = ImageItems.First().ImagePath;
                 string imageName = Path.GetFileNameWithoutExtension(imagePath);
-                UploadImage(imagePath, imageName, symmetricKey);
-                finalKeyPath = Path.GetFileNameWithoutExtension(imagePath) + ".key.kpabe";
+                tasks.Add(UploadKey(symmetricKey, imageName));
+                tasks.Add(UploadImage(
+                    imagePath,
+                    imageName,
+                    symmetricKey)
+                );
             }
             else
             {
                 string albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
                 string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
-                UploadAlbum(ImageItems.Select(item => item.ImagePath).ToArray(), albumName, symmetricKey);
-                finalKeyPath = albumName + ".key.kpabe";
+                tasks.Add(UploadKey(symmetricKey, albumName));
+                tasks.Add(UploadAlbum(
+                    ImageItems.Select(item => item.ImagePath).ToArray(),
+                    albumName,
+                    symmetricKey));
             }
 
-            string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", finalKeyPath);
-
-            File.Copy(sourceFileName: encryptedKeyPath,
-                destFileName: keyDestPath,
-                overwrite: true);
+            await Task.WhenAll(tasks.ToArray());
 
             Close();
         }
 
-        private static void GenerateKeyAndIv(SymmetricKey symmetricKey)
+        private async Task UploadKey(SymmetricKey symmetricKey, string name)
         {
-            RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
-            rngCsp.GetBytes(symmetricKey.Key);
-            rngCsp.GetBytes(symmetricKey.Iv);
+            string keyPath = Path.GetTempFileName();
+            using (FileStream fs = new FileStream(keyPath, FileMode.Create))
+            {
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    string serializedKey = await Dispatcher.InvokeAsync(() =>
+                        JsonConvert.SerializeObject(symmetricKey));
+                    await sw.WriteAsync(serializedKey);
+                }
+            }
+
+            string encryptedKeyPath = Path.GetTempFileName();
+
+            App app = (App)Application.Current;
+
+            app.KpService.Encrypt(
+                sourceFilePath: keyPath,
+                destFilePath: encryptedKeyPath,
+                attributes: TagsSelector.GetTagsString());
+
+            string keyName = $"{name}.key.kpabe";
+
+            string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", keyName);
+
+            File.Move(sourceFileName: encryptedKeyPath,
+                destFileName: keyDestPath);
         }
 
-        private static string EncryptImage(string sourceImagePath, SymmetricKey symmetricKey)
+        private static async Task UploadImage(string sourceImagePath, string imageName, SymmetricKey symmetricKey)
+        {
+            try
+            {
+                string encryptedImagePath = await EncryptImage(sourceImagePath, symmetricKey);
+                string imageDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    $"{imageName}.png.aes");
+                Console.WriteLine(imageDestPath);
+
+                File.Move(sourceFileName: encryptedImagePath,
+                    destFileName: imageDestPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
+            }
+        }
+
+        private async Task UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
+        {
+            var uploadTasks = new List<Task>();
+            for (int imageId = 0; imageId < imagePaths.Count(); imageId++)
+            {
+                uploadTasks.Add( UploadAlbumImage(
+                    sourceImagePath: imagePaths[imageId],
+                    albumName: albumName,
+                    imageId: imageId,
+                    symmetricKey: symmetricKey)
+                );
+                symmetricKey = symmetricKey.GetNextKey();
+            }
+            await Task.WhenAll(uploadTasks.ToArray());
+        }
+
+        private async Task UploadAlbumImage(string sourceImagePath, string albumName, int imageId, SymmetricKey symmetricKey)
+        {
+            try
+            {
+                string encryptedImagePath = await EncryptImage(sourceImagePath, symmetricKey);
+                string imageDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    albumName,
+                    $"{albumName}.{imageId}.png.aes");
+                Console.WriteLine(imageDestPath);
+
+                File.Move(sourceFileName: encryptedImagePath,
+                    destFileName: imageDestPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
+            }
+        }
+
+        private static async Task<string> EncryptImage(string sourceImagePath, SymmetricKey symmetricKey)
         {
             try
             {
@@ -152,7 +211,7 @@ namespace KPClient
                     ms.Position = 0;
                     using (var outputStream = new FileStream(encryptedImagePath, FileMode.Create))
                     {
-                        symmetricKey.Encrypt(ms, outputStream);
+                        await symmetricKey.Encrypt(ms, outputStream);
                     }
                 }
                 return encryptedImagePath;
@@ -164,85 +223,6 @@ namespace KPClient
             }
         }
 
-        private void UploadImage(string sourceImagePath, string imageName, SymmetricKey symmetricKey)
-        {
-            try
-            {
-                string encryptedImagePath = EncryptImage(sourceImagePath, symmetricKey);
-                string imageDestPath = Path.Combine(
-                    Properties.Settings.Default.SharedFolderPath,
-                    "items",
-                    $"{imageName}.png.aes");
-                Console.WriteLine(imageDestPath);
-
-                File.Copy(sourceFileName: encryptedImagePath,
-                    destFileName: imageDestPath,
-                    overwrite: true);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Something went wrong: {ex}");
-            }
-        }
-
-        private void SingleTaskUploadAlbum(IEnumerable<string> imagePaths, string albumName, SymmetricKey symmetricKey)
-        {
-            int imageId = 0;
-            foreach (string imagePath in imagePaths)
-            {
-                UploadAlbumImage(imagePath, albumName, imageId, symmetricKey);
-                symmetricKey = symmetricKey.GetNextKey();
-                ++imageId;
-            }
-        }
-
-        private void UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
-        {
-            var uploadTasks = new List<Task>();
-
-            var keys = new SymmetricKey[imagePaths.Count()];
-            keys[0] = symmetricKey;
-            for (int i = 1; i < keys.Length; i++)
-                keys[i] = keys[i - 1].GetNextKey();
-
-            for (int imageId = 0; imageId < imagePaths.Count(); imageId++)
-            {
-                int id = imageId;
-                uploadTasks.Add(
-                    Task.Factory.StartNew(() =>
-                    {
-                        UploadAlbumImage(
-                            sourceImagePath: imagePaths[id],
-                            albumName: albumName,
-                            imageId: id,
-                            symmetricKey: keys[id]);
-                    })
-                );
-            }
-            Task.WaitAll(uploadTasks.ToArray());
-        }
-
-        private void UploadAlbumImage(string sourceImagePath, string albumName, int imageId, SymmetricKey symmetricKey)
-        {
-            try
-            {
-                string encryptedImagePath = EncryptImage(sourceImagePath, symmetricKey);
-                string imageDestPath = Path.Combine(
-                    Properties.Settings.Default.SharedFolderPath,
-                    "items",
-                    albumName,
-                    $"{albumName}.{imageId}.png.aes");
-                Console.WriteLine(imageDestPath);
-
-                File.Copy(sourceFileName: encryptedImagePath,
-                    destFileName: imageDestPath,
-                    overwrite: true);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Something went wrong: {ex}");
-            }
-        }
     }
 
     public class ImageItem

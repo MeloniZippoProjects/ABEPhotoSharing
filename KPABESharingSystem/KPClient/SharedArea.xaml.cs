@@ -77,6 +77,11 @@ namespace KPClient
                 ApplyShowPreviews();
             else
                 ShowDefaultThumbnails();
+
+            foreach (SharedItem displayedItem in DisplayedItems)
+            {
+                displayedItem.PreloadSymmetricKey();
+            }
         }
 
         public void LoadRootItems()
@@ -117,12 +122,13 @@ namespace KPClient
             ReloadView();
         }
 
-        private void LoadAlbumImages(SharedAlbum sharedAlbum)
+        private async void LoadAlbumImages(SharedAlbum sharedAlbum)
         {
             if (sharedAlbum.IsValid && sharedAlbum.IsPolicyVerified)
             {
                 AlbumImages.Clear();
-                sharedAlbum.Children.ForEach(
+                var albumImages = await sharedAlbum.Children;
+                albumImages.ForEach(
                     image => AlbumImages.Add(image));
                 _currentAlbum = sharedAlbum.Name;
             }
@@ -141,6 +147,7 @@ namespace KPClient
         {
             DisplayedItems
                 .Where(sharedItem => sharedItem.IsPolicyVerified)
+                .OrderBy(sharedItem => sharedItem.Name)
                 .ToList()
                 .ForEach(sharedItem => sharedItem.SetPreviewThumbnail());
         }
@@ -202,13 +209,17 @@ namespace KPClient
             }
         }
 
-        private void OpenImage(SharedImage sharedImage)
+        private async void OpenImage(SharedImage sharedImage)
         {
             string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
-            File.WriteAllBytes(
-                bytes: sharedImage.DecryptedBytes,
-                path: imagePath);
-
+            using (FileStream fs = new FileStream(path: imagePath, mode: FileMode.Create))
+            {
+                byte[] imageBytes = await sharedImage.DecryptedBytes;
+                await fs.WriteAsync(
+                    buffer: imageBytes,
+                    count: imageBytes.Length,
+                    offset: 0);
+            }
             Process.Start(imagePath);
         }
     }

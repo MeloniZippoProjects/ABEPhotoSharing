@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -63,9 +64,15 @@ namespace KPClient
 
         public virtual bool IsPolicyVerified => SymmetricKey != null;
 
-        private SymmetricKey _symmetricKey;
+        private Task<SymmetricKey> _symmetricKey;
+        public Task<SymmetricKey> SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
 
-        protected virtual SymmetricKey GetSymmetricKey()
+        public void PreloadSymmetricKey()
+        {
+            _symmetricKey = GetSymmetricKey();
+        }
+
+        protected virtual async Task<SymmetricKey> GetSymmetricKey()
         {
             try
             {
@@ -79,8 +86,9 @@ namespace KPClient
                 {
                     using (StreamReader sr = new StreamReader(fs))
                     {
-                        string serializedKey = sr.ReadToEnd();
-                        SymmetricKey symmetricKey = JsonConvert.DeserializeObject<SymmetricKey>(serializedKey);
+                        string serializedKey = await sr.ReadToEndAsync();
+                        SymmetricKey symmetricKey = await Task.Run(() => 
+                            JsonConvert.DeserializeObject<SymmetricKey>(serializedKey));
                         return symmetricKey;
                     }
                 }
@@ -91,8 +99,6 @@ namespace KPClient
                 return null;
             }
         }
-
-        public SymmetricKey SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
     }
 
     public class SharedAreaItemButton : Button
@@ -103,7 +109,6 @@ namespace KPClient
             set => SetValue(ItemProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
             DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton),
                 new PropertyMetadata(null));
