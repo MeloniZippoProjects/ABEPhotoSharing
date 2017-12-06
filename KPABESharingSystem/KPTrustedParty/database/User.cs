@@ -34,7 +34,6 @@ namespace KPTrustedParty
 
             public override string ToString()
             {
-                //todo: why should we print salt & stuff?    
                 var retString = $"Username: {Name} ; Policy: {Policy};";
                 return retString;
             }
@@ -42,9 +41,6 @@ namespace KPTrustedParty
 
         public static void RegisterUser(string username, string password)
         {
-            //todo: should limit the char set for username and password?
-            //not necessary
-
             if (password.Length < 8)
             {
                 Console.WriteLine("Password is too short: at least 8 characters");

@@ -221,9 +221,6 @@ namespace KPTrustedParty
 
         private static void DisplayHelp()
         {
-            //todo: write this help page
-            //Console.WriteLine("Help unavailable: check the source code.");
-
             Console.WriteLine(@"
 SYNOPSIS
 This is the command line interface for the KPABE server. 
