@@ -20,7 +20,7 @@ namespace KPTrustedParty
                     continue;
 
                 Regex argumentFormat =
-                    new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s=)?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
+                    new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=))?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
 
                 string command = commandLine.Split(null)[0];
                 string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
