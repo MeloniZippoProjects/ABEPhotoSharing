@@ -26,7 +26,7 @@
     <Setting Name="FilterOutOfPolicy" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ShowPreviews" Type="System.Boolean" Scope="User">
+    <Setting Name="ShowThumbnails" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PreloadThumbnails" Type="System.Boolean" Scope="User">

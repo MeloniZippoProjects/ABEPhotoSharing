@@ -86,8 +86,8 @@
                 x:Name="SharedArea"
                 Grid.Row="1"
                 FilterOutOfPolicy="{Binding ElementName=FilterOutOfPolicyCheckBox, Path=IsChecked}"
-                ShowPreviews="{Binding ElementName=ShowPreviewsCheckBox, Path=IsChecked}"
-                PreloadData="{Binding ElementName=PreloadDataCheckBox, Path=IsChecked}"
+                ShowThumbnails="{Binding ElementName=ShowThumbnailsCheckBox, Path=IsChecked}"
+                PreloadThumbnails="{Binding ElementName=PreloadThumbnailsCheckBox, Path=IsChecked}"
                 SharedFolderPath="{Binding Source={x:Static properties:Settings.Default}, Path=SharedFolderPath}" />
         </Grid>
 
@@ -133,17 +133,17 @@
             </CheckBox>
 
             <CheckBox
-                x:Name="ShowPreviewsCheckBox"
-                Checked="ShowPreviewsCheckBox_Changed"
-                Unchecked="ShowPreviewsCheckBox_Changed">
-                Show previews
+                x:Name="ShowThumbnailsCheckBox"
+                Checked="ShowThumbnailsCheckBox_Changed"
+                Unchecked="ShowThumbnailsCheckBox_Changed">
+                Show thumbnails
             </CheckBox>
             
             <CheckBox
-                x:Name="PreloadDataCheckBox"
-                Checked="PreloadDataCheckBox_Changed"
-                Unchecked="PreloadDataCheckBox_Changed">
-                Preload data
+                x:Name="PreloadThumbnailsCheckBox"
+                Checked="PreloadThumbnailsCheckBox_Changed"
+                Unchecked="PreloadThumbnailsCheckBox_Changed">
+                Preload thumbnails
             </CheckBox>
         </StackPanel>
 

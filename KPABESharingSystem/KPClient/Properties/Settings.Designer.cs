@@ -122,12 +122,12 @@ namespace KPClient.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ShowPreviews {
+        public bool ShowThumbnails {
             get {
-                return ((bool)(this["ShowPreviews"]));
+                return ((bool)(this["ShowThumbnails"]));
             }
             set {
-                this["ShowPreviews"] = value;
+                this["ShowThumbnails"] = value;
             }
         }
         

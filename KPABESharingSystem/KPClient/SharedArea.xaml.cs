@@ -46,10 +46,10 @@ namespace KPClient
             }
         }
 
-        private static void PreloadData_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void PreloadThumbnails_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sa = (SharedArea)d;
-            if (sa.PreloadData)
+            if (sa.PreloadThumbnails)
             {
                 sa.RootItems.ForEach(item => item.PreloadThumbnail());
             }
@@ -59,10 +59,10 @@ namespace KPClient
             }
         }
 
-        private static void ShowPreviews_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ShowThumbnails_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sa = (SharedArea) d;
-            if (sa.ShowPreviews)
+            if (sa.ShowThumbnails)
             {
                 sa.ApplyShowPreviews();
             }
@@ -88,7 +88,7 @@ namespace KPClient
                     item => DisplayedItems.Add(item));
             }
 
-            if (ShowPreviews)
+            if (ShowThumbnails)
                 ApplyShowPreviews();
             else
                 ShowDefaultThumbnails();
@@ -127,7 +127,7 @@ namespace KPClient
                     if (item.IsValid)
                         RootItems.Add(item);
 
-                    if (PreloadData)
+                    if (PreloadThumbnails)
                         item.PreloadThumbnail();
                 }
 

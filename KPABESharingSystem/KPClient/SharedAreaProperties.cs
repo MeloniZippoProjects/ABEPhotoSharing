@@ -14,25 +14,25 @@ namespace KPClient
             DependencyProperty.Register("FilterOutOfPolicy", typeof(bool), typeof(SharedArea),
                 new PropertyMetadata(false, FilterOutOfPolicy_OnChange));
 
-        public bool ShowPreviews
+        public bool ShowThumbnails
         {
-            get => (bool) GetValue(ShowPreviewsProperty);
-            set => SetValue(ShowPreviewsProperty, value);
+            get => (bool) GetValue(ShowThumbnailsProperty);
+            set => SetValue(ShowThumbnailsProperty, value);
         }
 
-        public static readonly DependencyProperty ShowPreviewsProperty =
-            DependencyProperty.Register("ShowPreviews", typeof(bool), typeof(SharedArea),
-                new PropertyMetadata(false, ShowPreviews_OnChange));
+        public static readonly DependencyProperty ShowThumbnailsProperty =
+            DependencyProperty.Register("ShowThumbnails", typeof(bool), typeof(SharedArea),
+                new PropertyMetadata(false, ShowThumbnails_OnChange));
 
-        public bool PreloadData
+        public bool PreloadThumbnails
         {
-            get => (bool)GetValue(PreloadDataProperty);
-            set => SetValue(PreloadDataProperty, value);
+            get => (bool)GetValue(PreloadThumbnailsProperty);
+            set => SetValue(PreloadThumbnailsProperty, value);
         }
 
-        public static readonly DependencyProperty PreloadDataProperty =
-            DependencyProperty.Register("PreloadThumbnail", typeof(bool), typeof(SharedArea),
-                new PropertyMetadata(false, PreloadData_OnChange));
+        public static readonly DependencyProperty PreloadThumbnailsProperty =
+            DependencyProperty.Register("PreloadThumbnails", typeof(bool), typeof(SharedArea),
+                new PropertyMetadata(false, PreloadThumbnails_OnChange));
 
         public bool IsValidSharedFolder
         {
