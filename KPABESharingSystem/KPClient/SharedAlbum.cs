@@ -57,11 +57,11 @@ namespace KPClient
             SetDefaultThumbnail();
         }
 
-        public override async void PreloadData()
+        public override async void PreloadThumbnail()
         {
             if(await IsPolicyVerified())
                 (await Children).ForEach(
-                    child => child.PreloadData());
+                    child => child.PreloadThumbnail());
         }
 
         public override string ItemPath => Path.Combine(
@@ -69,14 +69,14 @@ namespace KPClient
             "items",
             Name);
 
-        public override string KeyPath => Path.Combine(
+        public override string KeysPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "keys",
             $"{Name}.key.kpabe");
 
         public override bool IsValid =>
             Directory.Exists(ItemPath)
-            && File.Exists(KeyPath)
+            && File.Exists(KeysPath)
             && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
     }
 }

@@ -38,7 +38,7 @@ namespace KPClient
         public SharedArea SharedArea { get; set; }
 
         public abstract string ItemPath { get; }
-        public abstract string KeyPath { get; }
+        public abstract string KeysPath { get; }
 
         public abstract bool IsValid { get; }
 
@@ -66,36 +66,36 @@ namespace KPClient
 
         public virtual async Task<bool> IsPolicyVerified()
         {
-            return (await SymmetricKey) != null;
+            return (await ItemKeys) != null;
         }
 
-        private Task<SymmetricKey> _symmetricKey;
-        public Task<SymmetricKey> SymmetricKey => _symmetricKey ?? (_symmetricKey = GetSymmetricKey());
+        private Task<ItemKeys> _itemKeys;
+        public Task<ItemKeys> ItemKeys => _itemKeys ?? (_itemKeys = GetItemKeys());
 
-        public void PreloadSymmetricKey()
+        public void PreloadItemKeys()
         {
-            if(_symmetricKey == null)
-                _symmetricKey = GetSymmetricKey();
+            if(_itemKeys == null)
+                _itemKeys = GetItemKeys();
         }
 
-        protected virtual async Task<SymmetricKey> GetSymmetricKey()
+        protected virtual async Task<ItemKeys> GetItemKeys()
         {
             try
             {
                 string decryptedKeyPath = Path.GetTempFileName();
                 App app = (App) Application.Current;
                 app.KpService.Decrypt(
-                    sourceFilePath: KeyPath,
+                    sourceFilePath: KeysPath,
                     destFilePath: decryptedKeyPath);
 
                 using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
                 {
                     using (StreamReader sr = new StreamReader(fs))
                     {
-                        string serializedKey = await sr.ReadToEndAsync();
-                        SymmetricKey symmetricKey = await Task.Run(() => 
-                            JsonConvert.DeserializeObject<SymmetricKey>(serializedKey));
-                        return symmetricKey;
+                        string serializedKeys = await sr.ReadToEndAsync();
+                        ItemKeys itemKeys = await Task.Run(() => 
+                            JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
+                        return itemKeys;
                     }
                 }
             }
@@ -106,7 +106,7 @@ namespace KPClient
             }
         }
 
-        public abstract void PreloadData();
+        public abstract void PreloadThumbnail();
     }
 
     public class SharedAreaItemButton : Button

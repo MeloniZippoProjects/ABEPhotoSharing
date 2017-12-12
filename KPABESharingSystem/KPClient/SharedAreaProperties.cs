@@ -31,7 +31,7 @@ namespace KPClient
         }
 
         public static readonly DependencyProperty PreloadDataProperty =
-            DependencyProperty.Register("PreloadData", typeof(bool), typeof(SharedArea),
+            DependencyProperty.Register("PreloadThumbnail", typeof(bool), typeof(SharedArea),
                 new PropertyMetadata(false, PreloadData_OnChange));
 
         public bool IsValidSharedFolder

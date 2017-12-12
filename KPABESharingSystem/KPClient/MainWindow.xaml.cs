@@ -23,7 +23,7 @@ namespace KPClient
             var settings = Settings.Default;
             FilterOutOfPolicyCheckBox.IsChecked = settings.FilterOutOfPolicy;
             ShowPreviewsCheckBox.IsChecked = settings.ShowPreviews;
-            PreloadDataCheckBox.IsChecked = settings.PreloadData;
+            PreloadDataCheckBox.IsChecked = settings.PreloadThumbnails;
         }
         
         private void OpenUploadImagesWindowButton_OnClick(object sender, RoutedEventArgs e)
@@ -85,7 +85,7 @@ namespace KPClient
 
         private void PreloadDataCheckBox_Changed(object sender, RoutedEventArgs e)
         {
-            Settings.Default.PreloadData = ShowPreviewsCheckBox.IsChecked ?? false;
+            Settings.Default.PreloadThumbnails = ShowPreviewsCheckBox.IsChecked ?? false;
             Settings.Default.Save();
         }
     }

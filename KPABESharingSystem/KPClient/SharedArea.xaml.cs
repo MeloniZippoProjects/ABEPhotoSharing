@@ -51,7 +51,7 @@ namespace KPClient
             SharedArea sa = (SharedArea)d;
             if (sa.PreloadData)
             {
-                sa.RootItems.ForEach(item => item.PreloadData());
+                sa.RootItems.ForEach(item => item.PreloadThumbnail());
             }
             else
             {
@@ -95,7 +95,7 @@ namespace KPClient
 
             foreach (SharedItem displayedItem in DisplayedItems)
             {
-                displayedItem.PreloadSymmetricKey();
+                displayedItem.PreloadItemKeys();
             }
         }
 
@@ -128,7 +128,7 @@ namespace KPClient
                         RootItems.Add(item);
 
                     if (PreloadData)
-                        item.PreloadData();
+                        item.PreloadThumbnail();
                 }
 
                 if (FilterOutOfPolicy)
@@ -242,7 +242,7 @@ namespace KPClient
             string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
             using (FileStream fs = new FileStream(path: imagePath, mode: FileMode.Create))
             {
-                byte[] imageBytes = await sharedImage.DecryptedBytes;
+                byte[] imageBytes = await sharedImage.GetImageBytes();
                 await fs.WriteAsync(
                     buffer: imageBytes,
                     count: imageBytes.Length,
