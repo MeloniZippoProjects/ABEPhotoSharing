@@ -72,7 +72,7 @@ namespace KPClient
         public override string KeysPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "keys",
-            $"{Name}.key.kpabe");
+            $"{Name}.keys.kpabe");
 
         public override bool IsValid =>
             Directory.Exists(AlbumPath)

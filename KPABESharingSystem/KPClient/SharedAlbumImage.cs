@@ -32,7 +32,7 @@ namespace KPClient
         public override string KeysPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "keys",
-            $"{ParentAlbum.Name}.key.kpabe");
+            $"{ParentAlbum.Name}.keys.kpabe");
 
         public override bool IsValid
         {

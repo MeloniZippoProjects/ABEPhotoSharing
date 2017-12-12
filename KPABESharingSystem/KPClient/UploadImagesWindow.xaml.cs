@@ -77,8 +77,15 @@ namespace KPClient
         //todo: catch IO errors, delete files eventually written
         private async void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SymmetricKey symmetricKey = new SymmetricKey();
-            symmetricKey.GenerateKey();
+            SymmetricKey imageKey = new SymmetricKey();
+            imageKey.GenerateKey();
+            SymmetricKey thumbnailKey = new SymmetricKey();
+            thumbnailKey.GenerateKey();
+            ItemKeys itemKeys = new ItemKeys
+            {
+                ImageKey = imageKey,
+                ThumbnailKey = thumbnailKey
+            };
             
             var tasks = new List<Task>();
 
@@ -86,11 +93,11 @@ namespace KPClient
             {
                 string imagePath = ImageItems.First().ImagePath;
                 string imageName = Path.GetFileNameWithoutExtension(imagePath);
-                tasks.Add(UploadKey(symmetricKey, imageName));
+                tasks.Add(UploadKeys(itemKeys, imageName));
                 tasks.Add(UploadImage(
                     imagePath,
                     imageName,
-                    symmetricKey)
+                    itemKeys)
                 );
             }
             else
@@ -98,11 +105,11 @@ namespace KPClient
                 string albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
                 string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
-                tasks.Add(UploadKey(symmetricKey, albumName));
+                tasks.Add(UploadKeys(itemKeys, albumName));
                 tasks.Add(UploadAlbum(
                     ImageItems.Select(item => item.ImagePath).ToArray(),
                     albumName,
-                    symmetricKey));
+                    itemKeys));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -110,49 +117,56 @@ namespace KPClient
             Close();
         }
 
-        private async Task UploadKey(SymmetricKey symmetricKey, string name)
+        private async Task UploadKeys(ItemKeys itemKeys, string name)
         {
-            string keyPath = Path.GetTempFileName();
-            using (FileStream fs = new FileStream(keyPath, FileMode.Create))
+            string keysPath = Path.GetTempFileName();
+            using (FileStream fs = new FileStream(keysPath, FileMode.Create))
             {
                 using (StreamWriter sw = new StreamWriter(fs))
                 {
-                    string serializedKey = await Dispatcher.InvokeAsync(() =>
-                        JsonConvert.SerializeObject(symmetricKey));
-                    await sw.WriteAsync(serializedKey);
+                    string serializedKeys = await Dispatcher.InvokeAsync(() =>
+                        JsonConvert.SerializeObject(itemKeys));
+                    await sw.WriteAsync(serializedKeys);
                 }
             }
 
-            string encryptedKeyPath = Path.GetTempFileName();
+            string encryptedKeysPath = Path.GetTempFileName();
 
             App app = (App)Application.Current;
 
             app.KpService.Encrypt(
-                sourceFilePath: keyPath,
-                destFilePath: encryptedKeyPath,
+                sourceFilePath: keysPath,
+                destFilePath: encryptedKeysPath,
                 attributes: TagsSelector.GetTagsString());
 
-            string keyName = $"{name}.key.kpabe";
+            string keysName = $"{name}.keys.kpabe";
 
-            string keyDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", keyName);
+            string keysDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", keysName);
 
-            File.Move(sourceFileName: encryptedKeyPath,
-                destFileName: keyDestPath);
+            File.Move(sourceFileName: encryptedKeysPath,
+                destFileName: keysDestPath);
         }
 
-        private static async Task UploadImage(string sourceImagePath, string imageName, SymmetricKey symmetricKey)
+        private static async Task UploadImage(string sourceImagePath, string imageName, ItemKeys itemKeys)
         {
             try
             {
-                string encryptedImagePath = await EncryptImage(sourceImagePath, symmetricKey);
+                string encryptedImagePath = await EncryptImage(sourceImagePath, itemKeys.ImageKey);
+                string encryptedThumbnailPath = await EncryptThumbnail(sourceImagePath, itemKeys.ThumbnailKey);
+
                 string imageDestPath = Path.Combine(
                     Properties.Settings.Default.SharedFolderPath,
                     "items",
                     $"{imageName}.png.aes");
-                Console.WriteLine(imageDestPath);
+                string thumbnailDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    $"{imageName}.tmb.png.aes");
 
                 File.Move(sourceFileName: encryptedImagePath,
                     destFileName: imageDestPath);
+                File.Move(sourceFileName: encryptedThumbnailPath,
+                    destFileName: thumbnailDestPath);
             }
             catch (Exception ex)
             {
@@ -160,36 +174,50 @@ namespace KPClient
             }
         }
 
-        private async Task UploadAlbum(string[] imagePaths, string albumName, SymmetricKey symmetricKey)
+
+        private static async Task UploadAlbum(IReadOnlyList<string> imagePaths, string albumName, ItemKeys itemKeys)
         {
             var uploadTasks = new List<Task>();
             for (int imageId = 0; imageId < imagePaths.Count(); imageId++)
             {
-                uploadTasks.Add( UploadAlbumImage(
-                    sourceImagePath: imagePaths[imageId],
-                    albumName: albumName,
-                    imageId: imageId,
-                    symmetricKey: symmetricKey)
+                uploadTasks.Add( 
+                    UploadAlbumImage(
+                        sourceImagePath: imagePaths[imageId],
+                        albumName: albumName,
+                        imageId: imageId,
+                        itemKeys: itemKeys)
                 );
-                symmetricKey = symmetricKey.GetNextKey();
+                itemKeys = new ItemKeys
+                {
+                    ImageKey = itemKeys.ImageKey.GetNextKey(),
+                    ThumbnailKey = itemKeys.ThumbnailKey.GetNextKey()
+                };
             }
             await Task.WhenAll(uploadTasks.ToArray());
         }
 
-        private async Task UploadAlbumImage(string sourceImagePath, string albumName, int imageId, SymmetricKey symmetricKey)
+        private static async Task UploadAlbumImage(string sourceImagePath, string albumName, int imageId, ItemKeys itemKeys)
         {
             try
             {
-                string encryptedImagePath = await EncryptImage(sourceImagePath, symmetricKey);
+                string encryptedImagePath = await EncryptImage(sourceImagePath, itemKeys.ImageKey);
+                string encryptedThumbnailPath = await EncryptThumbnail(sourceImagePath, itemKeys.ThumbnailKey);
+
                 string imageDestPath = Path.Combine(
                     Properties.Settings.Default.SharedFolderPath,
                     "items",
                     albumName,
                     $"{albumName}.{imageId}.png.aes");
-                Console.WriteLine(imageDestPath);
+                string thumbnailDestPath = Path.Combine(
+                    Properties.Settings.Default.SharedFolderPath,
+                    "items",
+                    albumName,
+                    $"{albumName}.{imageId}.tmb.png.aes");
 
                 File.Move(sourceFileName: encryptedImagePath,
                     destFileName: imageDestPath);
+                File.Move(sourceFileName: encryptedThumbnailPath,
+                    destFileName: thumbnailDestPath);
             }
             catch (Exception ex)
             {
@@ -197,7 +225,7 @@ namespace KPClient
             }
         }
 
-        private static async Task<string> EncryptImage(string sourceImagePath, SymmetricKey symmetricKey)
+        private static async Task<string> EncryptImage(string sourceImagePath, SymmetricKey imageKey)
         {
             try
             {
@@ -211,10 +239,55 @@ namespace KPClient
                     ms.Position = 0;
                     using (var outputStream = new FileStream(encryptedImagePath, FileMode.Create))
                     {
-                        await symmetricKey.Encrypt(ms, outputStream);
+                        await imageKey.Encrypt(ms, outputStream);
                     }
                 }
                 return encryptedImagePath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Something went wrong: {ex}");
+                return null;
+            }
+        }
+
+        private static async Task<string> EncryptThumbnail(string sourceImagePath, SymmetricKey thumbnailKey)
+        {
+            try
+            {
+                string encryptedThumbnailPath = Path.GetRandomFileName();
+
+                Bitmap image = new Bitmap(sourceImagePath);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    //todo: could be optimized by converting in background after add
+                    Bitmap thumbnail;
+                    const int largestThumbnailDimension = 150;
+                    if (image.Height > image.Width)
+                    {
+                       double ratio = (double) image.Height / largestThumbnailDimension;
+                       thumbnail = new Bitmap(
+                           image,
+                           (int)(image.Width / ratio),
+                           largestThumbnailDimension);
+                    }
+                    else
+                    {
+                        double ratio = (double)image.Width / largestThumbnailDimension;
+                        thumbnail = new Bitmap(
+                            image,
+                            largestThumbnailDimension,
+                            (int)(image.Height / ratio));
+                    }
+
+                    thumbnail.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
+                    using (var outputStream = new FileStream(encryptedThumbnailPath, FileMode.Create))
+                    {
+                        await thumbnailKey.Encrypt(ms, outputStream);
+                    }
+                }
+                return encryptedThumbnailPath;
             }
             catch (Exception ex)
             {
