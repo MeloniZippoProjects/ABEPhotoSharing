@@ -68,7 +68,7 @@ namespace KPClient
             }
         }
 
-        public override string ItemPath => Path.Combine(
+        public virtual string ImagePath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
             $"{Name}.png.aes");
@@ -83,7 +83,7 @@ namespace KPClient
             "keys",
             $"{Name}.key.kpabe");
 
-        public override bool IsValid => File.Exists(ItemPath) && File.Exists(KeysPath);
+        public override bool IsValid => File.Exists(ImagePath) && File.Exists(KeysPath);
 
         private byte[] _thumbnailBytes;
         public async Task<byte[]> GetThumbnailBytes()
@@ -104,7 +104,7 @@ namespace KPClient
                 return _imageBytes;
 
             ItemKeys itemKeys = await ItemKeys;
-            _imageBytes = await GetDecryptedBytes(ItemPath, itemKeys.ImageKey);
+            _imageBytes = await GetDecryptedBytes(ImagePath, itemKeys.ImageKey);
             return _imageBytes;
         }
 

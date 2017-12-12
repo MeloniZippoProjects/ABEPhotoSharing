@@ -33,7 +33,7 @@ namespace KPClient
             for(int childrenId = 0; ; childrenId++)
             {
                 string childrenName = $"{Name}.{childrenId}.png.aes";
-                string childrenPath = Path.Combine(ItemPath, childrenName);
+                string childrenPath = Path.Combine(AlbumPath, childrenName);
                 if (File.Exists(childrenPath))
                 {
                     children.Add(new SharedAlbumImage(
@@ -64,7 +64,7 @@ namespace KPClient
                     child => child.PreloadThumbnail());
         }
 
-        public override string ItemPath => Path.Combine(
+        public string AlbumPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
             Name);
@@ -75,8 +75,8 @@ namespace KPClient
             $"{Name}.key.kpabe");
 
         public override bool IsValid =>
-            Directory.Exists(ItemPath)
+            Directory.Exists(AlbumPath)
             && File.Exists(KeysPath)
-            && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
+            && File.Exists(Path.Combine(AlbumPath, $"{Name}.0.png.aes"));
     }
 }

@@ -17,7 +17,7 @@ namespace KPClient
             ImageId = imageId;
         }
 
-        public override string ItemPath => Path.Combine(
+        public override string ImagePath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
             ParentAlbum.Name,
@@ -40,7 +40,7 @@ namespace KPClient
             {
                 if (ParentAlbum.IsValid)
                 {
-                    var siblings = Directory.GetFiles(ParentAlbum.ItemPath)
+                    var siblings = Directory.GetFiles(ParentAlbum.AlbumPath)
                         .Select(Path.GetFileName)
                         .ToList().AsReadOnly();
 

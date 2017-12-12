@@ -37,7 +37,6 @@ namespace KPClient
 
         public SharedArea SharedArea { get; set; }
 
-        public abstract string ItemPath { get; }
         public abstract string KeysPath { get; }
 
         public abstract bool IsValid { get; }
