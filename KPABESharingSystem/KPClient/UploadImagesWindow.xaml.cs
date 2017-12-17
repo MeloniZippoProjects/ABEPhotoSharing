@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,13 +20,48 @@ namespace KPClient
     {
         public ObservableCollection<ImageItem> ImageItems { get; private set; } = new ObservableCollection<ImageItem>();
 
+        private string defaultName;
+        private bool isNameDefault = true;
+
         public UploadImagesWindow()
         {
             InitializeComponent();
 
             ImageItems.CollectionChanged += UpdateClearAllButtonStatus;
             ImageItems.CollectionChanged += UpdateUploadButtonStatus;
+            ImageItems.CollectionChanged += UpdateDefaultName;
             TagsSelector.ValidityChanged += UpdateUploadButtonStatus;
+        }
+
+        private void NameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (NameTextBox.Text != defaultName)
+                isNameDefault = false;
+        }
+
+        private void UpdateDefaultName(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (ImageItems.Count == 0)
+            {
+                NameTextBox.Text = "";
+                isNameDefault = true;
+            }
+            else
+            {
+                if (isNameDefault)
+                {
+                    if (ImageItems.Count == 1)
+                    {
+                        ImageItem item = ImageItems[0];
+                        defaultName = Path.GetFileNameWithoutExtension(item.ImagePath);
+                    }
+                    else
+                    {
+                        defaultName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
+                    }
+                    NameTextBox.Text = defaultName;
+                }
+            }
         }
 
         private void UpdateUploadButtonStatus(object sender, EventArgs e)
@@ -71,7 +107,7 @@ namespace KPClient
             }
         }
 
-        //todo: add control to choose image/album name. Use current settings as defaults
+        //todo: add control to choose image/album defaultName. Use current settings as defaults
         //todo: catch IO errors, delete files eventually written
         private async void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
