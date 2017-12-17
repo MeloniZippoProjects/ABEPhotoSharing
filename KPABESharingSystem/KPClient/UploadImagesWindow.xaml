@@ -48,7 +48,7 @@
                             <Image
                                 Grid.RowSpan="2"
                                 Grid.ColumnSpan="2"
-                                Source="{Binding ImagePath}" />
+                                Source="{Binding Thumbnail}" />
                             <local:ImageItemButton
                                 Grid.Row="0"
                                 Grid.Column="1"

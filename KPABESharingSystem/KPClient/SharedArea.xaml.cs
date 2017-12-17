@@ -46,12 +46,12 @@ namespace KPClient
             }
         }
 
-        private static void PreloadData_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void PreloadThumbnails_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sa = (SharedArea)d;
-            if (sa.PreloadData)
+            if (sa.PreloadThumbnails)
             {
-                sa.RootItems.ForEach(item => item.PreloadData());
+                sa.RootItems.ForEach(item => item.PreloadThumbnail());
             }
             else
             {
@@ -59,10 +59,10 @@ namespace KPClient
             }
         }
 
-        private static void ShowPreviews_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ShowThumbnails_OnChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SharedArea sa = (SharedArea) d;
-            if (sa.ShowPreviews)
+            if (sa.ShowThumbnails)
             {
                 sa.ApplyShowPreviews();
             }
@@ -88,14 +88,14 @@ namespace KPClient
                     item => DisplayedItems.Add(item));
             }
 
-            if (ShowPreviews)
+            if (ShowThumbnails)
                 ApplyShowPreviews();
             else
                 ShowDefaultThumbnails();
 
             foreach (SharedItem displayedItem in DisplayedItems)
             {
-                displayedItem.PreloadSymmetricKey();
+                displayedItem.PreloadItemKeys();
             }
         }
 
@@ -127,8 +127,8 @@ namespace KPClient
                     if (item.IsValid)
                         RootItems.Add(item);
 
-                    if (PreloadData)
-                        item.PreloadData();
+                    if (PreloadThumbnails)
+                        item.PreloadThumbnail();
                 }
 
                 if (FilterOutOfPolicy)
@@ -242,7 +242,7 @@ namespace KPClient
             string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
             using (FileStream fs = new FileStream(path: imagePath, mode: FileMode.Create))
             {
-                byte[] imageBytes = await sharedImage.DecryptedBytes;
+                byte[] imageBytes = await sharedImage.GetImageBytes();
                 await fs.WriteAsync(
                     buffer: imageBytes,
                     count: imageBytes.Length,

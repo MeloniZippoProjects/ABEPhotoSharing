@@ -17,16 +17,22 @@ namespace KPClient
             ImageId = imageId;
         }
 
-        public override string ItemPath => Path.Combine(
+        public override string ImagePath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
             ParentAlbum.Name,
             $"{ParentAlbum.Name}.{ImageId}.png.aes");
 
-        public override string KeyPath => Path.Combine(
+        public override string ThumbnailPath => Path.Combine(
+            SharedArea.SharedFolderPath,
+            "items",
+            ParentAlbum.Name,
+            $"{ParentAlbum.Name}.{ImageId}.tmb.png.aes");
+
+        public override string KeysPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "keys",
-            $"{ParentAlbum.Name}.key.kpabe");
+            $"{ParentAlbum.Name}.keys.kpabe");
 
         public override bool IsValid
         {
@@ -34,7 +40,7 @@ namespace KPClient
             {
                 if (ParentAlbum.IsValid)
                 {
-                    var siblings = Directory.GetFiles(ParentAlbum.ItemPath)
+                    var siblings = Directory.GetFiles(ParentAlbum.AlbumPath)
                         .Select(Path.GetFileName)
                         .ToList().AsReadOnly();
 
@@ -53,25 +59,24 @@ namespace KPClient
         public override Task<bool> IsPolicyVerified() 
             => ParentAlbum.IsPolicyVerified();
 
-        protected override async Task<SymmetricKey> GetSymmetricKey()
+        protected override async Task<ItemKeys> GetItemKeys()
         {
             if (!IsValid)
                 return null;
 
             if (ImageId == 0)
-                return await ParentAlbum.SymmetricKey;
+                return await ParentAlbum.ItemKeys;
             else
             {
                 var siblings = await ParentAlbum.Children;
                 SharedAlbumImage precedent = siblings[ImageId - 1];
-                SymmetricKey precedentKey = await precedent.SymmetricKey;
-                SHA256Cng sha = new SHA256Cng();
-                SymmetricKey symmetricKey = new SymmetricKey
+                ItemKeys precedentKeys = await precedent.ItemKeys;
+                ItemKeys itemKeys = new ItemKeys
                 {
-                    Key = sha.ComputeHash(precedentKey.Key),
-                    Iv = sha.ComputeHash(precedentKey.Iv).Take(128 / 8).ToArray()
+                    ThumbnailKey = precedentKeys.ThumbnailKey.GetNextKey(),
+                    ImageKey = precedentKeys.ImageKey.GetNextKey()
                 };
-                return symmetricKey;
+                return itemKeys;
             }
         }
     }

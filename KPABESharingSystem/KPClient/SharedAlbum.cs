@@ -33,7 +33,7 @@ namespace KPClient
             for(int childrenId = 0; ; childrenId++)
             {
                 string childrenName = $"{Name}.{childrenId}.png.aes";
-                string childrenPath = Path.Combine(ItemPath, childrenName);
+                string childrenPath = Path.Combine(AlbumPath, childrenName);
                 if (File.Exists(childrenPath))
                 {
                     children.Add(new SharedAlbumImage(
@@ -57,26 +57,26 @@ namespace KPClient
             SetDefaultThumbnail();
         }
 
-        public override async void PreloadData()
+        public override async void PreloadThumbnail()
         {
             if(await IsPolicyVerified())
                 (await Children).ForEach(
-                    child => child.PreloadData());
+                    child => child.PreloadThumbnail());
         }
 
-        public override string ItemPath => Path.Combine(
+        public string AlbumPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "items",
             Name);
 
-        public override string KeyPath => Path.Combine(
+        public override string KeysPath => Path.Combine(
             SharedArea.SharedFolderPath,
             "keys",
-            $"{Name}.key.kpabe");
+            $"{Name}.keys.kpabe");
 
         public override bool IsValid =>
-            Directory.Exists(ItemPath)
-            && File.Exists(KeyPath)
-            && File.Exists(Path.Combine(ItemPath, $"{Name}.0.png.aes"));
+            Directory.Exists(AlbumPath)
+            && File.Exists(KeysPath)
+            && File.Exists(Path.Combine(AlbumPath, $"{Name}.0.png.aes"));
     }
 }
