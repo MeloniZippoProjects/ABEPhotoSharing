@@ -107,7 +107,6 @@ namespace KPClient
             }
         }
 
-        //todo: add control to choose image/album defaultName. Use current settings as defaults
         //todo: catch IO errors, delete files eventually written
         private async void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
