@@ -85,34 +85,33 @@ namespace KPClient
 
         public override bool IsValid => File.Exists(ImagePath) && File.Exists(KeysPath);
 
-        private byte[] _thumbnailBytes;
+        private Task<byte[]> _thumbnailBytesTask;
         public async Task<byte[]> GetThumbnailBytes()
         {
-            if (_thumbnailBytes != null)
-                return _thumbnailBytes;
+            if (_thumbnailBytesTask == null)
+            {
+                ItemKeys itemKeys = await ItemKeys;
+                _thumbnailBytesTask = GetDecryptedBytes(ThumbnailPath, itemKeys.ThumbnailKey);
+            }
 
-            ItemKeys itemKeys = await ItemKeys;
-            _thumbnailBytes = await GetDecryptedBytes(ThumbnailPath, itemKeys.ThumbnailKey);
-            return _thumbnailBytes;
+            return await _thumbnailBytesTask;
         }
 
 
-        private byte[] _imageBytes;
+        private Task<byte[]> _imageBytesTask;
         public async Task<byte[]> GetImageBytes()
         {
-            if (_imageBytes != null)
-                return _imageBytes;
+            if (_imageBytesTask == null)
+            {
+                ItemKeys itemKeys = await ItemKeys;
+                _imageBytesTask = GetDecryptedBytes(ImagePath, itemKeys.ImageKey);
+            }
 
-            ItemKeys itemKeys = await ItemKeys;
-            _imageBytes = await GetDecryptedBytes(ImagePath, itemKeys.ImageKey);
-            return _imageBytes;
+            return await _imageBytesTask;
         }
 
-        protected async Task<byte[]> GetDecryptedBytes(string filePath, SymmetricKey key)
+        protected static async Task<byte[]> GetDecryptedBytes(string filePath, SymmetricKey key)
         {
-            if (!await IsPolicyVerified())
-                return null;
-
             try
             {
                 using (Stream inputStream = new FileStream(filePath, FileMode.Open),
