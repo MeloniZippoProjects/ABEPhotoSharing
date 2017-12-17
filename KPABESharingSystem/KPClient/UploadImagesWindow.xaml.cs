@@ -126,7 +126,7 @@ namespace KPClient
             if (ImageItems.Count == 1)
             {
                 ImageItem imageItem = ImageItems.First();
-                string imageName = Path.GetFileNameWithoutExtension(imageItem.ImagePath);
+                string imageName = NameTextBox.Text;
 
                 string destImagePath = Path.Combine(
                     Properties.Settings.Default.SharedFolderPath,
@@ -148,7 +148,7 @@ namespace KPClient
             }
             else
             {
-                string albumName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
+                string albumName = NameTextBox.Name;
                 string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
 

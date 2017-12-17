@@ -75,6 +75,8 @@
             </Label>
             <TextBox Grid.Column="1"
                      Name="NameTextBox"
+                     Margin="4"
+                     MinHeight="20"
                      TextChanged="NameTextBox_OnTextChanged"/>
         </Grid>
         
