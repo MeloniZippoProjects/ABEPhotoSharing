@@ -20,7 +20,7 @@ namespace KPClient
     {
         public ObservableCollection<ImageItem> ImageItems { get; private set; } = new ObservableCollection<ImageItem>();
 
-        private string defaultName;
+        private string defaultName = "";
         private bool isNameDefault = true;
 
         public UploadImagesWindow()
@@ -59,7 +59,8 @@ namespace KPClient
                     {
                         defaultName = DateTime.Now.ToString("yyyy-M-d_HH-mm-ss-ff");
                     }
-                    NameTextBox.Text = defaultName;
+
+                    if (defaultName != null) NameTextBox.Text = defaultName;
                 }
             }
         }
@@ -193,6 +194,7 @@ namespace KPClient
 
             File.Move(sourceFileName: encryptedKeysPath,
                 destFileName: keysDestPath);
+            File.Delete(keysPath);
         }
 
         private static async Task UploadImage(
@@ -254,7 +256,7 @@ namespace KPClient
         {
             try
             {
-                string encryptedImagePath = Path.GetRandomFileName();
+                string encryptedImagePath = Path.GetTempFileName();
 
                 using (MemoryStream ms = new MemoryStream())
                 {

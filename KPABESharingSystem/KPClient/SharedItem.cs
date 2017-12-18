@@ -79,9 +79,10 @@ namespace KPClient
 
         protected virtual async Task<ItemKeys> GetItemKeys()
         {
+            string decryptedKeyPath = null;
             try
             {
-                string decryptedKeyPath = Path.GetTempFileName();
+                decryptedKeyPath = Path.GetTempFileName();
                 App app = (App) Application.Current;
                 app.KpService.Decrypt(
                     sourceFilePath: KeysPath,
@@ -92,7 +93,7 @@ namespace KPClient
                     using (StreamReader sr = new StreamReader(fs))
                     {
                         string serializedKeys = await sr.ReadToEndAsync();
-                        ItemKeys itemKeys = await Task.Run(() => 
+                        ItemKeys itemKeys = await Task.Run(() =>
                             JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
                         return itemKeys;
                     }
@@ -102,6 +103,11 @@ namespace KPClient
             {
                 Console.WriteLine($"Operation failed: {e}");
                 return null;
+            }
+            finally
+            {
+                if(decryptedKeyPath != null)
+                    File.Delete(decryptedKeyPath);
             }
         }
 

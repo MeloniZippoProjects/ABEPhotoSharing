@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -28,7 +27,7 @@ namespace KPServices
         /// <summary>
         /// Configurable path for the KPABE suite
         /// </summary>
-        public static String SuitePath = null;
+        public static string SuitePath = null;
 
         /// <summary>
         /// Configurable filenames for KPABE tools
@@ -43,7 +42,7 @@ namespace KPServices
 
         private static string GetTool(string toolName)
         {
-            String path = Path.Combine(SuitePath ?? Directory.GetCurrentDirectory(), toolName);
+            string path = Path.Combine(SuitePath ?? Directory.GetCurrentDirectory(), toolName);
             return path;
         }
 
@@ -74,32 +73,34 @@ namespace KPServices
         /// </summary>
         public void Setup()
         {
-            String setupPath = GetTool(ExeNames.Setup);
+            string setupPath = GetTool(ExeNames.Setup);
 
             string publicKey = Path.GetTempFileName();
             string masterKey = Path.GetTempFileName();
 
-            Process kpabeSetupProcess = new Process
-            {
-                StartInfo =
-                {
-                    FileName = setupPath,
-                    Arguments = $"-p \"{publicKey}\" -m \"{masterKey}\" {Universe}"
-                }
-            };
-            PrepareProcessStart(kpabeSetupProcess.StartInfo);
-
             try
             {
-                kpabeSetupProcess.Start();
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                throw new ToolNotFound($"Cannot find {setupPath}");
-            }
+                Process kpabeSetupProcess = new Process
+                {
+                    StartInfo =
+                    {
+                        FileName = setupPath,
+                        Arguments = $"-p \"{publicKey}\" -m \"{masterKey}\" {Universe}"
+                    }
+                };
+                PrepareProcessStart(kpabeSetupProcess.StartInfo);
 
-            String stderr = kpabeSetupProcess.StandardError.ReadToEnd();
-            kpabeSetupProcess.WaitForExit();
+                try
+                {
+                    kpabeSetupProcess.Start();
+                }
+                catch (System.ComponentModel.Win32Exception)
+                {
+                    throw new ToolNotFound($"Cannot find {setupPath}");
+                }
+
+                string stderr = kpabeSetupProcess.StandardError.ReadToEnd();
+                kpabeSetupProcess.WaitForExit();
 
 #if DEBUG
             Console.WriteLine($"Command: {setupPath}");
@@ -107,142 +108,180 @@ namespace KPServices
             Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
 #endif
 
-            if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
-                throw new SetupException("Error during KPABE Setup");
+                if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
+                    throw new SetupException("Error during KPABE Setup");
 
-            Keys.PublicKey = File.ReadAllBytes(publicKey);
-            Keys.MasterKey = File.ReadAllBytes(masterKey);
+                Keys.PublicKey = File.ReadAllBytes(publicKey);
+                Keys.MasterKey = File.ReadAllBytes(masterKey);
+            }
+            finally
+            {
+                File.Delete(publicKey);
+                File.Delete(masterKey);
+            }
         }
 
-        public byte[] Keygen(String policy)
+        public byte[] Keygen(string policy)
         {
-            String keygenPath = GetTool(ExeNames.Keygen);
+            string keygenPath = GetTool(ExeNames.Keygen);
 
             string privateKey = Path.GetTempFileName();
             string publicKey = Path.GetTempFileName();
             string masterKey = Path.GetTempFileName();
 
-            File.WriteAllBytes(publicKey, Keys.PublicKey);
-            File.WriteAllBytes(masterKey, Keys.MasterKey);
-
-            Process kpabeKeygenProcess = new Process {StartInfo = {FileName = keygenPath}};
-            PrepareProcessStart(kpabeKeygenProcess.StartInfo);
-
-            String argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" \"{policy}\" ";
-            kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
-
             try
             {
-                kpabeKeygenProcess.Start();
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                throw new ToolNotFound($"Cannot find {keygenPath}");
-            }
+                File.WriteAllBytes(publicKey, Keys.PublicKey);
+                File.WriteAllBytes(masterKey, Keys.MasterKey);
 
-            String stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
-            kpabeKeygenProcess.WaitForExit();
+                Process kpabeKeygenProcess = new Process {StartInfo = {FileName = keygenPath}};
+                PrepareProcessStart(kpabeKeygenProcess.StartInfo);
+
+                string argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" \"{policy}\" ";
+                kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
+
+                try
+                {
+                    kpabeKeygenProcess.Start();
+                }
+                catch (System.ComponentModel.Win32Exception)
+                {
+                    throw new ToolNotFound($"Cannot find {keygenPath}");
+                }
+
+                string stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
+                kpabeKeygenProcess.WaitForExit();
 
 #if DEBUG
             Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
 #endif
 
-            if (new Regex("unsatisfiable integer comparison").IsMatch(stderr))
-                throw new UnsatisfiablePolicy(stderr);
+                if (new Regex("unsatisfiable integer comparison").IsMatch(stderr))
+                    throw new UnsatisfiablePolicy(stderr);
 
-            if (new Regex("trivially satisfied integer comparison").IsMatch(stderr))
-                throw new TrivialPolicy(stderr);
+                if (new Regex("trivially satisfied integer comparison").IsMatch(stderr))
+                    throw new TrivialPolicy(stderr);
 
-            if (new Regex("Check your attribute universe").IsMatch(stderr))
-                throw new AttributeNotFound(stderr);
+                if (new Regex("Check your attribute universe").IsMatch(stderr))
+                    throw new AttributeNotFound(stderr);
 
-            if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
-                throw new KeygenException("Error during KPABE Keygen");
+                if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
+                    throw new KeygenException("Error during KPABE Keygen");
 
-            Keys.PrivateKey = File.ReadAllBytes(privateKey);
-            return Keys.PrivateKey;
+                Keys.PrivateKey = File.ReadAllBytes(privateKey);
+                return Keys.PrivateKey;
+            }
+            finally
+            {
+                File.Delete(publicKey);
+                File.Delete(privateKey);
+                File.Delete(masterKey);
+            }
         }
 
-        public void Encrypt(String sourceFilePath, String destFilePath, String attributes,
+        public void Encrypt(
+            string sourceFilePath,
+            string destFilePath,
+            string attributes,
             bool deleteSourceFile = false)
         {
-            String encryptPath = GetTool(ExeNames.Encrypt);
+            string encryptPath = GetTool(ExeNames.Encrypt);
 
-            String publicKey = Path.GetTempFileName();
-            File.WriteAllBytes(publicKey, Keys.PublicKey);
+            string publicKey = Path.GetTempFileName();
 
-            Process encryptProcess = new Process
+            try
             {
-                StartInfo =
+                File.WriteAllBytes(publicKey, Keys.PublicKey);
+
+                Process encryptProcess = new Process
                 {
-                    FileName = encryptPath,
-                    Arguments =
-                        $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}"
-                }
-            };
-            PrepareProcessStart(encryptProcess.StartInfo);
+                    StartInfo =
+                    {
+                        FileName = encryptPath,
+                        Arguments =
+                            $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}"
+                    }
+                };
+                PrepareProcessStart(encryptProcess.StartInfo);
 
 #if DEBUG
             Console.WriteLine($"Encrypt path: {encryptPath}");
             Console.WriteLine($"Encrypt arguments: {encryptProcess.StartInfo.Arguments}");
 #endif
 
-            encryptProcess.Start();
+                encryptProcess.Start();
 
-            String stderr = encryptProcess.StandardError.ReadToEnd();
-            encryptProcess.WaitForExit();
+                string stderr = encryptProcess.StandardError.ReadToEnd();
+                encryptProcess.WaitForExit();
 
-            if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
+                if (!stderr.Equals("") || encryptProcess.ExitCode != 0)
+                {
+                    if (new Regex("Certain attribute not include").IsMatch(stderr))
+                    {
+                        //kpabe suite doesn't allow recognizing if attribute is missing
+                        //or if numerical attribute has different number of bits
+                        throw new AttributeNotFound(stderr);
+                    }
+                    if (new Regex("error parsing attribute").IsMatch(stderr))
+                    {
+                        throw new AttributeBitResolutionException(stderr);
+                    }
+                }
+            }
+            finally
             {
-                if (new Regex("Certain attribute not include").IsMatch(stderr))
-                {
-                    //kpabe suite doesn't allow recognizing if attribute is missing
-                    //or if numerical attribute has different number of bits
-                    throw new AttributeNotFound(stderr);
-                }
-                if (new Regex("error parsing attribute").IsMatch(stderr))
-                {
-                    throw new AttributeBitResolutionException(stderr);
-                }
+                File.Delete(publicKey);
             }
         }
 
-        public void Decrypt(String sourceFilePath, String destFilePath, bool deleteSourceFile = false)
+        public void Decrypt(
+            string sourceFilePath,
+            string destFilePath,
+            
+            bool deleteSourceFile = false)
         {
-            String decryptPath = GetTool(ExeNames.Decrypt);
+            string decryptPath = GetTool(ExeNames.Decrypt);
 
-            String publicKey = Path.GetTempFileName();
-            File.WriteAllBytes(publicKey, Keys.PublicKey);
+            string publicKey = Path.GetTempFileName();
+            string privateKey = Path.GetTempFileName();
 
-            String privateKey = Path.GetTempFileName();
-            File.WriteAllBytes(privateKey, Keys.PrivateKey);
-
-            Process decryptProcess = new Process
+            try
             {
-                StartInfo =
+                File.WriteAllBytes(publicKey, Keys.PublicKey);
+                File.WriteAllBytes(privateKey, Keys.PrivateKey);
+
+                Process decryptProcess = new Process
                 {
-                    FileName = decryptPath,
-                    Arguments =
-                        $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\""
-                }
-            };
-            PrepareProcessStart(decryptProcess.StartInfo);
+                    StartInfo =
+                    {
+                        FileName = decryptPath,
+                        Arguments =
+                            $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\""
+                    }
+                };
+                PrepareProcessStart(decryptProcess.StartInfo);
 
 #if DEBUG
             Console.WriteLine($"Decrypt path: {decryptPath}");
             Console.WriteLine($"Decrypt arguments: {decryptProcess.StartInfo.Arguments}");
 #endif
 
-            decryptProcess.Start();
+                decryptProcess.Start();
 
-            String stderr = decryptProcess.StandardError.ReadToEnd();
-            decryptProcess.WaitForExit();
+                string stderr = decryptProcess.StandardError.ReadToEnd();
+                decryptProcess.WaitForExit();
 
-            if (stderr.Contains("cannot decrypt, attributes in ciphertext do not satisfy policy"))
-                throw new PolicyUnsatisfied("Attributes in ciphertext do not satisfy policy");
+                if (stderr.Contains("cannot decrypt, attributes in ciphertext do not satisfy policy"))
+                    throw new PolicyUnsatisfied("Attributes in ciphertext do not satisfy policy");
 
-            if (!stderr.Equals("") || decryptProcess.ExitCode != 0)
-                throw new DecryptException("Error during KPABE Decrypt");
+                if (!stderr.Equals("") || decryptProcess.ExitCode != 0)
+                    throw new DecryptException("Error during KPABE Decrypt");
+            }
+            finally
+            {
+                File.Delete(publicKey);
+                File.Delete(privateKey);
+            }
         }
     }
 }
