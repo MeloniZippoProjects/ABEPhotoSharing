@@ -17,7 +17,6 @@ namespace KPClient
         public Universe Universe;
         public KpService KpService = new KpService();
         public KpRestClient KpRestClient;
-        public string Username;
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {

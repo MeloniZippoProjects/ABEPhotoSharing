@@ -16,11 +16,12 @@ namespace KPClient
             InitializeComponent();
             App app = ((App) Application.Current);
 
-            UsernameLabel.Content = app.Username;
+            var settings = Settings.Default;
+
+            UsernameLabel.Content = settings.CachedUsername;
             UniverseLabel.Content = UniverseLabel.Content.ToString()
                 .Replace("{}", app.Universe.ToString());
 
-            var settings = Settings.Default;
             FilterOutOfPolicyCheckBox.IsChecked = settings.FilterOutOfPolicy;
             ShowThumbnailsCheckBox.IsChecked = settings.ShowThumbnails;
             PreloadThumbnailsCheckBox.IsChecked = settings.PreloadThumbnails;

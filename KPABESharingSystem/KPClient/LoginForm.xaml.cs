@@ -38,7 +38,7 @@ namespace KPClient
             {
                 if (app.KpRestClient.Login(username, password))
                 {
-                    app.Username = username;
+                    Properties.Settings.Default.CachedUsername = username;
                     Close();
                 }
                 else

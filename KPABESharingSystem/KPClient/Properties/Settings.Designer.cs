@@ -142,5 +142,17 @@ namespace KPClient.Properties {
                 this["PreloadThumbnails"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CachedUsername {
+            get {
+                return ((string)(this["CachedUsername"]));
+            }
+            set {
+                this["CachedUsername"] = value;
+            }
+        }
     }
 }
