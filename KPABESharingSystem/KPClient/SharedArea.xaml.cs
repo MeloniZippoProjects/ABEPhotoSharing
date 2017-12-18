@@ -145,7 +145,7 @@ namespace KPClient
             ReloadView();
         }
 
-        private async void LoadAlbumImages(SharedAlbum sharedAlbum)
+        public async void LoadAlbumImages(SharedAlbum sharedAlbum)
         {
             if (sharedAlbum.IsValid && await sharedAlbum.IsPolicyVerified())
             {
@@ -217,38 +217,6 @@ namespace KPClient
             }
             else
                 return false;
-        }
-
-        private async void SharedAreaItemButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            SharedAreaItemButton button = sender as SharedAreaItemButton;
-            Debug.Assert(button != null, nameof(button) + " != null");
-            SharedItem item = button.Item;
-            if (!await item.IsPolicyVerified())
-                return;
-            switch (item)
-            {
-                case SharedImage _:
-                    OpenImage(item as SharedImage);
-                    break;
-                case SharedAlbum _:
-                    LoadAlbumImages(item as SharedAlbum);
-                    break;
-            }
-        }
-
-        private async void OpenImage(SharedImage sharedImage)
-        {
-            string imagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
-            using (FileStream fs = new FileStream(path: imagePath, mode: FileMode.Create))
-            {
-                byte[] imageBytes = await sharedImage.GetImageBytes();
-                await fs.WriteAsync(
-                    buffer: imageBytes,
-                    count: imageBytes.Length,
-                    offset: 0);
-            }
-            Process.Start(imagePath);
         }
     }
 }

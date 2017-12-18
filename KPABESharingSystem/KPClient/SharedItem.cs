@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using MahApps.Metro.IconPacks;
 using Newtonsoft.Json;
@@ -112,18 +111,5 @@ namespace KPClient
         }
 
         public abstract void PreloadThumbnail();
-    }
-
-    public class SharedAreaItemButton : Button
-    {
-        public SharedItem Item
-        {
-            get => (SharedItem) GetValue(ItemProperty);
-            set => SetValue(ItemProperty, value);
-        }
-
-        public static readonly DependencyProperty ItemProperty =
-            DependencyProperty.Register("Item", typeof(SharedItem), typeof(SharedAreaItemButton),
-                new PropertyMetadata(null));
     }
 }
