@@ -108,7 +108,6 @@ namespace KPClient
             }
         }
 
-        //todo: catch IO errors, delete files eventually written
         private async void UploadButton_OnClick(object sender, RoutedEventArgs e)
         {
             SymmetricKey imageKey = new SymmetricKey();
