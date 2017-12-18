@@ -15,7 +15,7 @@ namespace KPTrustedParty
 
         public static byte[] KpPublicKey => KpService.Keys.PublicKey;
         private static readonly KpService KpService = new KpService();
-        private static RestServer _server = new RestServer();
+        private static RestServer restServer = new RestServer();
 
         static void Main()
         {
@@ -24,22 +24,26 @@ namespace KPTrustedParty
             Settings settings = Settings.Default;
             Host = settings.ServerHost;
 
-            //todo: server doesn't stop in case of exceptions
-
             //server.LogToConsole();
-            SetupRestServer();
-            _server.Start();
-            DisplayServerStatus();
-            CommandLineLoop();
-            _server.Stop();
+            try
+            {
+                SetupRestServer();
+                restServer.Start();
+                DisplayServerStatus();
+                CommandLineLoop();
+            }
+            finally
+            {
+                restServer.Stop();
+            }
         }
 
         private static void SetupRestServer()
         {
             Settings settings = Settings.Default;
-            _server.Port = settings.ServerPort.ToString();
-            _server.UseHttps = true;
-            _server.Host = settings.ServerHost;
+            restServer.Port = settings.ServerPort.ToString();
+            restServer.UseHttps = true;
+            restServer.Host = settings.ServerHost;
         }
 
         private static void InitializeKpabe()

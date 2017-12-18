@@ -10,6 +10,9 @@ namespace KPTrustedParty
 {
     partial class TpServer
     {
+        static Regex argumentFormat =
+            new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=))?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
+        
         private static void CommandLineLoop()
         {
             while (true)
@@ -18,9 +21,6 @@ namespace KPTrustedParty
                 string commandLine = Console.ReadLine();
                 if (commandLine == null)
                     continue;
-
-                Regex argumentFormat =
-                    new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=))?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
 
                 string command = commandLine.Split(null)[0];
                 string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
@@ -99,7 +99,6 @@ namespace KPTrustedParty
                         try
                         {
                             //todo: we could do some parsing just to make the policy syntax more flexible
-                            //bug: 'mario or cose = 2' is parsed wrongly, only 'mario' is registered
                             byte[] privateKey = KpService.Keygen(policy);
                             KpDatabase.SetUserPolicy(username, policy);
 
@@ -137,9 +136,9 @@ namespace KPTrustedParty
                     {
                         try
                         {
-                            if (_server.IsListening)
+                            if (restServer.IsListening)
                             {
-                                _server.Stop();
+                                restServer.Stop();
                                 Console.WriteLine("REST Server succesfully stopped");
                             }
                             else
@@ -158,11 +157,11 @@ namespace KPTrustedParty
                     {
                         try
                         {
-                            if (!_server.IsListening)
+                            if (!restServer.IsListening)
                             {
-                                _server = new RestServer();
+                                restServer = new RestServer();
                                 SetupRestServer();
-                                _server.Start();
+                                restServer.Start();
                                 Console.WriteLine("REST Server succesfully started");
                                 DisplayServerStatus();
                             }
@@ -181,11 +180,11 @@ namespace KPTrustedParty
 
                     case "serverRestart":
                     {
-                        if (_server.IsListening)
+                        if (restServer.IsListening)
                         {
                             try
                             {
-                                _server.Stop();
+                                restServer.Stop();
                             }
                             catch (Exception ex)
                             {
@@ -195,9 +194,9 @@ namespace KPTrustedParty
                         }
                         try
                         {
-                            _server = new RestServer();
+                            restServer = new RestServer();
                             SetupRestServer();
-                            _server.Start();
+                            restServer.Start();
                         }
                         catch (Exception ex)
                         {
@@ -266,8 +265,8 @@ SERVER RESTART
 
         private static void DisplayServerStatus()
         {
-            Console.WriteLine(_server.IsListening
-                ? $"Server listening at: {_server.Host}:{_server.Port}"
+            Console.WriteLine(restServer.IsListening
+                ? $"Server listening at: {restServer.Host}:{restServer.Port}"
                 : "Server is not listening");
         }
     }
