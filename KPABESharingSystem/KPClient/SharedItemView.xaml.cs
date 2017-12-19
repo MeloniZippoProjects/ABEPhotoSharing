@@ -9,13 +9,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.Win32;
 using Path = System.IO.Path;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace KPClient
 {
@@ -80,6 +82,26 @@ namespace KPClient
         {
             if (Item is SharedImage)
                 SaveImage(Item as SharedImage);
+            else
+                SaveAlbum(Item as SharedAlbum);
+        }
+
+        private async void SaveAlbum(SharedAlbum sharedAlbum)
+        {
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string destFolder = folderDialog.SelectedPath;
+                    var tasks =
+                        from SharedAlbumImage image in await sharedAlbum.Children
+                        let destPath = Path.Combine(destFolder, $"{image.Name}.png")
+                        select Dispatcher.InvokeAsync(
+                            async () => File.WriteAllBytes(destPath, await image.GetImageBytes())
+                        ).Task;
+                    await Task.WhenAll(tasks);
+                }
+            }
         }
 
         private static async void SaveImage(SharedImage sharedImage)
