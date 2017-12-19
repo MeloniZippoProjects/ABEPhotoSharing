@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 using Path = System.IO.Path;
 
 namespace KPClient
@@ -46,7 +47,7 @@ namespace KPClient
             InitializeComponent();
         }
 
-        private async void Button_OnClick(object sender, RoutedEventArgs e)
+        private async void OpenItem()
         {
             if (!await Item.IsPolicyVerified())
                 return;
@@ -73,6 +74,55 @@ namespace KPClient
                     offset: 0);
             }
             Process.Start(imagePath);
+        }
+
+        private void SaveItem()
+        {
+            if (Item is SharedImage)
+                SaveImage(Item as SharedImage);
+        }
+
+        private static async void SaveImage(SharedImage sharedImage)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Image file (*.png)|*.png";
+            saveFileDialog.AddExtension = true;
+            saveFileDialog.FileName = sharedImage.Name;
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                File.WriteAllBytes(saveFileDialog.FileName, await sharedImage.GetImageBytes());
+            }
+        }
+
+        private void Button_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenItem();
+        }
+        
+        private void Button_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (!Item.IsPolicyVerified().Result)
+            {
+                OpenMenu.IsEnabled = false;
+                SaveMenu.IsEnabled = false;
+            }
+
+            //todo: implement OpenWith, then enable it here for SharedImages
+        }
+
+        private void OpenMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenItem();
+        }
+
+        private void SaveMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            SaveItem();
+        }
+
+        private void OpenWithMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

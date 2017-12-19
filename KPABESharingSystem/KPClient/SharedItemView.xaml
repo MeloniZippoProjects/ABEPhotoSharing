@@ -46,8 +46,26 @@
             MaxHeight="150"
             MaxWidth="150"
             Style="{StaticResource NoChromeButton}"
-            Click="Button_OnClick">
+            Click="Button_OnClick"
+            ContextMenuOpening="Button_OnContextMenuOpening">
             <Image Source="{Binding Thumbnail}"/>
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem 
+                        Name="OpenMenu"
+                        Header="Open"
+                        Click="OpenMenu_OnClick"/>
+                    <MenuItem
+                        Name="OpenWithMenu"
+                        Header="Open with..."
+                        Visibility="Collapsed"
+                        Click="OpenWithMenu_OnClick"/>
+                    <MenuItem
+                        Name="SaveMenu"
+                        Header="Save"
+                        Click="SaveMenu_OnClick"/>
+                </ContextMenu>
+            </Button.ContextMenu>
         </Button>
 
         <TextBlock

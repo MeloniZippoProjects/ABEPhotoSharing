@@ -34,7 +34,7 @@
                 <DataTemplate>
                     <local:SharedItemView 
                         Item="{Binding}"
-                        ParentArea="{Binding RelativeSource={RelativeSource Self}}"
+                        ParentArea="{Binding SharedArea}"
                         Margin="4"
                         MaxWidth="150"
                         VerticalAlignment="Top"/>
