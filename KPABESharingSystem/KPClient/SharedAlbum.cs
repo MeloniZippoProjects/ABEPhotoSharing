@@ -10,8 +10,6 @@ namespace KPClient
     {
         public static Task<DrawingImage> DefaultAlbumThumbnail;
 
-        public readonly Task<List<SharedAlbumImage>> Children;
-
         static SharedAlbum()
         {
             DefaultAlbumThumbnail = IconToDrawing(
@@ -23,28 +21,34 @@ namespace KPClient
             SetDefaultThumbnail();
             Name = name;
             SharedArea = sharedArea;
-
-            Children = Dispatcher.InvokeAsync(PopulateChildren).Task;
         }
 
-        private List<SharedAlbumImage> PopulateChildren()
+        private Task<List<SharedAlbumImage>> children;
+        public async Task<List<SharedAlbumImage>> GetChildren()
         {
-            var children = new List<SharedAlbumImage>();
-            for(int childrenId = 0; ; childrenId++)
+            if (children == null)
             {
-                string childrenName = $"{Name}.{childrenId}.png.aes";
-                string childrenPath = Path.Combine(AlbumPath, childrenName);
-                if (File.Exists(childrenPath))
+                children = Dispatcher.InvokeAsync(() =>
                 {
-                    children.Add(new SharedAlbumImage(
-                        name: childrenName,
-                        sharedArea: SharedArea,
-                        parentAlbum: this,
-                        imageId: childrenId));
-                }
-                else
-                    return children;
+                    var taskChildren = new List<SharedAlbumImage>();
+                    for (int childrenId = 0;; childrenId++)
+                    {
+                        string childrenName = $"{Name}.{childrenId}.png.aes";
+                        string childrenPath = Path.Combine(AlbumPath, childrenName);
+                        if (File.Exists(childrenPath))
+                        {
+                            taskChildren.Add(new SharedAlbumImage(
+                                name: childrenName,
+                                sharedArea: SharedArea,
+                                parentAlbum: this,
+                                imageId: childrenId));
+                        }
+                        else
+                            return taskChildren;
+                    }
+                }).Task;
             }
+            return await children;
         }
 
         public override async void SetDefaultThumbnail()
@@ -60,7 +64,7 @@ namespace KPClient
         public override async void PreloadThumbnail()
         {
             if(await IsPolicyVerified())
-                (await Children).ForEach(
+                (await GetChildren()).ForEach(
                     child => child.PreloadThumbnail());
         }
 

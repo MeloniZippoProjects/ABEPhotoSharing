@@ -68,7 +68,7 @@ namespace KPClient
                 return await ParentAlbum.ItemKeys;
             else
             {
-                var siblings = await ParentAlbum.Children;
+                var siblings = await ParentAlbum.GetChildren();
                 SharedAlbumImage precedent = siblings[ImageId - 1];
                 ItemKeys precedentKeys = await precedent.ItemKeys;
                 ItemKeys itemKeys = new ItemKeys

@@ -150,7 +150,7 @@ namespace KPClient
             if (sharedAlbum.IsValid && await sharedAlbum.IsPolicyVerified())
             {
                 AlbumImages.Clear();
-                var albumImages = await sharedAlbum.Children;
+                var albumImages = await sharedAlbum.GetChildren();
                 albumImages.ForEach(
                     image => AlbumImages.Add(image));
                 _currentAlbum = sharedAlbum.Name;

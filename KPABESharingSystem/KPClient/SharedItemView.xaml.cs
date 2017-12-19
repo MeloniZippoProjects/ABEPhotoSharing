@@ -94,7 +94,7 @@ namespace KPClient
                 {
                     string destFolder = folderDialog.SelectedPath;
                     var tasks =
-                        from SharedAlbumImage image in await sharedAlbum.Children
+                        from SharedAlbumImage image in await sharedAlbum.GetChildren()
                         let destPath = Path.Combine(destFolder, $"{image.Name}.png")
                         select Dispatcher.InvokeAsync(
                             async () => File.WriteAllBytes(destPath, await image.GetImageBytes())
