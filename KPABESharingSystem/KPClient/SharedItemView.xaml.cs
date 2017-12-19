@@ -128,8 +128,6 @@ namespace KPClient
                 OpenMenu.IsEnabled = false;
                 SaveMenu.IsEnabled = false;
             }
-
-            //todo: implement OpenWith, then enable it here for SharedImages
         }
 
         private void OpenMenu_OnClick(object sender, RoutedEventArgs e)
@@ -140,11 +138,6 @@ namespace KPClient
         private void SaveMenu_OnClick(object sender, RoutedEventArgs e)
         {
             SaveItem();
-        }
-
-        private void OpenWithMenu_OnClick(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 }
