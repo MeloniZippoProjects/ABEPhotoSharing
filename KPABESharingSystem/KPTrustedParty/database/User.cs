@@ -21,7 +21,7 @@ namespace KPTrustedParty.Database
             [Required]
             public byte[] SaltedPasswordHash { get; set; }
 
-            public string Policy { get; set; } //todo: change to an object for better processing?
+            public string Policy { get; set; }
 
             /// <summary>
             /// Private Key of User. 

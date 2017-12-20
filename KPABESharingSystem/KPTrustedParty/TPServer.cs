@@ -10,7 +10,31 @@ namespace KPTrustedParty
 {
     partial class TpServer
     {
-        public static Universe Universe;
+        private static Universe universe; 
+        public  static Universe Universe
+        {
+            get => universe;
+            set
+            {
+                if (value != null)
+                {
+                    universe = value;
+                    KpService.Universe = value;
+                    KpService.Setup();
+                    KpDatabase.InsertUniverse(
+                        Universe.ToString(),
+                        KpService.Keys.MasterKey,
+                        KpService.Keys.PublicKey);
+                }
+                else
+                {
+                    //todo: remove universe from database
+                    //todo: remove public and master keys
+                    //todo: remove policies and private keys
+                }
+            }
+        }
+
         public static string Host;
 
         public static byte[] KpPublicKey => KpService.Keys.PublicKey;

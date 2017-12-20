@@ -10,7 +10,7 @@ namespace KPTrustedParty
 {
     partial class TpServer
     {
-        static Regex argumentFormat =
+        static readonly Regex CmdArgumentFormat =
             new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=))?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
         
         private static void CommandLineLoop()
@@ -23,7 +23,7 @@ namespace KPTrustedParty
                     continue;
 
                 string command = commandLine.Split(null)[0];
-                string[] args = argumentFormat.Matches(commandLine + " ").Cast<Match>()
+                string[] args = CmdArgumentFormat.Matches(commandLine + " ").Cast<Match>()
                     .Select(match => match.Groups["argument"])
                     .Select(capture => capture.Value)
                     .Skip(1).ToArray();
@@ -31,10 +31,28 @@ namespace KPTrustedParty
                 //todo: add commands to check and change the settings
                 switch (command)
                 {
-                    case "universeEditor":
-                    case "ue":
+                    case "universeReset":
                     {
-                        UniverseEditor();
+                        Console.Write(
+                            @"This operation will clear any keys and policies related to this universe." +
+                            "Data encrypted using such keys could become unretrievable." +
+                            "Are you sure? (Y/N):");
+                        string answer = Console.ReadLine();
+                        if (answer != "Y")
+                        {
+                            Console.WriteLine("Reset not confirmed, aborted.");
+                            break;
+                        }
+
+                        try {
+                            restServer.Stop();
+                        } catch {
+                            //Suppressing errors 
+                        }
+
+                        Universe = null;
+                        Console.WriteLine("Universe reset completed");
+                        Environment.Exit(0);
                         break;
                     }
 
@@ -228,9 +246,11 @@ It allows the administrator to create users, list users, set their policies
 and start or stop the REST Server which is used by the clients to 
 obtain the keys. 
 
-UNIVERSE EDITOR
-    {ue, universeEditor}
-        Opens the Universe Editor interface. Further help can be found inside the utility.
+UNIVERSE RESET
+    {universeReset}
+        Removes any information about the universe, that is its definition, the related keys
+        and the users' policies. Users' login informations are not removed or changed.
+        After this operation the server shuts down and must be restarted to configure the new universe.
 
 DETAIL USER
     {d, detailUser} username

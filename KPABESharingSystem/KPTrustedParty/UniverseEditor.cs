@@ -8,12 +8,14 @@ namespace KPTrustedParty
 {
     partial class TpServer
     {
+        private static readonly Regex UeArgumentFormat = new Regex("['\"](?<attribute>.+?)['\"]");
+
         private static void UniverseEditor()
         {
             Console.WriteLine("------- UniverseEditor -------");
             UniverseEditorHelp();
 
-            Universe editedUniverse = Universe?.Copy();
+            Universe editedUniverse = new Universe();
 
             while (true)
             {
@@ -21,13 +23,12 @@ namespace KPTrustedParty
                 string commandLine = Console.ReadLine();
                 if (commandLine == null)
                     continue;
-
-                Regex argumentFormat = new Regex("['\"](?<attribute>.+?)['\"]");
+                
                 string command = commandLine.Split(null)[0];
                 string[] arguments;
                 try
                 {
-                    arguments = argumentFormat.Matches(commandLine).Cast<Match>()
+                    arguments = UeArgumentFormat.Matches(commandLine).Cast<Match>()
                         .Select(match => match.Groups["attribute"])
                         .Select(capture => capture.Value)
                         .ToArray();
@@ -45,17 +46,14 @@ namespace KPTrustedParty
                     {
                         if (!ArgumentCountCheck(arguments, 1))
                         {
-                            Console.WriteLine("At least one attribute needed; attribute format = '<attr>'");
+                            Console.WriteLine("At least one attribute needed");
                             break;
                         }
                         foreach (string argument in arguments)
                         {
                             try
                             {
-                                if (editedUniverse == null)
-                                    editedUniverse = Universe.FromString($"'{argument}'", false);
-                                else
-                                    editedUniverse.AddAttribute(argument);
+                                editedUniverse.AddAttribute(argument);
                             }
                             catch (ArgumentException e)
                             {
@@ -73,43 +71,43 @@ namespace KPTrustedParty
                     {
                         if (!ArgumentCountCheck(arguments, 1))
                         {
-                            Console.WriteLine("At least one attribute needed; attribute format = '<attr>'");
+                            Console.WriteLine("At least one attribute needed");
                             break;
                         }
                         foreach (string argument in arguments)
                         {
-                            bool? result = editedUniverse?.RemoveAttribute(argument);
-                            if (result ?? false)
-                                Console.WriteLine($"Attribute {argument} removed.");
-                            else
-                                Console.WriteLine($"Attribute {argument} not present.");
+                            bool result = editedUniverse.RemoveAttribute(argument);
+                            Console.WriteLine(result
+                                ? $"Attribute {argument} removed."
+                                : $"Attribute {argument} not present.");
                         }
 
                         PrintEditedUniverse(editedUniverse);
                         break;
                     }
 
-                    case "reload":
+                    case "reset":
                     {
-                        editedUniverse = Universe?.Copy();
+                        editedUniverse = new Universe();
                         break;
                     }
 
-                    //todo: should also deal with private keys
                     case "commit":
                     {
-                        Universe = editedUniverse?.Copy();
-                        KpService.Universe = Universe;
-                        KpService.Setup();
-                        KpDatabase.InsertUniverse(Universe.ToString(), KpService.Keys.MasterKey,
-                            KpService.Keys.PublicKey);
+                        if (Universe.Count < 1)
+                        {
+                            Console.WriteLine($"Error: the current Universe has no attributes. Commit aborted");
+                            break;
+                        }
+
+                        Universe = editedUniverse;
+
                         return;
                     }
 
                     case "print":
                     case "p":
                     {
-                        PrintUniverse();
                         PrintEditedUniverse(editedUniverse);
                         break;
                     }
@@ -137,37 +135,36 @@ namespace KPTrustedParty
                 @"
 SYNOPSIS
     The UniverseEditor tool is intended to define the KP attribute Universe in a safe way.
-    It checks existing data and avoids conflicts before committing the changes. 
-    Until commit, all changes are on a temporary Universe and do not interfere with the existing Universe.
+    Until commit, all changes are on a temporary Universe and have no effect on keys or database.
     In the following text, curly brackets {} contain aliases for the command. 
     For commands that have arguments, each single argument must surrounded by single ' or double quotes "".
 
 ADD
     {add, a, +} attribute1 attribute2 ...
         Adds the listed attributes to the Universe. 
-        In case of errors, they are reported and attributed is skipped.
-        The attribute must comply with the KPABE syntax, which is
+        In case of errors, they are reported and attribute is skipped.
+        The attribute must comply with the KPABE syntax, which is:
             - The attribute name can be any sequence of letters, digits and _ symbol 
                 that starts with a letter and is not one of 'and', 'or', 'of'
             - In case of a numerical attribute, it has a = following the name and an 
                 optional '# k', 0 < k <= 64 which specifies the bit resolution
 
 REMOVE
-    {remove, r, -} attributeName1 attribute
+    {remove, r, -} attributeName1 attributeName2 ...
         Removes the listed attributes from the Universe. 
-        In case of errors, they are reported and attributed is skipped.
+        In case of errors, they are reported and attribute is skipped.
 
 COMMIT
     commit
-        Makes the changes definitive, genereting a new set of master and public keys in place of the existing ones (if any).
+        Makes the changes definitive, genereting a new set of master and public keys.
                     
-RELOAD
-    reload
-        Resets the edited Universe to the current Universe, that is the last committed version.
+RESET
+    reset
+        Resets the edited Universe to a new blank Universe.
 
 PRINT
     {print, p}
-        Displays the attributes contained in the current Universe and in the edited Universe.
+        Displays the attributes contained in the edited Universe.
 
 QUIT
     quit
@@ -176,13 +173,6 @@ HELP
     {help, anything that is not a valid command}
         Displays this guide.
         ");
-        }
-
-        private static void PrintUniverse()
-        {
-            Console.WriteLine(Universe == null
-                ? "There is no current Universe defined."
-                : $"The current Universe is: {Universe}");
         }
 
         private static void PrintEditedUniverse(Universe editedUniverse)
