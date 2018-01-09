@@ -28,9 +28,7 @@ namespace KPTrustedParty
                 }
                 else
                 {
-                    //todo: remove universe from database
-                    //todo: remove public and master keys
-                    //todo: remove policies and private keys
+                    KpDatabase.ResetUniverse();
                 }
             }
         }

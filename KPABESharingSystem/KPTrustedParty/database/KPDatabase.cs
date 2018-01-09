@@ -1,5 +1,6 @@
 ﻿using System.Data.Entity;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace KPTrustedParty.Database
@@ -24,5 +25,23 @@ namespace KPTrustedParty.Database
             public DbSet<Token> Tokens { get; set; }
             public DbSet<Universe> Universes { get; set; }
         }
+
+        public static void ResetUniverse()
+        {
+            using (var db = new KpDatabaseContext())
+            {
+                db.Universes.RemoveRange(db.Universes.ToList());
+
+                foreach (var user in db.Users.ToList())
+                {
+                    user.Policy = "";
+                    user.PrivateKey = new byte[0];
+                }
+
+                db.SaveChanges();
+            }
+        }
     }
+
+    
 }
