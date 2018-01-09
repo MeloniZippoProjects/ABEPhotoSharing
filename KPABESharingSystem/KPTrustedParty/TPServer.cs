@@ -23,8 +23,8 @@ namespace KPTrustedParty
                     KpService.Setup();
                     KpDatabase.InsertUniverse(
                         Universe.ToString(),
-                        KpService.Keys.MasterKey,
-                        KpService.Keys.PublicKey);
+                        (byte[])KpService.Keys.MasterKey,
+                        (byte[])KpService.Keys.PublicKey);
                 }
                 else
                 {
@@ -37,7 +37,7 @@ namespace KPTrustedParty
 
         public static string Host;
 
-        public static byte[] KpPublicKey => KpService.Keys.PublicKey;
+        public static byte[] KpPublicKey => (byte[])KpService.Keys.PublicKey;
         private static readonly KpService KpService = new KpService();
         private static RestServer restServer = new RestServer();
 

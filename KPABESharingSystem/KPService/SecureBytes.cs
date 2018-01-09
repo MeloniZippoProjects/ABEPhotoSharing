@@ -15,5 +15,16 @@ public class SecureBytes
             protectedBytes = (byte[]) value.Clone();
             ProtectedMemory.Protect( protectedBytes, MemoryProtectionScope.SameProcess);
         }
+
+    }
+
+    public static explicit operator byte[] (SecureBytes secureBytes)
+    {
+        return secureBytes.ProtectedBytes;
+    }
+
+    public static implicit operator SecureBytes(byte[] bytes)
+    {
+        return new SecureBytes {ProtectedBytes = bytes};
     }
 }
