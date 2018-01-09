@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Grapevine.Server;
 using KPServices;
 using KPTrustedParty.Database;
+using KPTrustedParty.Properties;
 
 namespace KPTrustedParty
 {
@@ -226,6 +227,62 @@ namespace KPTrustedParty
                         break;
                     }
 
+                    case "config":
+                        Settings settings = Settings.Default;
+                        switch (args[0])
+                        {
+                            case "server":
+                                if (args[1].Equals("port"))
+                                {
+                                    try
+                                    {
+                                        Int16 port = Int16.Parse(args[2]);
+                                        settings.ServerPort = port;
+                                    }
+                                    catch (FormatException)
+                                    {
+                                        Console.WriteLine("The specified port cannot be parsed");
+                                    }
+                                    catch (OverflowException)
+                                    {
+                                        Console.WriteLine("The port must be an integer between 0 and 65535");
+                                    }
+                                }
+                                else if (args[1].Equals("host"))
+                                {
+                                    settings.ServerHost = args[2];
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Option {args[2]} not recognized");
+                                }
+
+                                break;
+                            case "kpabe":
+                                if (args[1].Equals("suite"))
+                                {
+                                    if (Path.IsPathRooted(args[2]))
+                                        settings.KPSuitePath = args[2];
+                                    else
+                                    {
+                                        var newPath = Path.Combine(Directory.GetCurrentDirectory(), args[2]);
+                                        settings.KPSuitePath = newPath.ToString();
+                                        KpService.SuitePath = newPath;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Option {args[2]} not recognized");
+                                }
+
+                               
+                                break;
+                            default:
+                                Console.WriteLine($"Option {args[1]} not recognized");
+                                break;
+                        }
+
+                        break;
                     // ReSharper disable once RedundantCaseLabel
                     case "help":
                     default:
@@ -280,6 +337,18 @@ SERVER RESTART
     {serverRestart}
         Restarts the REST Server.
 
+CONFIG
+    {config}
+        Used to configure settings of the server.
+        
+        config server port 1064 -> sets the server port to 1064 
+            (you need to restart the server for this to have effect
+
+        config server host example.org -> sets the server host to example.org
+            (you need to restart the server for this to have effect)
+
+        config kpabe suite C:\kpabe\ -> sets the suite path to C:\kpabe\
+            (there must be a valid installation of kpabe for the application to keep working)
 ");
         }
 
