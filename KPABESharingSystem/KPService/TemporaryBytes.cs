@@ -26,6 +26,11 @@ namespace KPServices
             return tmpBytes.bytes;
         }
 
+        public static implicit operator TemporaryBytes(byte[] bytes)
+        {
+            return new TemporaryBytes {Bytes = bytes};
+        }
+
         public void Dispose()
         {
             Array.Clear(bytes, 0, bytes.Length);
