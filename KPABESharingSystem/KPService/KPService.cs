@@ -103,7 +103,7 @@ namespace KPServices
                 string stderr = kpabeSetupProcess.StandardError.ReadToEnd();
                 kpabeSetupProcess.WaitForExit();
 
-#if DEBUG
+#if KPSERVICE_DEBUG
             Console.WriteLine($"Command: {setupPath}");
             Console.WriteLine($"Arguments: {kpabeSetupProcess.StartInfo.Arguments}");
             Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
@@ -153,7 +153,7 @@ namespace KPServices
                 string stderr = kpabeKeygenProcess.StandardError.ReadToEnd();
                 kpabeKeygenProcess.WaitForExit();
 
-#if DEBUG
+#if KPSERVICE_DEBUG
             Console.WriteLine($"Stderr:\n{stderr}\n/stderr");
 #endif
 
@@ -205,7 +205,7 @@ namespace KPServices
                 };
                 PrepareProcessStart(encryptProcess.StartInfo);
 
-#if DEBUG
+#if KPSERVICE_DEBUG
             Console.WriteLine($"Encrypt path: {encryptPath}");
             Console.WriteLine($"Encrypt arguments: {encryptProcess.StartInfo.Arguments}");
 #endif
@@ -262,7 +262,7 @@ namespace KPServices
                 };
                 PrepareProcessStart(decryptProcess.StartInfo);
 
-#if DEBUG
+#if KPSERVICE_DEBUG
             Console.WriteLine($"Decrypt path: {decryptPath}");
             Console.WriteLine($"Decrypt arguments: {decryptProcess.StartInfo.Arguments}");
 #endif
