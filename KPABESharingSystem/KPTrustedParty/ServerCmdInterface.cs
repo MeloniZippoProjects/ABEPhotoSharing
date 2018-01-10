@@ -32,10 +32,16 @@ namespace KPTrustedParty
                 //todo: add commands to check and change the settings
                 switch (command)
                 {
+                    case "universeInfo":
+                    {
+                        Console.WriteLine($"Universe is: {Universe}");
+                        break;    
+                    }
+
                     case "universeReset":
                     {
                         Console.Write(
-                            @"This operation will clear any keys and policies related to this universe." +
+                            @"This operation will clear any keys and policies related to this Universe." +
                             "Data encrypted using such keys could become unretrievable." +
                             "Are you sure? (Y/N):");
                         string answer = Console.ReadLine();
@@ -51,7 +57,7 @@ namespace KPTrustedParty
                             //Suppressing errors 
                         }
 
-                        Universe = null;
+                        KpDatabase.ResetUniverse();
                         Console.WriteLine("Universe reset completed");
                         Environment.Exit(0);
                         break;
@@ -302,6 +308,10 @@ This is the command line interface for the KPABE server.
 It allows the administrator to create users, list users, set their policies 
 and start or stop the REST Server which is used by the clients to 
 obtain the keys. 
+
+UNIVERSE INFO
+    {universeInfo}
+        Displays the attributes in the universe.
 
 UNIVERSE RESET
     {universeReset}
