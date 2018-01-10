@@ -3,21 +3,25 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using KPServices;
 
 namespace KPClient
 {
     public class SymmetricKey
     {
-        public byte[] Key { get; set; }
-        public byte[] Iv { get; set; }
+        public SecureBytes Key { get; set; }
+        public SecureBytes Iv { get; set; }
 
         public void GenerateKey()
         {
             RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
-            Key = new byte[256 / 8];
-            Iv = new byte[128 / 8];
-            rngCsp.GetBytes(Key);
-            rngCsp.GetBytes(Iv);
+            using (TemporaryBytes key = new byte[256 / 8], iv = new byte[128 / 8])
+            {
+                rngCsp.GetBytes(key);
+                rngCsp.GetBytes(iv);
+                Key = key.Bytes;
+                Iv = iv.Bytes;
+            }
         }
 
         public SymmetricKey GetNextKey()
@@ -25,41 +29,59 @@ namespace KPClient
             if (Key == null || Iv == null)
                 throw new InvalidOperationException("Undefined Key or IV, cannot compute next");
 
-            SHA256Cng sha = new SHA256Cng();
-            SymmetricKey next = new SymmetricKey
+            using (SHA256Cng sha = new SHA256Cng())
             {
-                Key = sha.ComputeHash(Key),
-                Iv = sha.ComputeHash(Iv).Take(128 / 8).ToArray()
-            };
-            return next;
+                using (TemporaryBytes key = Key, iv = Iv)
+                {
+                    using (TemporaryBytes nextKey = sha.ComputeHash(key),
+                        nextIv = sha.ComputeHash(iv).Take(128 / 8).ToArray())
+                    {
+                        SymmetricKey next = new SymmetricKey
+                        {
+                            Key = nextKey.Bytes,
+                            Iv = nextIv.Bytes
+                        };
+                        return next;
+                    }
+                }
+            }
         }
 
         public async Task Encrypt(Stream inputStream, Stream outputStream)
         {
-            Aes aes = new AesCng();
-            aes.KeySize = 256;
-            aes.Key = Key;
-            aes.IV = Iv; //always 128 bits
-
-            ICryptoTransform encryptor = aes.CreateEncryptor();
-
-            using (CryptoStream encryptStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
+            using (TemporaryBytes key = Key, iv = Iv)
             {
-                await inputStream.CopyToAsync(encryptStream);
+                Aes aes = new AesCng
+                {
+                    KeySize = 256,
+                    Key = key,
+                    IV = iv
+                };
+
+                ICryptoTransform encryptor = aes.CreateEncryptor();
+                using (CryptoStream encryptStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
+                {
+                    await inputStream.CopyToAsync(encryptStream);
+                }
             }
         }
 
         public async Task Decrypt(Stream inputStream, Stream outputStream)
         {
-            Aes aes = new AesCng();
-            aes.KeySize = 256;
-            aes.Key = Key;
-            aes.IV = Iv; //always 128 bits
-
-            ICryptoTransform decryptor = aes.CreateDecryptor();
-            using (CryptoStream decryptCryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
+            using (TemporaryBytes key = Key, iv = Iv)
             {
-                await inputStream.CopyToAsync(decryptCryptoStream);
+                Aes aes = new AesCng
+                {
+                    KeySize = 256,
+                    Key = key,
+                    IV = iv
+                };
+
+                ICryptoTransform decryptor = aes.CreateDecryptor();
+                using (CryptoStream decryptCryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
+                {
+                    await inputStream.CopyToAsync(decryptCryptoStream);
+                }
             }
         }
     }
