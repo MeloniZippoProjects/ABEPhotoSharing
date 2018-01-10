@@ -1,5 +1,6 @@
 using System;
 using System.Security.Cryptography;
+using KPServices;
 
 public class SecureBytes
 {
@@ -18,9 +19,9 @@ public class SecureBytes
 
     }
 
-    public static explicit operator byte[] (SecureBytes secureBytes)
+    public static implicit operator TemporaryBytes (SecureBytes secureBytes)
     {
-        return secureBytes.ProtectedBytes;
+        return new TemporaryBytes {Bytes = secureBytes.ProtectedBytes};
     }
 
     public static implicit operator SecureBytes(byte[] bytes)
