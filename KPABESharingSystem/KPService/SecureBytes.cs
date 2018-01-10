@@ -35,8 +35,13 @@ public class SecureBytes
         return new TemporaryBytes {Bytes = secureBytes.ProtectedBytes};
     }
 
-    public static implicit operator SecureBytes(byte[] bytes)
+    public static implicit operator SecureBytes (byte[] bytes)
     {
         return new SecureBytes {ProtectedBytes = bytes};
+    }
+
+    public static implicit operator SecureBytes(TemporaryBytes temporaryBytes)
+    {
+        return new SecureBytes {ProtectedBytes = temporaryBytes};
     }
 }
