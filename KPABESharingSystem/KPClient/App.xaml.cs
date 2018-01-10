@@ -54,14 +54,7 @@ namespace KPClient
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-#if !SKIP_LOGIN
                 GetSettingsFromServer();
-#else
-                Universe = Universe.FromString(@"'anime' 'mario' 'cose'");
-                KpService.Keys.PublicKey = File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "pub_key"));
-                KpService.Keys.PrivateKey =
-File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
-#endif
             }
 
 #if DEBUG
@@ -94,7 +87,7 @@ File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
 
             if (Universe == null || publicKey == null || privateKey == null)
             {
-                MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
+                MessageBox.Show("Incorrect user configuration!\nContact administrator of the system");
                 Environment.Exit(0);
             }
 
