@@ -94,14 +94,13 @@ namespace KPTrustedParty
 
                     case "commit":
                     {
-                        if (Universe.Count < 1)
+                        if (editedUniverse.Count < 1)
                         {
                             Console.WriteLine($"Error: the current Universe has no attributes. Commit aborted");
                             break;
                         }
 
-                        Universe = editedUniverse;
-
+                        InitializeUniverse(editedUniverse);
                         return;
                     }
 

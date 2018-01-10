@@ -10,29 +10,18 @@ namespace KPTrustedParty
 {
     partial class TpServer
     {
-        private static Universe universe; 
-        public  static Universe Universe
-        {
-            get => universe;
-            set
-            {
-                if (value != null)
-                {
-                    universe = value;
-                    KpService.Universe = value;
-                    KpService.Setup();
-                    KpDatabase.InsertUniverse(
-                        Universe.ToString(),
-                        KpService.Keys.MasterKey,
-                        KpService.Keys.PublicKey);
-                }
-                else
-                {
-                    KpDatabase.ResetUniverse();
-                }
-            }
-        }
+        public static Universe Universe => KpService.Universe;
 
+        public static void InitializeUniverse(Universe newUniverse)
+        {
+            KpService.Universe = newUniverse;
+            KpService.Setup();
+            KpDatabase.InsertUniverse(
+                Universe.ToString(),
+                KpService.Keys.MasterKey,
+                KpService.Keys.PublicKey);
+        }
+        
         public static string Host;
 
         public static byte[] KpPublicKey => KpService.Keys.PublicKey;
@@ -80,7 +69,6 @@ namespace KPTrustedParty
             if (dbLatestUniverse != null)
             {
                 KpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
-                Universe = KpService.Universe.Copy();
                 KpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
                 KpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
             }
