@@ -48,8 +48,13 @@ namespace KPClient
             try
             {
                 Universe = Universe.FromString(settings.Universe);
-                KpService.Keys.PublicKey = File.ReadAllBytes(settings.PublicKeyPath);
-                KpService.Keys.PrivateKey = File.ReadAllBytes(settings.PrivateKeyPath);
+
+                using (TemporaryBytes publicKey = File.ReadAllBytes(settings.PublicKeyPath),
+                    privateKey = File.ReadAllBytes(settings.PrivateKeyPath))
+                {
+                    KpService.Keys.PublicKey = publicKey;
+                    KpService.Keys.PrivateKey = privateKey;
+                }
             }
             catch (Exception ex)
             {
@@ -89,28 +94,29 @@ File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "priv_key"));
                 Environment.Exit(0);
 
             Universe = KpRestClient.GetUniverse();
-            byte[] publicKey = KpRestClient.GetPublicKey();
-            byte[] privateKey = KpRestClient.GetPrivateKey();
-
-            if (Universe == null || publicKey == null || privateKey == null)
+            using (TemporaryBytes publicKey = KpRestClient.GetPublicKey(),
+                privateKey = KpRestClient.GetPrivateKey())
             {
-                MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
-                Environment.Exit(0);
+                if (Universe == null || publicKey.Bytes == null || privateKey.Bytes == null)
+                {
+                    MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
+                    Environment.Exit(0);
+                }
+
+                KpService.Keys.PublicKey = publicKey;
+                KpService.Keys.PrivateKey = privateKey;
+
+                settings.Universe = Universe.ToString();
+                settings.Save();
+
+                File.WriteAllBytes(
+                    path: settings.PublicKeyPath,
+                    bytes: publicKey);
+
+                File.WriteAllBytes(
+                    path: settings.PrivateKeyPath,
+                    bytes: privateKey);
             }
-
-            KpService.Keys.PublicKey = publicKey;
-            KpService.Keys.PrivateKey = privateKey;
-
-            settings.Universe = Universe.ToString();
-            settings.Save();
-
-            File.WriteAllBytes(
-                path: settings.PublicKeyPath,
-                bytes: publicKey);
-
-            File.WriteAllBytes(
-                path: settings.PrivateKeyPath,
-                bytes: privateKey);
         }
 
         private void CheckAndSetDefaultPathSettings()
