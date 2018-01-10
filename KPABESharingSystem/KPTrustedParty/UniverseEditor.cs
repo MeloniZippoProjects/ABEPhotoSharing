@@ -113,8 +113,18 @@ namespace KPTrustedParty
 
                     case "quit":
                     {
-                        Console.WriteLine(" ------- Exiting from the UniverseEditor -------");
-                        return;
+                        Console.Write(" Quitting will close the application " +
+                                      "without saving uncommitted changes to Universe. " +
+                                      "Are you sure? (Y/N): ");
+                        string answer = Console.ReadLine();
+                        if (answer != "Y")
+                        {
+                            Console.WriteLine("Quit not confirmed.");
+                            break;
+                        }
+
+                        Environment.Exit(0);
+                        break;
                     }
 
                     // ReSharper disable once RedundantCaseLabel

@@ -43,7 +43,7 @@ namespace KPTrustedParty
                         Console.Write(
                             @"This operation will clear any keys and policies related to this Universe." +
                             "Data encrypted using such keys could become unretrievable." +
-                            "Are you sure? (Y/N):");
+                            "Are you sure? (Y/N): ");
                         string answer = Console.ReadLine();
                         if (answer != "Y")
                         {
