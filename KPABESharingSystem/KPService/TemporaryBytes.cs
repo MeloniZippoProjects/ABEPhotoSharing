@@ -33,7 +33,8 @@ namespace KPServices
 
         public void Dispose()
         {
-            Array.Clear(bytes, 0, bytes.Length);
+            if( bytes != null)
+                Array.Clear(bytes, 0, bytes.Length);
             GC.SuppressFinalize(this);
         }
 
