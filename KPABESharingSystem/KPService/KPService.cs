@@ -112,13 +112,12 @@ namespace KPServices
                 if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
                     throw new SetupException("Error during KPABE Setup");
 
-                byte[] tmpPublicKey = File.ReadAllBytes(publicKeyPath);
-                Keys.PublicKey = new SecureBytes{ProtectedBytes = tmpPublicKey}; 
-                Array.Clear(tmpPublicKey, 0, tmpPublicKey.Length);
-                
-                byte[] tmpMasterKey = File.ReadAllBytes(masterKeyPath);
-                Keys.MasterKey = new SecureBytes{ProtectedBytes = tmpMasterKey}; 
-                Array.Clear(tmpMasterKey, 0, tmpMasterKey.Length);
+                using (TemporaryBytes publicKey = File.ReadAllBytes(publicKeyPath), 
+                    masterKey = File.ReadAllBytes(masterKeyPath))
+                {
+                    Keys.PublicKey = publicKey;
+                    Keys.MasterKey = masterKey;
+                }
             }
             finally
             {
@@ -127,7 +126,7 @@ namespace KPServices
             }
         }
 
-        public byte[] Keygen(string policy)
+        public SecureBytes Keygen(string policy)
         {
             string keygenPath = GetTool(ExeNames.Keygen);
 
@@ -137,13 +136,11 @@ namespace KPServices
 
             try
             {
-                byte[] tmpPublicKey = Keys.PublicKey.ProtectedBytes;
-                File.WriteAllBytes(publicKeyPath, tmpPublicKey);
-                Array.Clear(tmpPublicKey, 0, tmpPublicKey.Length);
-
-                byte[] tmpMasterKey = Keys.MasterKey.ProtectedBytes;
-                File.WriteAllBytes(masterKeyPath, tmpMasterKey);
-                Array.Clear(tmpMasterKey, 0, tmpMasterKey.Length);
+                using (TemporaryBytes publicKey = Keys.PublicKey, masterKey = Keys.MasterKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                    File.WriteAllBytes(masterKeyPath, masterKey);
+                }
 
                 Process kpabeKeygenProcess = new Process {StartInfo = {FileName = keygenPath}};
                 PrepareProcessStart(kpabeKeygenProcess.StartInfo);
@@ -179,9 +176,11 @@ namespace KPServices
                 if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
                     throw new KeygenException("Error during KPABE Keygen");
 
-                byte[] tmpPrivateKey = File.ReadAllBytes(privateKeyPath);
-                Keys.PrivateKey = new SecureBytes{ProtectedBytes = tmpPrivateKey};
-                return tmpPrivateKey;
+                using (TemporaryBytes privateKey = File.ReadAllBytes(privateKeyPath))
+                {
+                    Keys.PrivateKey = privateKey;
+                    return Keys.PrivateKey;
+                }
             }
             finally
             {
@@ -203,9 +202,10 @@ namespace KPServices
 
             try
             {
-                byte[] tmpPublicKey = Keys.PublicKey.ProtectedBytes;
-                File.WriteAllBytes(publicKeyPath, tmpPublicKey);
-                Array.Clear(tmpPublicKey, 0, tmpPublicKey.Length);
+                using (TemporaryBytes publicKey = Keys.PublicKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                }
 
                 Process encryptProcess = new Process
                 {
@@ -261,14 +261,12 @@ namespace KPServices
 
             try
             {
-                byte[] tmpPublicKey = Keys.PublicKey.ProtectedBytes;
-                File.WriteAllBytes(publicKeyPath, tmpPublicKey);
-                Array.Clear(tmpPublicKey, 0, tmpPublicKey.Length);
-
-                byte[] tmpPrivateKey = Keys.PrivateKey.ProtectedBytes;
-                File.WriteAllBytes(privateKeyPath, tmpPrivateKey);
-                Array.Clear(tmpPrivateKey, 0, tmpPrivateKey.Length);
-
+                using (TemporaryBytes publicKey = Keys.PublicKey, privateKey = Keys.PrivateKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                    File.WriteAllBytes(privateKeyPath, privateKey);
+                }
+                
                 Process decryptProcess = new Process
                 {
                     StartInfo =
