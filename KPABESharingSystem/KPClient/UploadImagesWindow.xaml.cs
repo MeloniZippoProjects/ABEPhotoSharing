@@ -147,7 +147,7 @@ namespace KPClient
             }
             else
             {
-                string albumName = NameTextBox.Name;
+                string albumName = NameTextBox.Text;
                 string albumPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "items", albumName);
                 Directory.CreateDirectory(albumPath);
 
