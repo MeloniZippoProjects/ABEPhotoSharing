@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using KPServices;
 using Newtonsoft.Json;
 using Path = System.IO.Path;
 
@@ -167,33 +168,33 @@ namespace KPClient
 
         private async Task UploadKeys(ItemKeys itemKeys, string name)
         {
-            string keysPath = Path.GetTempFileName();
-            using (FileStream fs = new FileStream(keysPath, FileMode.Create))
+            using (SecureFile keysPath = Path.GetTempFileName(), encryptedKeysPath = Path.GetTempFileName())
             {
-                using (StreamWriter sw = new StreamWriter(fs))
+                using (FileStream fs = new FileStream(keysPath, FileMode.Create))
                 {
-                    string serializedKeys = await Dispatcher.InvokeAsync(() =>
-                        JsonConvert.SerializeObject(itemKeys));
-                    await sw.WriteAsync(serializedKeys);
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        string serializedKeys = await Dispatcher.InvokeAsync(() =>
+                            JsonConvert.SerializeObject(itemKeys));
+                        await sw.WriteAsync(serializedKeys);
+                    }
                 }
+
+            App app = (App) Application.Current;
+            
+                app.KpService.Encrypt(
+                    sourceFilePath: keysPath,
+                    destFilePath: encryptedKeysPath,
+                    attributes: TagsSelector.GetTagsString());
+
+
+                string keysName = $"{name}.keys.kpabe";
+
+                string keysDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", keysName);
+
+                File.Move(sourceFileName: encryptedKeysPath,
+                    destFileName: keysDestPath);
             }
-
-            string encryptedKeysPath = Path.GetTempFileName();
-
-            App app = (App)Application.Current;
-
-            app.KpService.Encrypt(
-                sourceFilePath: keysPath,
-                destFilePath: encryptedKeysPath,
-                attributes: TagsSelector.GetTagsString());
-
-            string keysName = $"{name}.keys.kpabe";
-
-            string keysDestPath = Path.Combine(Properties.Settings.Default.SharedFolderPath, "keys", keysName);
-
-            File.Move(sourceFileName: encryptedKeysPath,
-                destFileName: keysDestPath);
-            File.Delete(keysPath);
         }
 
         private static async Task UploadImage(

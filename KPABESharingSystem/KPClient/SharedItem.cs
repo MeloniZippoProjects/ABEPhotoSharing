@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using KPServices;
 using MahApps.Metro.IconPacks;
 using Newtonsoft.Json;
 
@@ -78,10 +79,8 @@ namespace KPClient
 
         protected virtual async Task<ItemKeys> GetItemKeys()
         {
-            string decryptedKeyPath = null;
-            try
+            using(SecureFile decryptedKeyPath = Path.GetTempFileName())
             {
-                decryptedKeyPath = Path.GetTempFileName();
                 App app = (App) Application.Current;
                 app.KpService.Decrypt(
                     sourceFilePath: KeysPath,
@@ -97,16 +96,6 @@ namespace KPClient
                         return itemKeys;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Operation failed: {e}");
-                return null;
-            }
-            finally
-            {
-                if(decryptedKeyPath != null)
-                    File.Delete(decryptedKeyPath);
             }
         }
 
