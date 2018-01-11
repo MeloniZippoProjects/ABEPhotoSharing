@@ -102,7 +102,7 @@ namespace KPTrustedParty.Database
                 User authUser = AuthenticateUser(username, password);
                 if (authUser != null)
                 {
-                    byte[] tokenBytes = new byte[128];
+                    byte[] tokenBytes = new byte[256 / 8];
                     RngCsp.GetBytes(tokenBytes);
                     string tokenString = Convert.ToBase64String(tokenBytes);
 
