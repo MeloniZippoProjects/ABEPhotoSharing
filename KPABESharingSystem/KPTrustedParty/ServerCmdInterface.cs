@@ -104,12 +104,12 @@ namespace KPTrustedParty
                         }
 
 #if DEBUG
-                        Console.WriteLine($"Captured username is: [{username}]");
-                        Console.WriteLine($"Captured password is: [{password}]");
+                        Console.WriteLine($"Debug: Captured username is: [{username}]");
+                        Console.WriteLine($"Debug: Captured password is: [{password}]");
 #endif
 
                         KpDatabase.RegisterUser(username, password);
-
+                        Console.WriteLine($"User {username} registered.");
                         break;
                     }
 

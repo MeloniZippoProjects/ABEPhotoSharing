@@ -38,13 +38,14 @@ namespace KPTrustedParty
             Console.InputEncoding = Encoding.UTF8;
             Settings settings = Settings.Default;
             Host = settings.ServerHost;
-
+            
             //server.LogToConsole();
             try
             {
                 SetupRestServer();
                 restServer.Start();
                 DisplayServerStatus();
+                Console.WriteLine("Server ready and operational.");
                 CommandLineLoop();
             }
             finally
