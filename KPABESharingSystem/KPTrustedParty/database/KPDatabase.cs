@@ -19,6 +19,7 @@ namespace KPTrustedParty.Database
 
             public KpDatabaseContext() : base(DbConnectionString)
             {
+                System.Data.Entity.Database.SetInitializer<KpDatabaseContext>(new CreateDatabaseIfNotExists<KpDatabaseContext>());
             }
 
             public DbSet<User> Users { get; set; }
