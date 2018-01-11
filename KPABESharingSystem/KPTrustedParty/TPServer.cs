@@ -16,15 +16,19 @@ namespace KPTrustedParty
         {
             KpService.Universe = newUniverse;
             KpService.Setup();
-            KpDatabase.InsertUniverse(
-                Universe.ToString(),
-                KpService.Keys.MasterKey,
-                KpService.Keys.PublicKey);
+            using (TemporaryBytes masterKey = KpService.Keys.MasterKey,
+                publicKey = KpService.Keys.PublicKey)
+            {
+                KpDatabase.InsertUniverse(
+                    Universe.ToString(),
+                    masterKey,
+                    publicKey);
+            }
         }
         
         public static string Host;
 
-        public static byte[] KpPublicKey => KpService.Keys.PublicKey;
+        public static SecureBytes KpPublicKey => KpService.Keys.PublicKey;
         private static readonly KpService KpService = new KpService();
         private static RestServer restServer = new RestServer();
 

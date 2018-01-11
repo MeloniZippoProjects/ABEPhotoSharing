@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using KPServices;
 using Path = System.IO.Path;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 using UserControl = System.Windows.Controls.UserControl;
@@ -69,11 +70,13 @@ namespace KPClient
             string imagePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Path.GetRandomFileName()}.png");
             using (FileStream fs = new FileStream(path: imagePath, mode: FileMode.Create))
             {
-                byte[] imageBytes = await sharedImage.GetImageBytes();
-                await fs.WriteAsync(
-                    buffer: imageBytes,
-                    count: imageBytes.Length,
-                    offset: 0);
+                using (TemporaryBytes imageBytes = await sharedImage.GetImageBytes())
+                {
+                    await fs.WriteAsync(
+                        buffer: imageBytes,
+                        count: imageBytes.Bytes.Length,
+                        offset: 0);
+                }
             }
             Process.Start(imagePath);
         }
@@ -97,8 +100,11 @@ namespace KPClient
                         from SharedAlbumImage image in await sharedAlbum.GetChildren()
                         let destPath = Path.Combine(destFolder, $"{image.Name}.png")
                         select Dispatcher.InvokeAsync(
-                            async () => File.WriteAllBytes(destPath, await image.GetImageBytes())
-                        ).Task;
+                            async () => {
+                                using(TemporaryBytes tb = await image.GetImageBytes())
+                                    File.WriteAllBytes(destPath, tb);
+                            }).Task;
+
                     await Task.WhenAll(tasks);
                 }
             }
@@ -112,7 +118,8 @@ namespace KPClient
             saveFileDialog.FileName = sharedImage.Name;
             if (saveFileDialog.ShowDialog() == true)
             {
-                File.WriteAllBytes(saveFileDialog.FileName, await sharedImage.GetImageBytes());
+                using (TemporaryBytes tb = await sharedImage.GetImageBytes())
+                    File.WriteAllBytes(saveFileDialog.FileName, tb);
             }
         }
 

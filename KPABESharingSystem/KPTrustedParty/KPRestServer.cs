@@ -5,6 +5,7 @@ using Grapevine.Interfaces.Server;
 using Grapevine.Server;
 using Grapevine.Server.Attributes;
 using Grapevine.Shared;
+using KPServices;
 using KPTrustedParty.Database;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -162,16 +163,18 @@ namespace KPTrustedParty
             KpDatabase.User user = KpDatabase.UserLogged(context.Request.Cookies[SessionCookie]?.Value);
             if (user != null)
             {
-                byte[] publicKey = TpServer.KpPublicKey;
-                KpRestResponse jsonResponse = new KpRestResponse
+                using (TemporaryBytes publicKey = TpServer.KpPublicKey)
                 {
-                    Error = "none",
-                    Content = Convert.ToBase64String(publicKey),
-                    ContentDescription = "Public Key"
-                };
-                response.StatusCode = HttpStatusCode.Ok;
-                response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
-                return context;
+                    KpRestResponse jsonResponse = new KpRestResponse
+                    {
+                        Error = "none",
+                        Content = Convert.ToBase64String(publicKey),
+                        ContentDescription = "Public Key"
+                    };
+                    response.StatusCode = HttpStatusCode.Ok;
+                    response.SendResponse(JsonConvert.SerializeObject(jsonResponse));
+                    return context;
+                }
             }
 
             LoginNeededMessage(response);

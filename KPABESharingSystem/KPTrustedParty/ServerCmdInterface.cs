@@ -124,10 +124,11 @@ namespace KPTrustedParty
                         try
                         {
                             //todo: we could do some parsing just to make the policy syntax more flexible
-                            byte[] privateKey = KpService.Keygen(policy);
-                            KpDatabase.SetUserPolicy(username, policy);
-
-                            KpDatabase.SetUserPrivateKey(username, privateKey);
+                            using (TemporaryBytes privateKey = KpService.Keygen(policy))
+                            {
+                                KpDatabase.SetUserPolicy(username, policy);
+                                KpDatabase.SetUserPrivateKey(username, privateKey);
+                            }
                         }
                         catch (AttributeNotFound)
                         {

@@ -15,9 +15,9 @@ namespace KPServices
 
     public class Keys
     {
-        public byte[] MasterKey;
-        public byte[] PublicKey;
-        public byte[] PrivateKey;
+        public SecureBytes MasterKey;
+        public SecureBytes PublicKey;
+        public SecureBytes PrivateKey;
     }
 
     /// <summary>
@@ -76,8 +76,8 @@ namespace KPServices
         {
             string setupPath = GetTool(ExeNames.Setup);
 
-            string publicKey = Path.GetTempFileName();
-            string masterKey = Path.GetTempFileName();
+            string publicKeyPath = Path.GetTempFileName();
+            string masterKeyPath = Path.GetTempFileName();
 
             try
             {
@@ -86,7 +86,7 @@ namespace KPServices
                     StartInfo =
                     {
                         FileName = setupPath,
-                        Arguments = $"-p \"{publicKey}\" -m \"{masterKey}\" {Universe}"
+                        Arguments = $"-p \"{publicKeyPath}\" -m \"{masterKeyPath}\" {Universe}"
                     }
                 };
                 PrepareProcessStart(kpabeSetupProcess.StartInfo);
@@ -112,33 +112,40 @@ namespace KPServices
                 if (!stderr.Equals("") || kpabeSetupProcess.ExitCode != 0)
                     throw new SetupException("Error during KPABE Setup");
 
-                Keys.PublicKey = File.ReadAllBytes(publicKey);
-                Keys.MasterKey = File.ReadAllBytes(masterKey);
+                using (TemporaryBytes publicKey = File.ReadAllBytes(publicKeyPath), 
+                    masterKey = File.ReadAllBytes(masterKeyPath))
+                {
+                    Keys.PublicKey = publicKey;
+                    Keys.MasterKey = masterKey;
+                }
             }
             finally
             {
-                File.Delete(publicKey);
-                File.Delete(masterKey);
+                File.Delete(publicKeyPath);
+                File.Delete(masterKeyPath);
             }
         }
 
-        public byte[] Keygen(string policy)
+        public SecureBytes Keygen(string policy)
         {
             string keygenPath = GetTool(ExeNames.Keygen);
 
-            string privateKey = Path.GetTempFileName();
-            string publicKey = Path.GetTempFileName();
-            string masterKey = Path.GetTempFileName();
+            string privateKeyPath = Path.GetTempFileName();
+            string publicKeyPath = Path.GetTempFileName();
+            string masterKeyPath = Path.GetTempFileName();
 
             try
             {
-                File.WriteAllBytes(publicKey, Keys.PublicKey);
-                File.WriteAllBytes(masterKey, Keys.MasterKey);
+                using (TemporaryBytes publicKey = Keys.PublicKey, masterKey = Keys.MasterKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                    File.WriteAllBytes(masterKeyPath, masterKey);
+                }
 
                 Process kpabeKeygenProcess = new Process {StartInfo = {FileName = keygenPath}};
                 PrepareProcessStart(kpabeKeygenProcess.StartInfo);
 
-                string argumentsString = $" --output {privateKey} \"{publicKey}\" \"{masterKey}\" \"{policy}\" ";
+                string argumentsString = $" --output {privateKeyPath} \"{publicKeyPath}\" \"{masterKeyPath}\" \"{policy}\" ";
                 kpabeKeygenProcess.StartInfo.Arguments = argumentsString;
 
                 try
@@ -169,14 +176,17 @@ namespace KPServices
                 if (!stderr.Equals("") || kpabeKeygenProcess.ExitCode != 0)
                     throw new KeygenException("Error during KPABE Keygen");
 
-                Keys.PrivateKey = File.ReadAllBytes(privateKey);
-                return Keys.PrivateKey;
+                using (TemporaryBytes privateKey = File.ReadAllBytes(privateKeyPath))
+                {
+                    Keys.PrivateKey = privateKey;
+                    return Keys.PrivateKey;
+                }
             }
             finally
             {
-                File.Delete(publicKey);
-                File.Delete(privateKey);
-                File.Delete(masterKey);
+                File.Delete(publicKeyPath);
+                File.Delete(privateKeyPath);
+                File.Delete(masterKeyPath);
             }
         }
 
@@ -188,11 +198,14 @@ namespace KPServices
         {
             string encryptPath = GetTool(ExeNames.Encrypt);
 
-            string publicKey = Path.GetTempFileName();
+            string publicKeyPath = Path.GetTempFileName();
 
             try
             {
-                File.WriteAllBytes(publicKey, Keys.PublicKey);
+                using (TemporaryBytes publicKey = Keys.PublicKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                }
 
                 Process encryptProcess = new Process
                 {
@@ -200,7 +213,7 @@ namespace KPServices
                     {
                         FileName = encryptPath,
                         Arguments =
-                            $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{sourceFilePath}\" {attributes}"
+                            $"{(deleteSourceFile ? "" : "--keep-input-file")} --output \"{destFilePath}\" \"{publicKeyPath}\" \"{sourceFilePath}\" {attributes}"
                     }
                 };
                 PrepareProcessStart(encryptProcess.StartInfo);
@@ -231,7 +244,7 @@ namespace KPServices
             }
             finally
             {
-                File.Delete(publicKey);
+                File.Delete(publicKeyPath);
             }
         }
 
@@ -243,21 +256,24 @@ namespace KPServices
         {
             string decryptPath = GetTool(ExeNames.Decrypt);
 
-            string publicKey = Path.GetTempFileName();
-            string privateKey = Path.GetTempFileName();
+            string publicKeyPath = Path.GetTempFileName();
+            string privateKeyPath = Path.GetTempFileName();
 
             try
             {
-                File.WriteAllBytes(publicKey, Keys.PublicKey);
-                File.WriteAllBytes(privateKey, Keys.PrivateKey);
-
+                using (TemporaryBytes publicKey = Keys.PublicKey, privateKey = Keys.PrivateKey)
+                {
+                    File.WriteAllBytes(publicKeyPath, publicKey);
+                    File.WriteAllBytes(privateKeyPath, privateKey);
+                }
+                
                 Process decryptProcess = new Process
                 {
                     StartInfo =
                     {
                         FileName = decryptPath,
                         Arguments =
-                            $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKey}\" \"{privateKey}\" \"{sourceFilePath}\""
+                            $"{(deleteSourceFile ? "" : " --keep-input-file")} --output \"{destFilePath}\" \"{publicKeyPath}\" \"{privateKeyPath}\" \"{sourceFilePath}\""
                     }
                 };
                 PrepareProcessStart(decryptProcess.StartInfo);
@@ -280,8 +296,8 @@ namespace KPServices
             }
             finally
             {
-                File.Delete(publicKey);
-                File.Delete(privateKey);
+                File.Delete(publicKeyPath);
+                File.Delete(privateKeyPath);
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using KPServices;
 using MahApps.Metro.IconPacks;
 
 namespace KPClient
@@ -22,7 +23,6 @@ namespace KPClient
         public SharedImage(string name, SharedArea sharedArea)
         {
             SetDefaultThumbnail();
-            // ReSharper disable once VirtualMemberCallInConstructor
             Name = name;
             SharedArea = sharedArea;
         }
@@ -37,16 +37,15 @@ namespace KPClient
             if (!await IsPolicyVerified())
                 return;
 
-            var thumbnailBytes = await GetThumbnailBytes();
+            SecureBytes thumbnailBytes = await GetThumbnailBytes();
 
             if (thumbnailBytes == null)
             {
                 Console.WriteLine($"Cannot decrypt: {Name}");
                 return;
             }
-            
-            MemoryStream ms = new MemoryStream(thumbnailBytes);
 
+            MemoryStream ms = new MemoryStream(thumbnailBytes.ProtectedBytes);
             BitmapImage thumbnail = new BitmapImage();
             await Dispatcher.InvokeAsync(() =>
             {
@@ -54,7 +53,6 @@ namespace KPClient
                 thumbnail.StreamSource = ms;
                 thumbnail.EndInit();
             });
-
             Thumbnail = thumbnail;
         }
 
@@ -85,40 +83,45 @@ namespace KPClient
 
         public override bool IsValid => File.Exists(ImagePath) && File.Exists(KeysPath);
 
-        private Task<byte[]> _thumbnailBytesTask;
-        public async Task<byte[]> GetThumbnailBytes()
+        private Task<SecureBytes> thumbnailBytesTask;
+        public async Task<SecureBytes> GetThumbnailBytes()
         {
-            if (_thumbnailBytesTask == null)
+            if (thumbnailBytesTask == null)
             {
                 ItemKeys itemKeys = await ItemKeys;
-                _thumbnailBytesTask = GetDecryptedBytes(ThumbnailPath, itemKeys.ThumbnailKey);
+                thumbnailBytesTask = GetDecryptedBytes(ThumbnailPath, itemKeys.ThumbnailKey);
             }
 
-            return await _thumbnailBytesTask;
+            return await thumbnailBytesTask;
         }
 
 
-        private Task<byte[]> _imageBytesTask;
-        public async Task<byte[]> GetImageBytes()
+        private Task<SecureBytes> imageBytesTask;
+        public async Task<SecureBytes> GetImageBytes()
         {
-            if (_imageBytesTask == null)
+            if (imageBytesTask == null)
             {
                 ItemKeys itemKeys = await ItemKeys;
-                _imageBytesTask = GetDecryptedBytes(ImagePath, itemKeys.ImageKey);
+                imageBytesTask = GetDecryptedBytes(ImagePath, itemKeys.ImageKey);
             }
 
-            return await _imageBytesTask;
+            return await imageBytesTask;
         }
 
-        protected static async Task<byte[]> GetDecryptedBytes(string filePath, SymmetricKey key)
+        protected static async Task<SecureBytes> GetDecryptedBytes(string filePath, SymmetricKey key)
         {
             try
             {
-                using (Stream inputStream = new FileStream(filePath, FileMode.Open),
-                    outputStream = new MemoryStream())
+                using (FileStream fs = new FileStream(filePath, FileMode.Open))
                 {
-                    await key.Decrypt(inputStream, outputStream);
-                    return ((MemoryStream) outputStream).ToArray();
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        await key.Decrypt(inputStream: fs, outputStream: ms);
+                        using (TemporaryBytes tb = ms.GetBuffer())
+                        {
+                            return new SecureBytes{ProtectedBytes = tb};
+                        }
+                    }
                 }
             }
             catch (Exception ex)
