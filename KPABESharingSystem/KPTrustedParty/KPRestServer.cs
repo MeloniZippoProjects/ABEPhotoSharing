@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using Grapevine.Interfaces.Server;
 using Grapevine.Server;
@@ -206,7 +207,7 @@ namespace KPTrustedParty
                     kpRestResponse = new KpRestResponse
                     {
                         Error = "none",
-                        Content = Convert.ToBase64String(user.PrivateKey),
+                        Content = Convert.ToBase64String(ProtectedData.Unprotect(user.PrivateKey, null, DataProtectionScope.CurrentUser)),
                         ContentDescription = "User Private Key"
                     };
                     response.StatusCode = HttpStatusCode.Ok;

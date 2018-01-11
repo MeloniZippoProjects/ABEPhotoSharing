@@ -13,7 +13,7 @@ namespace KPTrustedParty.Database
         public class KpDatabaseContext : DbContext
         {
             private static readonly string DbConnectionString = @"Data Source=(LocalDb)\mssqllocaldb;" +
-                                                       "Initial Catalog=database;Integrated Security=SSPI;" +
+                                                       "Initial Catalog=kpdatabase2;Integrated Security=SSPI;" +
                                                        "AttachDBFilename=" + Directory.GetCurrentDirectory() +
                                                        @"\KPDatabase.mdf";
 

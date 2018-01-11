@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using Grapevine.Server;
 using KPServices;
@@ -21,8 +22,8 @@ namespace KPTrustedParty
             {
                 KpDatabase.InsertUniverse(
                     Universe.ToString(),
-                    masterKey,
-                    publicKey);
+                    ProtectedData.Protect(masterKey, null, DataProtectionScope.CurrentUser),
+                    ProtectedData.Protect(publicKey, null, DataProtectionScope.CurrentUser));
             }
         }
         
@@ -58,7 +59,7 @@ namespace KPTrustedParty
         {
             Settings settings = Settings.Default;
             restServer.Port = settings.ServerPort.ToString();
-            restServer.UseHttps = true;
+            restServer.UseHttps = false;
             restServer.Host = settings.ServerHost;
         }
 
@@ -74,8 +75,8 @@ namespace KPTrustedParty
             if (dbLatestUniverse != null)
             {
                 KpService.Universe = Universe.FromString(dbLatestUniverse.UniverseString);
-                KpService.Keys.MasterKey = dbLatestUniverse.MasterKey;
-                KpService.Keys.PublicKey = dbLatestUniverse.PublicKey;
+                KpService.Keys.MasterKey = ProtectedData.Unprotect(dbLatestUniverse.MasterKey, null, DataProtectionScope.CurrentUser);
+                KpService.Keys.PublicKey = ProtectedData.Unprotect(dbLatestUniverse.PublicKey, null, DataProtectionScope.CurrentUser);
             }
             else
             {

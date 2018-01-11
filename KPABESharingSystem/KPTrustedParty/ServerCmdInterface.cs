@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Grapevine.Server;
 using KPServices;
@@ -127,7 +129,8 @@ namespace KPTrustedParty
                             using (TemporaryBytes privateKey = KpService.Keygen(policy))
                             {
                                 KpDatabase.SetUserPolicy(username, policy);
-                                KpDatabase.SetUserPrivateKey(username, privateKey);
+                                KpDatabase.SetUserPrivateKey(username,
+                                    ProtectedData.Protect(privateKey, null, DataProtectionScope.CurrentUser));
                             }
                         }
                         catch (AttributeNotFound)
@@ -145,6 +148,10 @@ namespace KPTrustedParty
                         catch (FileNotFoundException)
                         {
                             Console.WriteLine("FATAL: can't find file created right now");
+                        }
+                        catch (KeygenException ex)
+                        {
+                            Console.WriteLine(ex.Message);
                         }
 
                         break;
