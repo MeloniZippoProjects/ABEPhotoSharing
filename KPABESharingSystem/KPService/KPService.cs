@@ -178,7 +178,7 @@ namespace KPServices
 
         public void Encrypt(
             SecureFile sourceFilePath,
-            SecureFile destFilePath,
+            string destFilePath,
             string attributes,
             bool deleteSourceFile = false)
         {
@@ -229,9 +229,8 @@ namespace KPServices
         }
 
         public void Decrypt(
-            SecureFile sourceFilePath,
+            string sourceFilePath,
             SecureFile destFilePath,
-            
             bool deleteSourceFile = false)
         {
             string decryptPath = GetTool(ExeNames.Decrypt);
