@@ -1,0 +1,6 @@
+﻿namespace KPServices
+{
+    class Policy
+    {
+    }
+}

@@ -1,0 +1,122 @@
+﻿<Window x:Class="KPClient.UploadImagesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KPClient"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Title="Upload images" Height="500" Width="840"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid
+        VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0">Images to upload</Label>
+        <ScrollViewer
+            Grid.Row="1"
+            Margin="5">
+            <ItemsControl
+                Name="ImagesToUploadControl"
+                MinHeight="50"
+                ItemsSource="{Binding Path=ImageItems}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="3"
+                              Height="100"
+                              Width="100">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="4*" />
+                            </Grid.RowDefinitions>
+
+                            <Image
+                                Grid.RowSpan="2"
+                                Grid.ColumnSpan="2"
+                                Source="{Binding Thumbnail}" />
+                            <local:ImageItemButton
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Item="{Binding}"
+                                Content="{iconPacks:PackIconModern Close}"
+                                BorderBrush="Transparent"
+                                Background="Transparent"
+                                Click="RemoveButton_OnClick" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Grid
+            Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0">
+                Upload defaultName:
+            </Label>
+            <TextBox Grid.Column="1"
+                     Name="NameTextBox"
+                     Margin="4"
+                     MinHeight="20"
+                     TextChanged="NameTextBox_OnTextChanged"/>
+        </Grid>
+        
+        <local:TagsSelector
+            x:Name="TagsSelector"
+            Grid.Row="3" />
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="5" />
+                </Style>
+            </Grid.Resources>
+
+            <Button
+                Name="AddImagesButton"
+                Grid.Column="0" Click="AddImagesButton_Click">
+                Add images
+            </Button>
+            <Button
+                Name="ClearAllButton"
+                Grid.Column="1"
+                IsEnabled="False"
+                Click="ClearAllButton_Click">
+                Clear all
+            </Button>
+            <Button
+                Name="UploadButton"
+                Grid.Column="2"
+                IsEnabled="False"
+                Click="UploadButton_OnClick">
+                Upload
+            </Button>
+        </Grid>
+
+    </Grid>
+</Window>
