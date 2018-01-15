@@ -80,9 +80,25 @@ namespace KPTrustedParty.Database
             }
         }
 
+        public static bool RemoveUser(string username)
+        {
+            using (var db = new KpDatabaseContext())
+            {
+                var targetUser = db.Users.Find(username);
+                if (targetUser != null)
+                {
+                    db.Users.Remove(targetUser);
+                    db.SaveChanges();
+                }
+
+                
+                return targetUser != null;
+            }
+        }
+
         public static User AuthenticateUser(string username, string password)
         {
-            using (KpDatabaseContext db = new KpDatabaseContext())
+            using (var db = new KpDatabaseContext())
             {
                 User targetUser = db.Users.Find(username);
                 if (targetUser == null)

@@ -20,13 +20,20 @@ namespace KPTrustedParty.Database
         {
             private static readonly string DbConnectionString = @"Data Source=(LocalDb)\mssqllocaldb;" +
                                                        "Initial Catalog=" + DatabaseName +";Integrated Security=SSPI;" +
-                                                       "AttachDBFilename=" + Directory.GetCurrentDirectory() +
-                                                       DatabaseFile;
+                                                       "AttachDBFilename=" + Path.Combine(Directory.GetCurrentDirectory(),DatabaseFile);
 
             
             public KpDatabaseContext() : base(DbConnectionString)
             {
                 System.Data.Entity.Database.SetInitializer<KpDatabaseContext>(new CreateDatabaseIfNotExists<KpDatabaseContext>());
+            }
+
+            protected override void OnModelCreating(DbModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Token>()
+                    .HasRequired(d => d.User)
+                    .WithOptional(u => u.Token)
+                    .WillCascadeOnDelete(true);
             }
 
             public DbSet<User> Users { get; set; }

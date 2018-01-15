@@ -115,6 +115,28 @@ namespace KPTrustedParty
                         break;
                     }
 
+                    case "removeUser":
+                    case "deleteUser":
+                    {
+                        if (!ArgumentCountCheck(args, 1))
+                            break;
+                        string username = args[0];
+
+                        Console.Write(
+                            @"This operation is not revertible, are you sure you want to " +
+                            $"delete the user {username}? [Y/N]: ");
+                        string answer = Console.ReadLine();
+                        if (answer != "Y")
+                        {
+                            Console.WriteLine("Delete not confirmed.");
+                            break;
+                        }
+
+                        bool deleted = KpDatabase.RemoveUser(username);
+                        Console.WriteLine(deleted ? "User succesfully deleted." : "This user does not exist.");
+                        break;
+                    }
+
                     case "setPolicy":
                     case "s":
                     {
@@ -338,6 +360,10 @@ LIST USERS
 REGISTER USER
     {r, registerUser} username, password
         Creates a new User without any policy, with the specified username and password. 
+
+REMOVE USER
+    {removeUser, deleteUser} username
+        Deletes the User with the given username
 
 SET POLICY
     {s, setPolicy} username, policy
