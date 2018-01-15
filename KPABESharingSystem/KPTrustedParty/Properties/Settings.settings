@@ -12,7 +12,7 @@
       <Value Profile="(Default)">+</Value>
     </Setting>
     <Setting Name="SaltedHashIterations" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100000</Value>
+      <Value Profile="(Default)">20000</Value>
     </Setting>
     <Setting Name="PasswordHashSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">256</Value>
