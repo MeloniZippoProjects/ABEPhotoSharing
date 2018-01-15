@@ -59,7 +59,7 @@ namespace KPTrustedParty
         {
             Settings settings = Settings.Default;
             restServer.Port = settings.ServerPort.ToString();
-            restServer.UseHttps = false;
+            restServer.UseHttps = settings.UseHttps;
             restServer.Host = settings.ServerHost;
         }
 

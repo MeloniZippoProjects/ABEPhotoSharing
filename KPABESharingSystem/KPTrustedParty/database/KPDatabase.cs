@@ -11,15 +11,17 @@ namespace KPTrustedParty.Database
     {
         private static readonly RNGCryptoServiceProvider RngCsp = new RNGCryptoServiceProvider();
 
-        private static int PasswordHashSize = Settings.Default.PasswordHashSize;
-        private static int SaltedHashIterations = Settings.Default.SaltedHashIterations;
+        private static readonly int PasswordHashSize = Settings.Default.PasswordHashSize;
+        private static readonly int SaltedHashIterations = Settings.Default.SaltedHashIterations;
+        private static readonly string DatabaseName = Settings.Default.DatabaseName;
+        private static readonly string DatabaseFile = Settings.Default.DatabaseFile;
 
         public class KpDatabaseContext : DbContext
         {
             private static readonly string DbConnectionString = @"Data Source=(LocalDb)\mssqllocaldb;" +
-                                                       "Initial Catalog=kpdatabase2;Integrated Security=SSPI;" +
+                                                       "Initial Catalog=" + DatabaseName +";Integrated Security=SSPI;" +
                                                        "AttachDBFilename=" + Directory.GetCurrentDirectory() +
-                                                       @"\KPDatabase.mdf";
+                                                       DatabaseFile;
 
             
             public KpDatabaseContext() : base(DbConnectionString)

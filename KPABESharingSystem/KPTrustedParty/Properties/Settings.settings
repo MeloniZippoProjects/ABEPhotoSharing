@@ -12,10 +12,19 @@
       <Value Profile="(Default)">+</Value>
     </Setting>
     <Setting Name="SaltedHashIterations" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1000</Value>
+      <Value Profile="(Default)">100000</Value>
     </Setting>
     <Setting Name="PasswordHashSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">256</Value>
+    </Setting>
+    <Setting Name="DatabaseName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">kpabe_database</Value>
+    </Setting>
+    <Setting Name="DatabaseFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">KPDatabase.mdf</Value>
+    </Setting>
+    <Setting Name="UseHttps" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
