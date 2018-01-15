@@ -79,7 +79,7 @@ namespace KPClient
             KpRestClient = new KpRestClient(
                 host: settings.ServerAddress,
                 port: settings.ServerPort,
-                useHttps: true
+                useHttps: settings.UseHttps
             );
 
             LoginForm loginForm = new LoginForm();
