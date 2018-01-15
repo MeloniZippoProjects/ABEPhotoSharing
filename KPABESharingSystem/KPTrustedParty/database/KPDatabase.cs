@@ -1,14 +1,18 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using KPTrustedParty.Properties;
 
 namespace KPTrustedParty.Database
 {
     public partial class KpDatabase
     {
         private static readonly RNGCryptoServiceProvider RngCsp = new RNGCryptoServiceProvider();
-        private static readonly SHA256 Sha256 = SHA256.Create();
+
+        private static int PasswordHashSize = Settings.Default.PasswordHashSize;
+        private static int SaltedHashIterations = Settings.Default.SaltedHashIterations;
 
         public class KpDatabaseContext : DbContext
         {
@@ -17,6 +21,7 @@ namespace KPTrustedParty.Database
                                                        "AttachDBFilename=" + Directory.GetCurrentDirectory() +
                                                        @"\KPDatabase.mdf";
 
+            
             public KpDatabaseContext() : base(DbConnectionString)
             {
                 System.Data.Entity.Database.SetInitializer<KpDatabaseContext>(new CreateDatabaseIfNotExists<KpDatabaseContext>());
