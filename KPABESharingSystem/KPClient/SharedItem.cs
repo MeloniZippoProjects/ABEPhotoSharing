@@ -79,23 +79,36 @@ namespace KPClient
 
         protected virtual async Task<ItemKeys> GetItemKeys()
         {
-            using(SecureFile decryptedKeyPath = Path.GetTempFileName())
+            try
             {
-                App app = (App) Application.Current;
-                app.KpService.Decrypt(
-                    sourceFilePath: KeysPath,
-                    destFilePath: decryptedKeyPath);
-
-                using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
+                using (SecureFile decryptedKeyPath = Path.GetTempFileName())
                 {
-                    using (StreamReader sr = new StreamReader(fs))
+                    App app = (App) Application.Current;
+                    app.KpService.Decrypt(
+                        sourceFilePath: KeysPath,
+                        destFilePath: decryptedKeyPath);
+
+                    using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
                     {
-                        string serializedKeys = await sr.ReadToEndAsync();
-                        ItemKeys itemKeys = await Task.Run(() =>
-                            JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
-                        return itemKeys;
+                        using (StreamReader sr = new StreamReader(fs))
+                        {
+                            string serializedKeys = await sr.ReadToEndAsync();
+                            ItemKeys itemKeys = await Task.Run(() =>
+                                JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
+                            return itemKeys;
+                        }
                     }
                 }
+            }
+            catch (DecryptException)
+            {
+                return null;
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"{ex.Message} , {ex.TargetSite}");
+                Environment.Exit(0);
+                return null;
             }
         }
 
