@@ -95,10 +95,19 @@ namespace KPClient
                             string serializedKeys = await sr.ReadToEndAsync();
                             ItemKeys itemKeys = await Task.Run(() =>
                                 JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
+
                             return itemKeys;
                         }
                     }
                 }
+            }
+            catch (JsonReaderException ex)
+            {
+                MessageBox.Show($"Error decrypting file \"{Name}\". \n" +
+                                $"Possible problems:\n" +
+                                $"    - The file is encrypted from a different shared folder\n" +
+                                $"    - The file is corrupted", "Decrypting error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
             }
             catch (DecryptException)
             {
@@ -106,7 +115,7 @@ namespace KPClient
             }
             catch(Exception ex)
             {
-                MessageBox.Show($"{ex.Message} , {ex.TargetSite}");
+                MessageBox.Show($"{ex.Message} , {ex.TargetSite}", "Unknown Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
                 return null;
             }
