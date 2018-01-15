@@ -126,7 +126,10 @@ namespace KPClient
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Something went wrong: {ex}");
+                MessageBox.Show($"Something went wrong: {ex}",
+                    "Unexpected Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return null;
             }
         }

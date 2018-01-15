@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity.Validation;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace KPTrustedParty.Database
@@ -53,8 +54,9 @@ namespace KPTrustedParty.Database
             RngCsp.GetBytes(salt);
             newUser.Salt = salt;
 
-            byte[] toHash = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(salt) + password);
-            newUser.SaltedPasswordHash = Sha256.ComputeHash(toHash);
+            var passwordHashAlgorithm = new Rfc2898DeriveBytes(password: password, salt: salt,
+                iterations: SaltedHashIterations);
+            newUser.SaltedPasswordHash = passwordHashAlgorithm.GetBytes(PasswordHashSize);
 
             try
             {
@@ -89,9 +91,11 @@ namespace KPTrustedParty.Database
                 byte[] salt = targetUser.Salt;
                 byte[] hashedPassword = targetUser.SaltedPasswordHash;
 
-                byte[] toHash = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(salt) + password);
-                byte[] hashed = Sha256.ComputeHash(toHash);
-                return hashed.SequenceEqual(hashedPassword) ? targetUser : null;
+                var passwordHashAlgorithm = new Rfc2898DeriveBytes(password: password, salt: salt,
+                    iterations: SaltedHashIterations);
+
+                byte[] hashedInput = passwordHashAlgorithm.GetBytes(PasswordHashSize);
+                return hashedInput.SequenceEqual(hashedPassword) ? targetUser : null;
             }
         }
 

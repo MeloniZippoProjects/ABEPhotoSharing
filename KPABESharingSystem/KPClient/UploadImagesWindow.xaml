@@ -70,8 +70,8 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0">
-                Upload defaultName:
+            <Label Grid.Column="0" Height="28" VerticalAlignment="Bottom">
+                Uploaded file name:
             </Label>
             <TextBox Grid.Column="1"
                      Name="NameTextBox"

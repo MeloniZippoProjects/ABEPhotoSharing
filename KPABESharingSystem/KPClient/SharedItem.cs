@@ -79,23 +79,48 @@ namespace KPClient
 
         protected virtual async Task<ItemKeys> GetItemKeys()
         {
-            using(SecureFile decryptedKeyPath = Path.GetTempFileName())
+            try
             {
-                App app = (App) Application.Current;
-                app.KpService.Decrypt(
-                    sourceFilePath: KeysPath,
-                    destFilePath: decryptedKeyPath);
-
-                using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
+                using (SecureFile decryptedKeyPath = Path.GetTempFileName())
                 {
-                    using (StreamReader sr = new StreamReader(fs))
+                    App app = (App) Application.Current;
+                    app.KpService.Decrypt(
+                        sourceFilePath: KeysPath,
+                        destFilePath: decryptedKeyPath);
+
+                    using (FileStream fs = new FileStream(decryptedKeyPath, FileMode.Open))
                     {
-                        string serializedKeys = await sr.ReadToEndAsync();
-                        ItemKeys itemKeys = await Task.Run(() =>
-                            JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
-                        return itemKeys;
+                        using (StreamReader sr = new StreamReader(fs))
+                        {
+                            string serializedKeys = await sr.ReadToEndAsync();
+                            ItemKeys itemKeys = await Task.Run(() =>
+                                JsonConvert.DeserializeObject<ItemKeys>(serializedKeys));
+
+                            return itemKeys;
+                        }
                     }
                 }
+            }
+            catch (JsonReaderException ex)
+            {
+                MessageBox.Show($"Error decrypting file \"{Name}\". \n" +
+                                $"Possible problems:\n" +
+                                $"    - The file is encrypted from a different shared folder\n" +
+                                $"    - The file is corrupted", 
+                    "Decrypting error", 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Error);
+                return null;
+            }
+            catch (DecryptException)
+            {
+                return null;
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"{ex.Message} , {ex.TargetSite}", "Unknown Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(0);
+                return null;
             }
         }
 
