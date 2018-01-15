@@ -106,7 +106,10 @@ namespace KPClient
                 MessageBox.Show($"Error decrypting file \"{Name}\". \n" +
                                 $"Possible problems:\n" +
                                 $"    - The file is encrypted from a different shared folder\n" +
-                                $"    - The file is corrupted", "Decrypting error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                $"    - The file is corrupted", 
+                    "Decrypting error", 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Error);
                 return null;
             }
             catch (DecryptException)

@@ -27,7 +27,8 @@ namespace KPClient
             KpService.SuitePath = settings.KPSuitePath;
             while (!KpService.ValidClientSuite)
             {
-                MessageBox.Show("Invalid path for the kpabe suite!");
+                MessageBox.Show("Invalid path for the kpabe suite! Choose the path for a valid KPABE installation", 
+                    "Invalid KPABE Suite", MessageBoxButton.OK, MessageBoxImage.Warning);
                 using (FolderBrowserDialog fbd = new FolderBrowserDialog())
                 {
                     DialogResult result = fbd.ShowDialog();
@@ -63,7 +64,7 @@ namespace KPClient
             }
 
 #if DEBUG
-            MessageBox.Show($"Universe is: {((App)Current).Universe}");
+            MessageBox.Show($"Universe is: {((App)Current).Universe}", "Universe found", MessageBoxButton.OK, MessageBoxImage.Information);
 #endif
 
             MainWindow mainWindow = new MainWindow();
@@ -92,7 +93,10 @@ namespace KPClient
             {
                 if (Universe == null || publicKey.Bytes == null || privateKey.Bytes == null)
                 {
-                    MessageBox.Show("Incorrect user configuration!\nContact administrator for the system");
+                    MessageBox.Show("Incorrect user configuration!\nContact administrator for the system. The application will now be closed.",
+                        "Bad user configuration!",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                     Environment.Exit(0);
                 }
 
