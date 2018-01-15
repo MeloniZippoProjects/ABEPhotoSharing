@@ -101,7 +101,7 @@ namespace KPClient
                     }
                 }
             }
-            catch (JsonReaderException ex)
+            catch (JsonReaderException)
             {
                 MessageBox.Show($"Error decrypting file \"{Name}\". \n" +
                                 $"Possible problems:\n" +
