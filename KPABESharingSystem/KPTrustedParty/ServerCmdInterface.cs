@@ -15,7 +15,7 @@ namespace KPTrustedParty
     {
         static readonly Regex CmdArgumentFormat =
             new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=)\\s(\\d+)\\s#\\s\\d+)?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
-        
+
         private static void CommandLineLoop()
         {
             while (true)
@@ -144,7 +144,11 @@ namespace KPTrustedParty
                             break;
 
                         string username = args[0];
-                        string policy = args[1];
+
+                        //The parsing of a policy is redone here because too complex to generalize
+                        Regex policyRegex = new Regex(@"([""'])(?<policy>(?:(?=(\\?))\2.)*?)\1");
+                        string policy = policyRegex.Match(commandLine)?.Groups["policy"]?.Value;
+
                         try
                         {
                             //todo: we could do some parsing just to make the policy syntax more flexible
