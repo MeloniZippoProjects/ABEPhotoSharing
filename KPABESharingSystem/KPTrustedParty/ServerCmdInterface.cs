@@ -14,7 +14,7 @@ namespace KPTrustedParty
     partial class TpServer
     {
         static readonly Regex CmdArgumentFormat =
-            new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=))?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
+            new Regex("(?<quote>['\"])?(?<argument>((\\w+(\\s(=|<|>|<=|>=)\\s(\\d+)\\s#\\s\\d+)?)+(?(1)\\s)?)+)(?(quote)['\"]) ");
         
         private static void CommandLineLoop()
         {

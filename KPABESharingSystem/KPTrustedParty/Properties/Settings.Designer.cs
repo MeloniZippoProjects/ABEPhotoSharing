@@ -61,7 +61,7 @@ namespace KPTrustedParty.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
         public int SaltedHashIterations {
             get {
                 return ((int)(this["SaltedHashIterations"]));
